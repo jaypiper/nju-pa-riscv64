@@ -10,11 +10,11 @@
 // reg
 
 typedef struct {
-  struct {
+  union {
     rtlreg_t _64;
   } gpr[32];
   vaddr_t pc;
-  struct {
+  union {
     rtlreg_t _64;
   }csr[6];
 } riscv64_CPU_state;
