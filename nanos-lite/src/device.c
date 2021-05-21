@@ -54,7 +54,7 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   // printf("x: %d, y: %d len: %d offset: %d\n", x, y, len, offset);
   // int left = _config.width - (offset % _config.width);
   // size_t i = 0;
-  assert(offset + len <= _config.width * _config.height * 4);
+  assert(offset + len <= _config.width * _config.height);
   io_write(AM_GPU_FBDRAW, x, y, (void*)buf, len, 1, true);
   // const uint32_t* pixels = buf;
   // while(i < len){
