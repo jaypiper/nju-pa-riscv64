@@ -62,7 +62,7 @@ static uint64_t get_time() {
   uint32_t useconds = now.tv_usec;
   return seconds * 1000 + (useconds + 500) / 1000;
 }
-
+bool check_watchpoint();
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
   switch (nemu_state.state) {
@@ -89,6 +89,7 @@ void cpu_exec(uint64_t n) {
     asm_print(this_pc, seq_pc - this_pc, n < MAX_INSTR_TO_PRINT);
 
     /* TODO: check watchpoints here. */
+    if(check_watchpoint()) nemu_state.state = NEMU_STOP;
 #endif
 
 #ifdef HAS_IOE
