@@ -3,7 +3,7 @@
 
 // decode operand helper
 #define def_DopHelper(name) \
-  void concat(decode_op_, name) (DecodeExecState *s, Operand *op, word_t val, bool load_val)
+  void concat(decode_op_, name) (DecodeExecState *s, Operand *op, uint32_t val, bool load_val)
 
 static inline def_DopHelper(i) {
   op->type = OP_TYPE_IMM;
@@ -17,7 +17,7 @@ static inline def_DopHelper(r) {
   op->reg = val;
   op->preg = &reg_l(val);
 
-  print_Dop(op->str, OP_STR_SIZE, "%s", reg_name(op->reg));
+  print_Dop(op->str, OP_STR_SIZE, "%s", reg_name(op->reg, 4));
 }
 
 static inline def_DHelper(I) {

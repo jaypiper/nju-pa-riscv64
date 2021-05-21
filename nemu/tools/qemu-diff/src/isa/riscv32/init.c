@@ -6,29 +6,28 @@ bool gdb_setregs(union isa_gdb_regs *);
 void difftest_exec(uint64_t n);
 
 static uint32_t initcode[] = {
-  0xfff00513,  // 00:  li	a0,-1
-  0x01f00593,  // 04:  li	a1,31
-  0x30251073,  // 08:  csrw	medeleg,a0
+  0x800006b7,  // lui a3,0x8000
+  0x03c68693,  // addi a3,a3,0x3c # 800003c
+  0x30569073,  // csrw mtvec,a3
 
-  0x00000697,  // 0c:  auipc	a3,0x0
-  0x01468693,  // 10:  addi	a3,a3,20 # 80000020 <here>
-  0x30569073,  // 14:  csrw	mtvec,a3
-  0x3b051073,  // 18:  csrw	pmpaddr0,a0
-  0x3a059073,  // 1c:  csrw	pmpcfg0,a1
+  0xfff00513,  // li a0, -1
+  0x01f00593,  // li a1, 31
+  0x3b051073,  // csrw pmpaddr0, a0
+  0x3a059073,  // csrw pmpcfg0, a1
+
+  0x000c1637,  // lui a2,0xc2       # c0001
+  0x80060613,  // addi a2,a2,-2048  # c0800
+  0x30061073,  // csrw mstatus,a2
+
+  0x00468693,  // addi a3,a3,0x10 # 8000040
+  0x34169073,  // csrw mepc,a3
+
+  0x30251073,  // csrw medeleg, a0
+
+  0x30200073,  // mret
 
 // here:
-  0x000c1637,  // 20:  lui	a2,0xc1
-  0x80060613,  // 24:  addi	a2,a2,-2048 # c0800
-  0x30061073,  // 28:  csrw	mstatus,a2
-
-  0x00000697,  // 2c:  auipc	a3,0x0
-  0x01068693,  // 30:  addi	a3,a3,16 # 8000003c <spin>
-  0x34169073,  // 34:  csrw	mepc,a3
-
-  0x30200073,  // 38:  mret
-
-// spin:
-  0x0000006f,  // 3c:  j	8000003c <spin>
+  0x0000006f,  // j here # spin
   0x0000006f,  // # spin
   0x0000006f,  // # spin
   0x0000006f,  // # spin

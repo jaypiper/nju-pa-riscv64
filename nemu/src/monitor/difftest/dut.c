@@ -112,3 +112,4 @@ void difftest_step(vaddr_t this_pc, vaddr_t next_pc) {
 
   checkregs(&ref_r, this_pc);
 }
+

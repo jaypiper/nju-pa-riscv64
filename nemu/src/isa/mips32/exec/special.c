@@ -1,7 +1,6 @@
 #include <cpu/exec.h>
 #include <monitor/monitor.h>
 #include <monitor/difftest.h>
-#include "../local-include/reg.h"
 
 def_EHelper(inv) {
   /* invalid opcode */
@@ -24,7 +23,7 @@ def_EHelper(inv) {
 def_EHelper(nemu_trap) {
   difftest_skip_ref();
 
-  rtl_exit(NEMU_END, cpu.pc, reg_l(2)); // grp[2] is $v0
+  rtl_exit(NEMU_END, cpu.pc, cpu.gpr[2]._32); // grp[2] is $v0
 
   print_asm("nemu trap");
   return;
