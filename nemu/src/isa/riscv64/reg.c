@@ -9,8 +9,33 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
+  for(int i = 0; i < 32; i++){
+    printf("%-4s    %016lx    %lu\n", regs[i], reg_d(i), reg_d(i));
+    // if(i % 2) printf("\n");
+    // else printf("      ");
+  }
+  printf("pc      %16lx    %lu\n", cpu.pc, cpu.pc);
+  // printf("cause   %16lx    \n", reg_scr(SCAUSE_ID));
+  // printf("status  %16lx    \n", reg_scr(SSTATUS_ID));
+  // printf("epc     %16lx    \n", reg_scr(SEPC_ID));
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
+  assert(strlen(s) >= 1);
+  if(strcmp(s, "$0") == 0) {
+    *success = 1;
+    return reg_d(0);
+  }
+  for(int i = 1; i < 32; i++){
+    if(strcmp(s+1, regs[i]) == 0){
+      *success = 1;
+      return reg_d(i);
+    }
+  }
+  if(strcmp(s+1, "pc") == 0){
+    *success = 1;
+    return cpu.pc;
+  }
+  assert(0);
   return 0;
 }
