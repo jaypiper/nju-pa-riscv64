@@ -86,9 +86,10 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 
 void difftest_step(vaddr_t this_pc, vaddr_t next_pc) {
   CPU_state ref_r;
-
+  printf("here\n");
   if (skip_dut_nr_instr > 0) {
     ref_difftest_getregs(&ref_r);
+    printf("here2\n");
     if (ref_r.pc == next_pc) {
       checkregs(&ref_r, next_pc);
       skip_dut_nr_instr = 0;
