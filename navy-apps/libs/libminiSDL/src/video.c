@@ -42,7 +42,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     }
   }
   else assert(0);
-  // SDL_UpdateRect(dst, dst_x, dst_y, src_w, src_h);
+  SDL_UpdateRect(dst, dst_x, dst_y, src_w, src_h);
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
@@ -81,6 +81,7 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
     }
   }
   else assert(0);
+  SDL_UpdateRect(dst, dst_x, dst_y, dst_w, dst_h);
 }
 
 uint32_t _pixel[400*300];
