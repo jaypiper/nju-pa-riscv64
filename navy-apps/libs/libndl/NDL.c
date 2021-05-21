@@ -34,7 +34,9 @@ void NDL_OpenCanvas(int *w, int *h) {
   // char buf[128];
   // fgets(buf, 128, fp);
   // printf("buf: %s\n", buf);
+  printf("before\n");
   fscanf(fp, "WIDTH: %d\nHEIGHT: %d", &screen_w, &screen_h);
+  printf("adter\n");
   printf("%d %d\n", screen_w, screen_h);
   fclose(fp);
   if(*w == 0 && *h == 0){
