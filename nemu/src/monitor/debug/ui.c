@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/paddr.h>
 
 void cpu_exec(uint64_t);
 int is_batch_mode();
@@ -37,6 +38,59 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_x(char *args){  
+  char* N = strtok(args, " ");
+  int n_val = atoi(N);
+  char* EXPR = N + strlen(N) + 1;
+  bool success = false;
+  paddr_t _addr = expr(EXPR, &success);
+  if(!_addr) printf("wrong address format\n");
+  int i = 1;
+  for( ; i <= n_val; i ++){
+    if(i % 4 == 1) printf("%08x: ", _addr);
+    printf("%08x", *((uint32_t*)paddr_read(_addr, 4)));
+    _addr += 4;
+    if(i % 4 == 0) printf("\n");
+    else printf(" ");
+  }
+  return 0;
+}
+
+static int cmd_si(char* args){
+  int num = 1;
+  if(args) num = atoi(args);
+  cpu_exec(num);
+  return 0;
+}
+
+static int cmd_p(char* args){
+  bool success = 0;
+  word_t pval = expr(args, &success);
+  if(!success) printf("wrong expression\n");
+  // assert(success);
+  printf("%lx  %lu\n", pval, pval);
+  return 0;
+}
+
+static int cmd_w(char* args){
+  WP* _wp = new_wp(args);
+  printf("Watchpoint %d  %s\n", _wp->NO, _wp->watch_inst);
+  return 0;
+}
+
+static int cmd_d(char* args){
+  WP* selected = find_wp(atoi(args));
+  free_wp(selected);
+  return 0;
+}
+
+static int cmd_info(char *args){
+  if(strcmp(args, "r") == 0) isa_reg_display();
+  else if(strcmp(args, "w") == 0) watchpoint_info();
+  else assert(0);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -47,7 +101,12 @@ static struct {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
+  { "info", "Display infomation about registers (info r) or watchpoints (info w)", cmd_info},
+  { "x", "Display the next N 4B starting from EXPR. Usage (x N EXPR)", cmd_x},
+  { "si", "Execute one instruction", cmd_si},
+  { "p", "Evaluate a given expression", cmd_p},
+  { "w", "Set a watchpoint", cmd_w},
+  { "d", "Delete a watchpoint", cmd_d}
   /* TODO: Add more commands */
 
 };
@@ -78,10 +137,12 @@ static int cmd_help(char *args) {
 }
 
 void ui_mainloop() {
+  #ifndef DEBUG
   if (is_batch_mode()) {
     cmd_c(NULL);
     return;
   }
+  #endif
 
   for (char *str; (str = rl_gets()) != NULL; ) {
     char *str_end = str + strlen(str);
