@@ -50,7 +50,7 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   
   int x = (offset/4) % _config.width;
   int y = (offset/4) / _config.width;
-  printf("x: %d, y: %d len: %d offset: %d\n", x, y, len, offset);
+  // printf("x: %d, y: %d len: %d offset: %d\n", x, y, len, offset);
   // int left = _config.width - (offset % _config.width);
   // size_t i = 0;
   assert(offset + len <= _config.width * _config.height * 4);
