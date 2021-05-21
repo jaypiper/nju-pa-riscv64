@@ -33,7 +33,7 @@ void NDL_OpenCanvas(int *w, int *h) {
   FILE* fp = fopen("/proc/dispinfo", "r");
 
   fscanf(fp, "WIDTH: %d\nHEIGHT: %d", &screen_w, &screen_h);
-  printf("%d %d\n", screen_w, screen_h);
+  // printf("%d %d\n", screen_w, screen_h);
   fclose(fp);
   if(*w == 0 && *h == 0){
     *w = screen_w; *h = screen_h;
