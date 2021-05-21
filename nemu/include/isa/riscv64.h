@@ -13,10 +13,10 @@ typedef struct {
   union {
     rtlreg_t _64;
   } gpr[32];
+  vaddr_t pc;
   union {
     rtlreg_t _64;
   }csr[6];
-  vaddr_t pc;
 } riscv64_CPU_state;
 
 // decode
