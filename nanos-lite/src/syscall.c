@@ -16,7 +16,7 @@ static int _sys_brk(int new_brk){
 
 static int _sys_time(){
   AM_TIMER_UPTIME_T _timer = io_read(AM_TIMER_UPTIME);
-  // printf("sys time %ld\n", _timer.us);
+  printf("sys time %ld\n", _timer.us);
   return _timer.us;
 }
 
