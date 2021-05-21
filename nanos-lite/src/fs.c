@@ -61,7 +61,7 @@ size_t fs_read(int fd, void* buf, size_t len){
 }
 
 size_t fs_write(int fd, const void* buf, size_t len){
-  // printf("fd %d, buf: %lx, count %d\n", fd, (intptr_t)buf, len);
+  printf("fd %d, buf: %lx, count %d\n", fd, (intptr_t)buf, len);
   int write_sz;
   if(file_table[fd].write == NULL){
     assert(file_table[fd].open_offset <= file_table[fd].size);
