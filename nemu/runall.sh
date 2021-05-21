@@ -28,7 +28,7 @@ for file in $files; do
   logfile=$base-log.txt
   make ISA=$ISA run ARGS="-b -l $ori_log $file" &> $logfile
 
-  if (grep 'nemu: .*HIT GOOD TRAP' $logfile > /dev/null) then
+  if (grep 'nemu: .*HIT GOOD TRAP' $logfile &> /dev/null) then
     echo -e "\033[1;32mPASS!\033[0m"
     rm $logfile
   else
