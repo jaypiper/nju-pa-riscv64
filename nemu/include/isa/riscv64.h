@@ -10,10 +10,10 @@
 // reg
 
 typedef struct {
+  vaddr_t pc;
   union {
     rtlreg_t _64;
   } gpr[32];
-  vaddr_t pc;
   union {
     rtlreg_t _64;
   }csr[6];
