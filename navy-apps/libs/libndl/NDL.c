@@ -29,7 +29,7 @@ int NDL_PollEvent(char *buf, int len) {
 }
 
 void NDL_OpenCanvas(int *w, int *h) {
-
+  printf("open\n");
   FILE* fp = fopen("/proc/dispinfo", "r");
   // char buf[128];
   // fgetc(buf, 128, fp);
