@@ -59,7 +59,7 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
     for(; i < dst->format->palette->ncolors; i++){
       if(color == dst->format->palette->colors[i].val) break;
     }
-    assert(i != dst->format->palette->ncolors);
+    // assert(i != dst->format->palette->ncolors);
     uint8_t* _pixels = (uint8_t*)dst->pixels;
     // dst->format->palette->colors[255].val = color;
     // dst->format->palette->colors[255].b = color && 0xff;
