@@ -56,41 +56,49 @@ void _exit(int status) {
 }
 
 int _open(const char *path, int flags, mode_t mode) {
-  _exit(SYS_open);
-  return 0;
+  return _syscall_(SYS_open, (intptr_t)path, flags, mode);
 }
 
 int _write(int fd, void *buf, size_t count) {
-  _exit(SYS_write);
-  return 0;
+  return _syscall_(SYS_write, fd, (intptr_t)buf, count);
 }
+extern char _end;
+static intptr_t cur_brk = (intptr_t)&_end;
 
 void *_sbrk(intptr_t increment) {
-  return (void *)-1;
+  intptr_t old_break = cur_brk;
+  if(_syscall_(SYS_brk, cur_brk + increment, 0, 0) == 0){
+    cur_brk = cur_brk + increment;
+    return (void*)old_break;
+  } 
+  assert(0);
+  // return (void*)-1;
 }
 
 int _read(int fd, void *buf, size_t count) {
-  _exit(SYS_read);
-  return 0;
+  return _syscall_(SYS_read, fd, (intptr_t)buf, count);
+
 }
 
 int _close(int fd) {
-  _exit(SYS_close);
-  return 0;
+  return _syscall_(SYS_close, fd, 0, 0);
 }
 
 off_t _lseek(int fd, off_t offset, int whence) {
-  _exit(SYS_lseek);
-  return 0;
+  return _syscall_(SYS_lseek, fd, offset, whence);
 }
 
 int _gettimeofday(struct timeval *tv, struct timezone *tz) {
-  _exit(SYS_gettimeofday);
+  intptr_t _time = _syscall_(SYS_gettimeofday, 0, 0, 0);
+  tv->tv_sec = _time / 1000000;
+  tv->tv_usec = _time;
   return 0;
+
 }
 
 int _execve(const char *fname, char * const argv[], char *const envp[]) {
-  _exit(SYS_execve);
+  _syscall_(SYS_execve, (intptr_t)fname, (intptr_t)argv, (intptr_t)envp);
+  
   return 0;
 }
 
