@@ -38,12 +38,11 @@ size_t events_read(void *buf, size_t offset, size_t len) {
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
   AM_GPU_CONFIG_T _config = io_read(AM_GPU_CONFIG);
-  char tem_buf[128];
-  // printf("info %d %d\n", _config.width, _config.height);
-   sprintf(buf, "WIDTH: %d\nHEIGHT: %d", _config.width, _config.height);
-   printf("%s\n", buf);
-  strncpy(buf, tem_buf, len);
-  return len;
+  // char tem_buf[128];
+  printf("info %d %d\n", _config.width, _config.height);
+  return sprintf(buf, "WIDTH: %d\nHEIGHT: %d", _config.width, _config.height);
+  // strncpy(buf, tem_buf, len);
+  // return len;
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
