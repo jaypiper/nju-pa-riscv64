@@ -48,26 +48,26 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   // yield();
   AM_GPU_CONFIG_T _config = io_read(AM_GPU_CONFIG);
   
-  int x = (offset/4) % _config.width;
-  int y = (offset/4) / _config.width;
+  int x = (offset) % _config.width;
+  int y = (offset) / _config.width;
   // printf("x: %d, y: %d len: %d offset: %d\n", x, y, len, offset);
   // int left = _config.width - (offset % _config.width);
-  // size_t i = 0;
+  size_t i = 0;
   assert(offset + len <= _config.width * _config.height * 4);
-  io_write(AM_GPU_FBDRAW, x, y, (void*)buf, len / 4, 1, true);
-  // const uint32_t* pixels = buf;
-  // while(i < len){
-  //   // _fbdraw.h = 1;
-  //   pixels = pixels + i;
-  //   int w = _config.width - (offset  % _config.width);
-  //   w = i + w < len ? w : len - i;
-  //   io_write(AM_GPU_FBDRAW, x, y, (void*)pixels, w, 1, true);
-  //   x += w;
-  //   i += w;
-  //   if(x == _config.width) {
-  //     x = 0; y ++;
-  //   }
-  // }
+  // io_write(AM_GPU_FBDRAW, x, y, (void*)buf, len / 4, 1, true);
+  const uint32_t* pixels = buf;
+  while(i < len){
+    // _fbdraw.h = 1;
+    pixels = pixels + i;
+    int w = _config.width - (offset  % _config.width);
+    w = i + w < len ? w : len - i;
+    io_write(AM_GPU_FBDRAW, x, y, (void*)pixels, w, 1, true);
+    x += w;
+    i += w;
+    if(x == _config.width) {
+      x = 0; y ++;
+    }
+  }
   return len;
 }
 
