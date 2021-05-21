@@ -4,15 +4,117 @@
 #include <string.h>
 #include <stdlib.h>
 
+extern int screen_width;
+extern int screen_height;
+
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
+  int src_x, src_y, src_h, src_w;
+  int dst_x, dst_y;
+  if(srcrect == NULL){
+    src_x = src_y = 0; src_h = src->h; src_w = src->w;
+  }
+  else{
+    src_x = srcrect->x; src_y = srcrect->y; src_h = srcrect->h; src_w = srcrect->w;
+  }
+  if(dstrect == NULL){
+    dst_x = dst_y = 0; 
+  }
+  else{
+    dst_x = dstrect->x; dst_y = dstrect->y;
+  }
+  // if(dst_w == 0 || dst_h == 0) return;
+  if(dst->format->BytesPerPixel == 1){
+    uint8_t* src_piexel = (uint8_t*)src->pixels;
+    uint8_t* dst_piexel = (uint8_t*)dst->pixels;
+    // int idx_x = 0, idx_y = 0; 
+    for(int i = 0; i < src_h; i++){
+      memcpy(dst_piexel + (i + dst_y)*dst->w+dst_x, src_piexel + (i+src_y)*src->w+src_x, src_w);
+    }
+  }
+  else if(dst->format->BytesPerPixel == 4){
+    uint32_t* src_piexel = (uint32_t*)src->pixels;
+    uint32_t* dst_piexel = (uint32_t*)dst->pixels;
+    // int idx_x = 0, idx_y = 0; 
+    for(int i = 0; i < src_h; i++){
+      memcpy(dst_piexel + (i + dst_y)*dst->w+dst_x, src_piexel + (i+src_y)*src->w+src_x, src_w * 4);
+    }
+  }
+  else assert(0);
+  // SDL_UpdateRect(dst, dst_x, dst_y, src_w, src_h);
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
+  assert(dst);
+  int dst_x, dst_y, dst_h, dst_w;
+  if(dstrect == NULL){
+    dst_x = dst_y = 0; dst_h = dst->h; dst_w = dst->w;
+  }
+  else{
+    dst_x = dstrect->x; dst_y = dstrect->y; dst_h = dstrect->h; dst_w = dstrect->w;
+  }
+  if(dst->format->BytesPerPixel == 1){
+    int i = 0;
+    for(; i < dst->format->palette->ncolors; i++){
+      if(color == dst->format->palette->colors[i].val) break;
+    }
+    assert(i != dst->format->palette->ncolors);
+    uint8_t* _pixels = (uint8_t*)dst->pixels;
+    // dst->format->palette->colors[255].val = color;
+    // dst->format->palette->colors[255].b = color && 0xff;
+    // dst->format->palette->colors[255].g = (color >> 8) && 0xff;
+    // dst->format->palette->colors[255].r = (color >> 16) && 0xff;
+    // dst->format->palette->colors[255].a = (color >> 24) && 0xff;
+    for(int i = 0; i < dst_h; i++){
+      for(int j = 0; j < dst_w; j++){
+        _pixels[(dst_y+i) * dst->w + dst_x+j] = i;
+      }
+    }
+  }
+  else if(dst->format->BytesPerPixel == 4){
+    uint32_t* _pixels = (uint32_t*)dst->pixels;
+    for(int i = 0; i < dst_h; i++){
+      for(int j = 0; j < dst_w; j++){
+        _pixels[(dst_y+i) * dst->w + dst_x+j] = color;
+      }
+    }
+  }
+  else assert(0);
 }
 
+uint32_t _pixel[400*300];
+
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
+if(x == 0 && y == 0 && w == 0 && h == 0){
+    x = y = 0; w = s->w; h = s->h;
+  }
+  if(s->format->BytesPerPixel == 4){
+    NDL_DrawRect((uint32_t*)(s->pixels), (screen_width - s->w)/2 + x, (screen_height - s->h)/2 + y, w, h);
+  }
+  else {
+    
+    // uint32_t* _pixel = malloc(sizeof(screen_width * screen_height * sizeof(uint32_t)));
+    uint8_t* _pix_idx = s->pixels;
+    for(int i = 0; i < h; i++){
+      for(int j = 0; j < w; j++){
+        uint8_t tem_idx = _pix_idx[(y+i)*s->w + x+j];
+        // uint32_t tem_pix = 0;
+        // tem_pix |= (uint32_t)s->format->palette->colors[tem_idx].r & 0xff;
+        // tem_idx <<= 8;
+        // tem_pix |= (uint32_t)s->format->palette->colors[tem_idx].g & 0xff;
+        // tem_idx <<= 8;
+        // tem_pix |= (uint32_t)s->format->palette->colors[tem_idx].b & 0xff;
+        _pixel[(y+i)*s->w + x+j] = s->format->palette->colors[tem_idx].val;
+      }
+    }
+    
+    NDL_DrawRect(_pixel, (screen_width - s->w)/2 + x, (screen_height - s->h)/2 + y, w, h);
+    
+    // free(_pixel);
+    // printf("update finished\n");
+  }
+
 }
 
 // APIs below are already implemented.
