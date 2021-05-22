@@ -13,7 +13,7 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   uint64_t* pg_base = (uint64_t*)((reg_scr(SATP_ID) & STAP_MASK) << 12);
   printf("base %lx\n", (uintptr_t)pg_base);
   uint64_t idx = (addr >> 30) & 0x1ff; 
-  printf("idx: %ld", idx); 
+  printf("idx\n"); 
   assert(pg_base[idx] & VALID_MASK);
 
   pg_base = (uint64_t*)pg_base[idx];
