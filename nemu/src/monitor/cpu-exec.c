@@ -91,15 +91,15 @@ void cpu_exec(uint64_t n) {
     /* TODO: check watchpoints here. */
     if(check_watchpoint()) nemu_state.state = NEMU_STOP;
 #endif
-
+  printf("here2\n");
 #ifdef HAS_IOE
     extern void device_update();
     device_update();
 #endif
-
+  printf("here1\n");
     if (nemu_state.state != NEMU_RUNNING) break;
   }
-
+  
   uint64_t timer_end = get_time();
   g_timer += timer_end - timer_start;
 
