@@ -259,6 +259,7 @@ static inline def_EHelper(inst){
 }
 
 static inline void fetch_decode_exec(DecodeExecState *s) {
+  printf("before fetch\n");
   s->isa.instr.val = instr_fetch(&s->seq_pc, 4);
   Assert(s->isa.instr.i.opcode1_0 == 0x3, "Invalid instruction");
   printf("decode: %x\n", s->isa.instr.val);
