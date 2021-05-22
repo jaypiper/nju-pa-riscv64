@@ -29,10 +29,8 @@ static inline def_EHelper(csrrci){
 }
 
 static inline def_EHelper(csrrs){
-  printf("here\n");
   rtl_li(s, s0, reg_scr(s->src2.imm)); //t
   rtl_or(s, s1, s0, s->src1.preg);
-  printf("%lx %lx %lx\n", s->src2.imm, *s1, *s0);
   reg_scr(s->src2.imm) = *s1;
   rtl_mv(s, s->dest.preg, s0);
   print_asm_template3(csrrs);
