@@ -40,7 +40,9 @@ void vaddr_mmu_write(vaddr_t addr, word_t data, int len){
 int isa_vaddr_check(vaddr_t vaddr, int type, int len){ //type好像也没什么用？ 或许是为了实现读写权限
 printf("check\n");
   rtlreg_t _satp = reg_scr(SATP_ID);
+  printf("%lx\n", _satp);
   _satp >>= 60;
+  printf("flag: %lx\n", _satp);
   switch(_satp){
     case 0: return MEM_RET_OK;
     case 8: return MEM_RET_NEED_TRANSLATE;
