@@ -46,7 +46,7 @@ void init_proc() {
   //   NULL
   // };
   // context_uload(&pcb[1], "/bin/pal", argv, envp);
-  context_uload(&pcb[1], "/bin/exec-test",argv , NULL);
+  context_uload(&pcb[1], "/bin/nterm",argv , NULL);
   // switch_boot_pcb();
 }
 
@@ -62,7 +62,7 @@ Context* schedule(Context *prev) {
   }
   else {
     current = &pcb[1];
-    printf("switch to 1\n");
+    // printf("switch to 1\n");
   }
   return current->cp;
 }
