@@ -70,9 +70,9 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   pcb->as.area.end = (void*)((uint8_t*)pcb->as.area.start + STACK_SIZE);
   
   uintptr_t entry = loader(pcb, filename);
-  printf("phase1\n");
+  
   void* cur = pcb->as.area.end;
-
+  printf("start: %lx, end: %lx", pcb->as.area.start, pcb->as.area.end);
   int argc = 0, envc = 0;
   // int arg_len = 0, env_len = 0;
   while(argv && argv[argc]) argc ++;
