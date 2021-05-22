@@ -32,7 +32,7 @@ void init_proc() {
   // load program here
   // naive_uload(NULL, "/bin/nterm");
   // context_kload(&pcb[1], hello_fun, "bb");
-  // context_kload(&pcb[0], hello_fun, "aa");
+  context_kload(&pcb[0], hello_fun, "aa");
   // context_uload(&pcb[0], "/bin/hello", NULL, NULL);
   char* argv[] = {
     // "--skip",
@@ -52,17 +52,17 @@ void init_proc() {
 
 Context* schedule(Context *prev) {
   assert(prev);
-  // static int i = 0;
-  // i++;
+  static int i = 0;
+  i++;
   // if(current == &pcb_boot) printf("leave boot\n");
-  // current->cp = prev;
-  // if(current == &pcb[1] && (i % 1000 == 0)){
-  //   current = &pcb[0];
-  //   // printf("switch to 0\n");
-  // }
-  // else {
+  current->cp = prev;
+  if(current == &pcb[1] && (i % 1000 == 0)){
+    current = &pcb[0];
+    // printf("switch to 0\n");
+  }
+  else {
     current = &pcb[1];
     printf("switch to 1\n");
-  // }
+  }
   return current->cp;
 }
