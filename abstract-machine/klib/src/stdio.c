@@ -24,6 +24,7 @@ int printf(const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
   char buf[4096];
+  memset(buf, 0, sizeof(buf));
   vsprintf(buf, fmt, args);
   putstr(buf);
   return 0;
