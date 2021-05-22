@@ -23,6 +23,7 @@ size_t fs_lseek(int fd, size_t offset, int whence);
 int fs_close(int fd);
 
 static uintptr_t loader(PCB *pcb, const char *filename) {
+  printf("begin load\n");
   Elf64_Ehdr _Eheader;
   int fd = fs_open(filename, 0, 0);
   // if(fd == -1) return fd;
@@ -62,6 +63,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       }
     } 
   }
+  printf("end load\n");
   return _Eheader.e_entry;
 }
 
