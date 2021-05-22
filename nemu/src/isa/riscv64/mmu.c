@@ -23,6 +23,7 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
 }
 
 word_t vaddr_mmu_read(vaddr_t addr, int len, int type){
+  printf("here2\n");
   printf("vaddr_read: %lx ", addr);
   paddr_t paddr = isa_mmu_translate(addr, 0, len);
   printf("paddr_read: %x \n", paddr);
