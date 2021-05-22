@@ -21,7 +21,7 @@ static int all_scr[7] = {SEPC_ID, STVEC_ID, SCAUSE_ID, STVAL_ID, SSCRATCH_ID, SS
 static inline int get_scr_id(int id){
   for(int i = 0; i < 7; i++){
     if(all_scr[i] == id) {
-      printf("%d\n", id);
+      printf("%x\n", id);
       return i;
     }
   }
