@@ -278,7 +278,7 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
     IDEX  (0b11100, I, csr_inst);
     default: exec_inv(s);
   }
-  printf("decode end: %x\n", s->isa.instr.val);
+  // printf("decode end: %x\n", s->isa.instr.val);
 }
 
 static inline void reset_zero() {
