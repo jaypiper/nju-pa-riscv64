@@ -8,6 +8,7 @@
 #define PG_OFFSET 0xfff
 
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
+  printf("here3\n");
   uint64_t* pg_base = (uint64_t*)reg_scr(SATP_ID);
 
   uint64_t idx = (addr >> 30) & 0x1ff;  
@@ -24,8 +25,8 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
 
 word_t vaddr_mmu_read(vaddr_t addr, int len, int type){
   printf("here2\n");
-  printf("vaddr_read: %lu ", addr & 0xffffffff);
-  paddr_t paddr = isa_mmu_translate(addr, 0, len);
+
+  paddr_t paddr = isa_mmu_translate(addr, type, len);
   printf("paddr_read: %x \n", paddr);
   return paddr_read(paddr, len);
 
