@@ -56,7 +56,7 @@ Context* schedule(Context *prev) {
   i++;
   // if(current == &pcb_boot) printf("leave boot\n");
   current->cp = prev;
-  if(current == &pcb[1] && (i % 10000 == 0)){
+  if(current == &pcb[1] && (i % 10 == 0)){
     current = &pcb[0];
     printf("switch to 0\n");
   }
