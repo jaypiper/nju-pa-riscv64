@@ -15,14 +15,14 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
-  // yield();
+  yield();
   const char* _p = buf;
   for(int i = 0; i < len; i++) putch(*_p++);
   return len;
 }
 
 size_t events_read(void *buf, size_t offset, size_t len) {
-  // yield();
+  yield();
   AM_INPUT_KEYBRD_T _keyboard = io_read(AM_INPUT_KEYBRD);
   if(_keyboard.keycode == AM_KEY_NONE) {
     sprintf(buf, "\n");
@@ -46,7 +46,7 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  // yield();
+  yield();
   AM_GPU_CONFIG_T _config = io_read(AM_GPU_CONFIG);
   
   int x = (offset) % _config.width;
