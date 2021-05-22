@@ -21,13 +21,11 @@ static char* _fill(char* out, char ch, int len){
 }
 
 int printf(const char *fmt, ...) {
-  printf("before p\n");
   va_list args;
   va_start(args, fmt);
   char buf[4096];
   vsprintf(buf, fmt, args);
   putstr(buf);
-  printf("after p\n");
   return 0;
 }
 
