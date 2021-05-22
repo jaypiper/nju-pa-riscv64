@@ -21,9 +21,9 @@
 #define CASE_ENTRY(idx, id, ex, w) case idx: set_width(s, w); id(s); ex(s); break;
 
 static inline uint32_t instr_fetch(vaddr_t *pc, int len) {
-  printf("instr: %lx %d\n", (uintptr_t)pc, len);
+  
   uint32_t instr = vaddr_ifetch(*pc, len);
-  printf("aft instr: %x\n", instr);
+  
 #ifdef DEBUG
   uint8_t *p_instr = (void *)&instr;
   int i;
