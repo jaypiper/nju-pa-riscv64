@@ -5,12 +5,13 @@
 
 #define VALID_MASK 1
 #define PGTABLE_MASK 0x3ffffffffffc00
+#define STAP_MASK 0xfffffffffff
 #define PG_OFFSET 0xfff
 
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   printf("here3\n");
-  uint64_t* pg_base = (uint64_t*)reg_scr(SATP_ID);
-  printf("%lx\n", (uintptr_t)pg_base);
+  uint64_t* pg_base = (uint64_t*)((reg_scr(SATP_ID) & STAP_MASK) << 12);
+  printf("base %lx\n", (uintptr_t)pg_base);
   uint64_t idx = (addr >> 30) & 0x1ff; 
   printf("idx: %lx", idx); 
   assert(pg_base[idx] & VALID_MASK);
