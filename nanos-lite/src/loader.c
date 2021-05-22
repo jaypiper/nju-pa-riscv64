@@ -80,6 +80,7 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   printf("argc: %d, envc: %d\n", argc, envc);
   uintptr_t arg_p[argc];
   uintptr_t env_p[envc];
+  printf("here");
   int offset = sizeof(uintptr_t);
   for(int i = 0; i < argc; i++){
     int len = strlen(argv[i]);
