@@ -16,7 +16,7 @@ typedef struct {
   vaddr_t pc;
   union {
     rtlreg_t _64;
-  }csr[6];
+  }csr[7];
 } riscv64_CPU_state;
 
 // decode
@@ -78,7 +78,8 @@ typedef struct {
   } instr;
 } riscv64_ISADecodeInfo;
 
-#define isa_vaddr_check(vaddr, type, len) (MEM_RET_OK)
+// #define isa_vaddr_check(vaddr, type, len) (MEM_RET_OK)
+
 #define riscv64_has_mem_exception() (cpu.mem_exception != 0)
 
 #endif

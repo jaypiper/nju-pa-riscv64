@@ -9,7 +9,9 @@ void* new_page(size_t nr_page) {
 }
 
 static inline void* pg_alloc(int n) {
-  return NULL;
+  void* ret = new_page(n / PGSIZE); // 如果没有对n的假设就 (n + PGSIZE - 1) / PGSIZE
+  memset(ret, 0, n);
+  return ret;
 }
 
 void free_page(void *p) {
@@ -22,7 +24,7 @@ int mm_brk(uintptr_t brk) {
 }
 
 void init_mm() {
-  pf = (void *)ROUNDUP(heap.start, PGSIZE);
+  pf = (void *)ROUNDUP(heap.start, PGSIZE); //按pgsize对齐
   Log("free physical pages starting from %p", pf);
 
 #ifdef HAS_VME

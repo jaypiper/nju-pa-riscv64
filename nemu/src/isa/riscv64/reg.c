@@ -15,9 +15,9 @@ void isa_reg_display() {
     // else printf("      ");
   }
   printf("pc      %16lx    %lu\n", cpu.pc, cpu.pc);
-  // printf("cause   %16lx    \n", reg_scr(SCAUSE_ID));
-  // printf("status  %16lx    \n", reg_scr(SSTATUS_ID));
-  // printf("epc     %16lx    \n", reg_scr(SEPC_ID));
+  printf("cause   %16lx    \n", reg_scr(SCAUSE_ID));
+  printf("status  %16lx    \n", reg_scr(SSTATUS_ID));
+  printf("epc     %16lx    \n", reg_scr(SEPC_ID));
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

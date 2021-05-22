@@ -9,16 +9,17 @@
 #define STVAL_ID 0x143
 #define SSCRATCH_ID 0x140
 #define SSTATUS_ID 0x100
+#define SATP_ID 0x180  
 
 static inline int check_reg_index(int index) {
   assert(index >= 0 && index < 32);
   return index;
 }
 
-static int all_scr[6] = {SEPC_ID, STVEC_ID, SCAUSE_ID, STVAL_ID, SSCRATCH_ID, SSTATUS_ID};
+static int all_scr[7] = {SEPC_ID, STVEC_ID, SCAUSE_ID, STVAL_ID, SSCRATCH_ID, SSTATUS_ID, SATP_ID};
 
 static inline int get_scr_id(int id){
-  for(int i = 0; i < 6; i++){
+  for(int i = 0; i < 7; i++){
     if(all_scr[i] == id) return i;
   }
   printf("%d %x\n", id, id);
