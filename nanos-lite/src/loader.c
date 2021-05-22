@@ -9,6 +9,13 @@
 # define Elf_Ehdr Elf32_Ehdr
 # define Elf_Phdr Elf32_Phdr
 #endif
+#define PGSIZE 4096
+#define PG_OFFSET 0xfff
+#define PG_BEGIN(addr) ((void*)((uintptr_t)addr & (~PG_OFFSET)))
+#define PG_END(addr) ((void*)(PG_BEGIN(addr) + PGSIZE))
+#define PADDR_FROM_VADDR(paddr,vaddr) ((void*)((uintptr_t)paddr | ((uintptr_t)(vaddr) & PG_OFFSET)))
+#define min(a,b) ((uintptr_t)(a) < (uintptr_t)(b)? (a):(b))
+
 int fs_open(const char *pathname, int flags, int mode);
 size_t fs_read(int fd, void *buf, size_t len);
 size_t fs_write(int fd, const void *buf, size_t len);
@@ -22,21 +29,36 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   fs_read(fd, &_Eheader, sizeof(_Eheader));
   //检查一下是不是elf, 讲义上的这种方法更简洁: assert(*(uint32_t *)elf->e_ident == 0xBadC0de); 
   assert(_Eheader.e_ident[0] == 0x7f && _Eheader.e_ident[1] == 'E' && _Eheader.e_ident[2] == 'L' && _Eheader.e_ident[3] == 'F');
-  //跳转在naive_uload中，这里返回entry就OK
-
+  pcb->as.ptr = new_page(1);
   for(int i = 0; i < _Eheader.e_phnum; i++){
     Elf64_Phdr _Pheader;
     fs_lseek(fd,  _Eheader.e_phoff + i * _Eheader.e_phentsize, SEEK_SET);
     fs_read(fd, &_Pheader, sizeof(_Pheader));
     if(_Pheader.p_type == PT_LOAD){
-      for(int _offset = 0; _offset < _Pheader.p_filesz; _offset ++){
-        uint8_t _data;
+      // uintptr_t _vaddr = PG_BEGIN(_Pheader.p_offset);
+      // while(_vaddr <= _Pheader.p_filesz + _Pheader.p_offset) {
+      //   void* _paddr = new_page(1);
+      //   map(pcb->as, (void*)_vaddr, _paddr, 0);
+      // }
+      uintptr_t _offset = 0;
+      void* _paddr = NULL;
+      for(; _offset < _Pheader.p_filesz; _offset = (uintptr_t)PG_END(_offset)){
+        // uint8_t _data;
+        _paddr = new_page(1);
+        void* _vaddr = (void*)(_Pheader.p_vaddr + _offset);
+        map(&(pcb->as), PG_BEGIN(_vaddr), _paddr, 0);
+        int read_sz = min(PG_END(_vaddr) - _vaddr, _Pheader.p_filesz - _offset);
         fs_lseek(fd, _Pheader.p_offset + _offset, SEEK_SET);
-        fs_read(fd, &_data, 1);
-        *((uint8_t*)(_Pheader.p_vaddr + _offset)) = _data;
-      }
-      for(int _offset = _Pheader.p_filesz; _offset < _Pheader.p_memsz; _offset ++){
-        *((uint8_t*)(_Pheader.p_vaddr + _offset)) = 0;
+        fs_read(fd, PADDR_FROM_VADDR(_paddr, _vaddr), read_sz);
+        // *((uint8_t*)(_Pheader.p_vaddr + _offset)) = _data;
+      } 
+      memset(PADDR_FROM_VADDR(_paddr, _Pheader.p_vaddr + _Pheader.p_filesz), 0, _offset - _Pheader.p_filesz);
+      for(; _offset < _Pheader.p_memsz; _offset = (uintptr_t)PG_END(_offset)){
+        _paddr = new_page(1);
+        void* _vaddr = (void*)(_Pheader.p_vaddr + _offset);
+        map(&(pcb->as), PG_BEGIN(_vaddr), _paddr, 0);
+        int read_sz = min(PG_END(_vaddr) - _vaddr, _Pheader.p_filesz - _offset);
+        memset(PADDR_FROM_VADDR(_paddr, _vaddr), 0, read_sz);
       }
     } 
   }
