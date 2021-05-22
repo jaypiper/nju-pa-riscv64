@@ -72,12 +72,12 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   uintptr_t entry = loader(pcb, filename);
   
   void* cur = pcb->as.area.end;
-  printf("start: %lx, end: %lx\n", pcb->as.area.start, pcb->as.area.end);
+  
   int argc = 0, envc = 0;
   // int arg_len = 0, env_len = 0;
   while(argv && argv[argc]) argc ++;
   while(envp && envp[envc]) envc ++;
-  printf("argc: %d, envc: %d\n", argc, envc);
+  // printf("argc: %d, envc: %d\n", argc, envc);
   uintptr_t arg_p[argc];
   uintptr_t env_p[envc];
   
@@ -86,7 +86,7 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
     int len = strlen(argv[i]);
     strcpy(cur - offset - len - 1, argv[i]);
     arg_p[i] = (uintptr_t)(cur - offset - len - 1);
-    printf("%d %s %s %lx\n", argc, argv[i], (char*)(cur - offset - len - 1), cur - offset - len - 1);
+    // printf("%d %s %s %lx\n", argc, argv[i], (char*)(cur - offset - len - 1), cur - offset - len - 1);
     offset += len + 1;
   }
   for(int j = 0; j < envc; j++){

@@ -58,11 +58,11 @@ Context* schedule(Context *prev) {
   current->cp = prev;
   if(current == &pcb[1] && (i % 10000 == 0)){
     current = &pcb[0];
-
+    printf("switch to 0\n");
   }
   else {
     current = &pcb[1];
-    // printf("switch to 0\n");
+    printf("switch to 1\n");
   }
   return current->cp;
 }
