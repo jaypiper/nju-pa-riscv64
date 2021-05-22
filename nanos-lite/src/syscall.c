@@ -9,6 +9,8 @@ size_t fs_write(int fd, const void *buf, size_t len);
 size_t fs_lseek(int fd, size_t offset, int whence);
 int fs_close(int fd);
 void naive_uload(PCB *pcb, const char *filename);
+void switch_boot_pcb();
+void context_uload(PCB* pcb, const char* filename, char *const argv[], char *const envp[]);
 
 static int _sys_brk(int new_brk){
   // Log("in brk %lx\n", new_brk);
@@ -21,9 +23,11 @@ static int _sys_time(){
   return _timer.us;
 }
 static int _sys_execve(char* filename, char* argv[], char* envp[]){
-  naive_uload(NULL, filename);
-  // context_uload(current, filename, argv, envp); //这里是不是还需要yield一下
+  // naive_uload(NULL, filename);
+  context_uload(current, filename, argv, envp); //这里是不是还需要yield一下
   // assert(0);
+  switch_boot_pcb();
+  yield();
   return 0;
 }
 
