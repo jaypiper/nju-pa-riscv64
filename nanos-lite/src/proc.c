@@ -20,6 +20,9 @@ void hello_fun(void *arg) {
 }
 
 void naive_uload(PCB *pcb, const char *filename);
+void context_kload(PCB *pcb, void (*entry)(void*), void* arg);
+void context_uload(PCB* pcb, const char* filename, char *const argv[], char *const envp[]);
+
 
 void init_proc() {
   switch_boot_pcb();
@@ -27,9 +30,39 @@ void init_proc() {
   Log("Initializing processes...");
 
   // load program here
-  naive_uload(NULL, "/bin/nterm");
+  // naive_uload(NULL, "/bin/nterm");
+  // context_kload(&pcb[1], hello_fun, "bb");
+  context_kload(&pcb[0], hello_fun, "aa");
+  // context_uload(&pcb[0], "/bin/hello", NULL, NULL);
+  // char* argv[] = {
+  //   // "--skip",
+  //   // "hello",
+  //   "/bin/exec-test",
+  //   NULL
+  // };
+  // char* envp[] = {
+  //   "envp1",
+  //   "envp2",
+  //   NULL
+  // };
+  // context_uload(&pcb[1], "/bin/pal", argv, envp);
+  context_uload(&pcb[1], "/bin/pal",NULL , NULL);
+  // switch_boot_pcb();
 }
 
 Context* schedule(Context *prev) {
-  return NULL;
+  assert(prev);
+  static int i = 0;
+  i++;
+  // if(current == &pcb_boot) printf("leave boot\n");
+  current->cp = prev;
+  if(current == &pcb[1] && (i % 10000 == 0)){
+    current = &pcb[0];
+
+  }
+  else {
+    current = &pcb[1];
+    // printf("switch to 0\n");
+  }
+  return current->cp;
 }

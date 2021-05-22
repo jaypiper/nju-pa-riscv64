@@ -49,3 +49,78 @@ void naive_uload(PCB *pcb, const char *filename) {
   ((void(*)())entry) ();
 }
 
+void context_kload(PCB *pcb, void (*entry)(void*), void* arg){
+  // printf("in context_kload, %lx %lx %lx\n", pcb->as.area.start, pcb->as.area.end, STACK_SIZE);
+  pcb->as.area.start = (void*)(pcb->stack);
+  pcb->as.area.end = (void*)((uint8_t*)pcb->stack + STACK_SIZE);
+  // printf("in context_kload, %lx %lx %lx\n", pcb->as.area.start, pcb->as.area.end, STACK_SIZE);
+  pcb->cp = kcontext(pcb->as.area, entry, arg);
+  
+  return;
+}
+void* new_page(size_t nr_page);
+void switch_boot_pcb();
+
+void context_uload(PCB* pcb, const char* filename, char *const argv[], char *const envp[]){
+  assert(filename);
+  printf("load %s...\n", filename);
+  // pcb->as.area.start = (void*)(pcb->stack);
+  // pcb->as.area.end = (void*)((uint8_t*)pcb->stack + STACK_SIZE);
+  pcb->as.area.start = new_page(8);
+  pcb->as.area.end = (void*)((uint8_t*)pcb->as.area.start + STACK_SIZE);
+  
+  uintptr_t entry = loader(pcb, filename);
+  
+  void* cur = pcb->as.area.end;
+
+  int argc = 0, envc = 0;
+  // int arg_len = 0, env_len = 0;
+  while(argv && argv[argc]) argc ++;
+  while(envp && envp[envc]) envc ++;
+  uintptr_t arg_p[argc];
+  uintptr_t env_p[envc];
+  int offset = sizeof(uintptr_t);
+  for(int i = 0; i < argc; i++){
+    int len = strlen(argv[i]);
+    strcpy(cur - offset - len - 1, argv[i]);
+    arg_p[i] = (uintptr_t)(cur - offset - len - 1);
+    printf("%d %s %s %lx\n", argc, argv[i], (char*)(cur - offset - len - 1), cur - offset - len - 1);
+    offset += len + 1;
+  }
+  for(int j = 0; j < envc; j++){
+    int len = strlen(envp[j]);
+    strcpy(cur - offset - len - 1, envp[j]);
+    env_p[j] = (uintptr_t)(cur - offset - len - 1);
+    offset += len + 1;
+  }
+  *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = 0;
+  *(uintptr_t*)(cur - offset - sizeof(uintptr_t)*2) = 0;
+  offset += sizeof(uintptr_t) * 2;
+  
+  for(int j = envc-1; j >= 0; j--){
+    *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = env_p[j];
+    offset += sizeof(uintptr_t);
+  }
+  *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = 0;
+  offset += sizeof(uintptr_t);
+
+  for(int i = argc-1; i >= 0; i--){
+    *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = arg_p[i];
+    offset += sizeof(uintptr_t);
+  }
+
+  *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = argc; 
+  offset += sizeof(uintptr_t);
+
+  // printf("offset: %d %d\n", offset, sizeof(uintptr_t));
+  Area _area = {.start = pcb->as.area.start, .end = pcb->as.area.end - offset};
+
+  pcb->cp = ucontext(NULL, pcb->as.area, (void*)entry);
+
+  pcb->cp->GPRx = (uintptr_t)_area.end;
+  // printf("GPRx: %lx %lx\n", (uintptr_t)_area.end, cur - offset - sizeof(uintptr_t), *(uintptr_t*)(cur - offset - sizeof(uintptr_t)));
+  // printf("load finished\n");
+  switch_boot_pcb();
+  yield();
+  return;
+}
