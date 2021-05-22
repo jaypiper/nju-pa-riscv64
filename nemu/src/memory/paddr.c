@@ -56,6 +56,7 @@ static inline void pmem_write(paddr_t addr, word_t data, int len) {
 /* Memory accessing interfaces */
 
 inline word_t paddr_read(paddr_t addr, int len) {
+  printf("pmem\n");
   if (in_pmem(addr)) return pmem_read(addr, len);
   else return map_read(addr, len, fetch_mmio_map(addr));
 }
@@ -72,7 +73,6 @@ void vaddr_mmu_write(vaddr_t addr, word_t data, int len);
 #define def_vaddr_template(bytes) \
 word_t concat(vaddr_ifetch, bytes) (vaddr_t addr) { \
   int ret = isa_vaddr_check(addr, MEM_TYPE_IFETCH, bytes); \
-  printf("ret: %d\n",ret); \
   if (ret == MEM_RET_OK) return paddr_read(addr, bytes); \
   else if (ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_read(addr, bytes, MEM_TYPE_IFETCH);\
   return 0; \
