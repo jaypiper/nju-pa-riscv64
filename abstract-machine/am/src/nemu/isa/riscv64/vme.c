@@ -77,17 +77,17 @@ void map(AddrSpace *as, void *va, void *pa, int prot) { //proc暂时不使用
   
   if(!(pg_base[idx] & VALID_MASK)){
     void* _new_pg = pgalloc_usr(PGSIZE);
-    pg_base[idx] = (uint64_t)_new_pg | PGTABLE_MASK | VALID_MASK;
+    pg_base[idx] = ((uint64_t)_new_pg & PGTABLE_MASK) | VALID_MASK;
   }
   pg_base = (uint64_t*)pg_base[idx];
   idx = (_vaddr >> 21) & 0x1ff;
   if(!(pg_base[idx] & VALID_MASK)){
     void* _new_pg = pgalloc_usr(PGSIZE);
-    pg_base[idx] = (uint64_t)_new_pg | PGTABLE_MASK | VALID_MASK;
+    pg_base[idx] = ((uint64_t)_new_pg & PGTABLE_MASK) | VALID_MASK;
   }
   pg_base = (uint64_t*)pg_base[idx];
   idx = (_vaddr >> 12) & 0x1ff;
-  pg_base[idx] = (uint64_t)pa | PGTABLE_MASK |VALID_MASK;
+  pg_base[idx] = ((uint64_t)pa & PGTABLE_MASK) |VALID_MASK;
 
 }
 
