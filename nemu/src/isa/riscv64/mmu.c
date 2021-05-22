@@ -10,8 +10,9 @@
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   printf("here3\n");
   uint64_t* pg_base = (uint64_t*)reg_scr(SATP_ID);
-
-  uint64_t idx = (addr >> 30) & 0x1ff;  
+  printf("%lx\n", (uintptr_t)pg_base);
+  uint64_t idx = (addr >> 30) & 0x1ff; 
+  printf("idx: %lx", idx); 
   assert(pg_base[idx] & VALID_MASK);
 
   pg_base = (uint64_t*)pg_base[idx];
@@ -40,11 +41,11 @@ void vaddr_mmu_write(vaddr_t addr, word_t data, int len){
 }
 
 int isa_vaddr_check(vaddr_t vaddr, int type, int len){ //type好像也没什么用？ 或许是为了实现读写权限
-printf("check\n");
+
   rtlreg_t _satp = reg_scr(SATP_ID);
-  printf("%lx\n", _satp);
+
   _satp >>= 60;
-  printf("flag: %lx\n", _satp);
+
   switch(_satp){
     case 0: return MEM_RET_OK;
     case 8: return MEM_RET_NEED_TRANSLATE;
