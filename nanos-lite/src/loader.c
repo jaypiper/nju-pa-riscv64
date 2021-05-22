@@ -72,11 +72,12 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   uintptr_t entry = loader(pcb, filename);
   
   void* cur = pcb->as.area.end;
-  printf("start: %lx, end: %lx", pcb->as.area.start, pcb->as.area.end);
+  printf("start: %lx, end: %lx\n", pcb->as.area.start, pcb->as.area.end);
   int argc = 0, envc = 0;
   // int arg_len = 0, env_len = 0;
   while(argv && argv[argc]) argc ++;
   while(envp && envp[envc]) envc ++;
+  printf("argc: %d, envc: %d\n", argc, envc);
   uintptr_t arg_p[argc];
   uintptr_t env_p[envc];
   int offset = sizeof(uintptr_t);
