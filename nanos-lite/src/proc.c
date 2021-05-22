@@ -62,7 +62,7 @@ Context* schedule(Context *prev) {
   // }
   // else {
     current = &pcb[1];
-    // printf("switch to 1\n");
+    printf("switch to 1\n");
   // }
   return current->cp;
 }
