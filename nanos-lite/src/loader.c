@@ -119,7 +119,7 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
 
   pcb->cp->GPRx = (uintptr_t)_area.end;
   // printf("GPRx: %lx %lx\n", (uintptr_t)_area.end, cur - offset - sizeof(uintptr_t), *(uintptr_t*)(cur - offset - sizeof(uintptr_t)));
-  // printf("load finished\n");
+  printf("load finished\n");
   switch_boot_pcb();
   yield();
   return;
