@@ -10,21 +10,25 @@
 
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   printf("here3\n");
-  uint64_t* pg_base = (uint64_t*)((reg_scr(SATP_ID) & STAP_MASK) << 12);
+  uint64_t* pg_base = (uintptr_t*)((reg_scr(SATP_ID) & STAP_MASK) << 12);
   printf("base %lx\n", (uintptr_t)pg_base);
   uint64_t idx = (addr >> 30) & 0x1ff; 
 
-  printf("idx: %lx\n", (uintptr_t)&pg_base[idx]); 
-  uintptr_t val = paddr_read(pg_base[idx], sizeof(uintptr_t));
+  uintptr_t val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
   assert(val & VALID_MASK);
-  printf("idx: %lx\n", val); 
-  pg_base = (uint64_t*)pg_base[idx];
-  idx = (addr >> 21) & 0x1ff;
-  assert(pg_base[idx] & VALID_MASK);
 
-  pg_base = (uint64_t*)pg_base[idx];
+  printf("idx: %lx\n", val); 
+  pg_base = (uintptr_t*)val;
+  idx = (addr >> 21) & 0x1ff;
+  val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
+  assert(val & VALID_MASK);
+
+  pg_base = (uintptr_t*)val;
   idx = (addr >> 12) & 0x1ff;
-  return (pg_base[idx] & PGTABLE_MASK) | (addr & PG_OFFSET);
+  val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
+  assert(val & VALID_MASK);
+
+  return (val & PGTABLE_MASK) | (addr & PG_OFFSET);
 }
 
 word_t vaddr_mmu_read(vaddr_t addr, int len, int type){
