@@ -38,6 +38,7 @@ void vaddr_mmu_write(vaddr_t addr, word_t data, int len){
 }
 
 int isa_vaddr_check(vaddr_t vaddr, int type, int len){ //type好像也没什么用？ 或许是为了实现读写权限
+printf("check\n");
   rtlreg_t _satp = reg_scr(SATP_ID);
   _satp >>= 60;
   switch(_satp){
