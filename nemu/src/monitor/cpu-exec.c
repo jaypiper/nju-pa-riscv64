@@ -75,6 +75,7 @@ void cpu_exec(uint64_t n) {
   uint64_t timer_start = get_time();
 
   for (; n > 0; n --) {
+    printf("%lx: \n", n);
     vaddr_t this_pc = cpu.pc;
 
     /* Execute one instruction, including instruction fetch,
@@ -96,7 +97,7 @@ void cpu_exec(uint64_t n) {
     extern void device_update();
     device_update();
 #endif
-  printf("here1\n");
+  printf("here2\n");
     if (nemu_state.state != NEMU_RUNNING) break;
   }
   
