@@ -92,7 +92,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) { //proc暂时不使用
   pg_base = (uint64_t*)pg_base[idx];
   idx = (_vaddr >> 12) & 0x1ff;
   pg_base[idx] = (((uint64_t)pa >> 2) & PGTABLE_MASK) |VALID_MASK;
-  // printf("pg_base: %p idx: %x item: %x\n\n", pg_base, idx, pg_base[idx]);
+  printf("pg_base: %p idx: %x item: %x\n\n", pg_base, idx, pg_base[idx]);
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
