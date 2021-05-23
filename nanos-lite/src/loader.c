@@ -63,7 +63,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       for(; _offset < _Pheader.p_memsz; _offset += read_sz){
         printf("offset: %lx\n", _offset);
         void* _vaddr = (void*)(_Pheader.p_vaddr + _offset);
-        if((uintptr_t)_vaddr & PG_OFFSET) _paddr = new_page(1);
+        if(((uintptr_t)_vaddr & PG_OFFSET) == 0) _paddr = new_page(1);
         map(&(pcb->as), PG_BEGIN(_vaddr), _paddr, 0);
         read_sz = min(PG_END(_vaddr) - _vaddr, _Pheader.p_memsz - _offset);
         memset(PADDR_FROM_VADDR(_paddr, _vaddr), 0, read_sz);
