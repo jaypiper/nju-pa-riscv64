@@ -76,6 +76,7 @@ size_t fs_write(int fd, const void* buf, size_t len){
   else{
     write_sz = file_table[fd].write(buf, file_table[fd].open_offset, len);
   }
+  printf("write phase1\n");
   file_table[fd].open_offset += write_sz;
   printf("fs write end\n");
   return write_sz;
