@@ -110,7 +110,7 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   // printf("argc: %d, envc: %d\n", argc, envc);
   uintptr_t arg_p[argc];
   uintptr_t env_p[envc];
-  
+  printf("phase1\n");
   int offset = sizeof(uintptr_t);
   for(int i = 0; i < argc; i++){
     int len = strlen(argv[i]);
@@ -119,16 +119,18 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
     // printf("%d %s %s %lx\n", argc, argv[i], (char*)(cur - offset - len - 1), cur - offset - len - 1);
     offset += len + 1;
   }
+  printf("phase2\n");
   for(int j = 0; j < envc; j++){
     int len = strlen(envp[j]);
     strcpy(cur - offset - len - 1, envp[j]);
     env_p[j] = (uintptr_t)(cur - offset - len - 1);
     offset += len + 1;
   }
+  printf("phase3\n");
   *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = 0;
   *(uintptr_t*)(cur - offset - sizeof(uintptr_t)*2) = 0;
   offset += sizeof(uintptr_t) * 2;
-  
+  printf("phase4\n");
   for(int j = envc-1; j >= 0; j--){
     *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = env_p[j];
     offset += sizeof(uintptr_t);
@@ -140,7 +142,7 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
     *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = arg_p[i];
     offset += sizeof(uintptr_t);
   }
-
+  printf("phase5\n");
   *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = argc; 
   offset += sizeof(uintptr_t);
 
