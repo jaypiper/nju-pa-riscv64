@@ -24,9 +24,9 @@ void free_page(void *p) {
 int mm_brk(uintptr_t brk) { //max_brk表示下一页开头
   printf("pre brk: %lx, new_brk: %lx\n", current->max_brk, brk);
   if(current->max_brk >= brk) return 0;
-  while(current->max_brk <= brk){
+  while(current->max_brk < brk){
     void* _paddr = new_page(1);
-    printf("pa: %lx\n", (uintptr_t)_paddr);
+    // printf("pa: %lx\n", (uintptr_t)_paddr);
     map(&current->as, (void*)current->max_brk, _paddr, 0);
     current->max_brk += PGSIZE;
   }
