@@ -39,12 +39,13 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       
       uintptr_t _offset = 0;
       void* _paddr = NULL;
+      void* _vaddr = NULL;
       int read_sz;
       for(; _offset < _Pheader.p_filesz; _offset += read_sz){
         // uint8_t _data;
         printf("offset: %lx\n", _offset);
         _paddr = new_page(1);
-        void* _vaddr = (void*)(_Pheader.p_vaddr + _offset);
+        _vaddr = (void*)(_Pheader.p_vaddr + _offset);
         map(&(pcb->as), PG_BEGIN(_vaddr), _paddr, 0);
         read_sz = min(PG_END(_vaddr) - _vaddr, _Pheader.p_filesz - _offset);
         fs_lseek(fd, _Pheader.p_offset + _offset, SEEK_SET);
@@ -56,7 +57,9 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         // }
         // *((uint8_t*)(_Pheader.p_vaddr + _offset)) = _data;
       } 
+      _offset = (uintptr_t)(PG_END(_vaddr) - _vaddr);
       memset(PADDR_FROM_VADDR(_paddr, _Pheader.p_vaddr + _Pheader.p_filesz), 0, _offset - _Pheader.p_filesz);
+
       printf("offset: %lx\n", _offset);
       for(; _offset < _Pheader.p_memsz; _offset += read_sz){
         printf("offset: %lx\n", _offset);
