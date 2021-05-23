@@ -4,6 +4,7 @@
 int main() {
 	NDL_Init(0);
 	int count = 0;
+	printf("finished\n");
 	while (1) {
 		long long time = NDL_GetTicks();
         	if(time / 500 >= count){
