@@ -7,7 +7,7 @@ int main() {
 
 	while (1) {
 		long long time = NDL_GetTicks();
-        	if(time / 5 >= count){
+        	if(time / 500 >= count){
     			count ++;
     	 		printf("Hello from timer-test with count %d \n", count);
         	}

@@ -11,9 +11,10 @@ static int fbdev = -1;
 static int screen_w = 0, screen_h = 0;
 
 uint32_t NDL_GetTicks() {
-  
+  printf("here\n");
   struct timeval tv;
   gettimeofday(&tv, NULL);
+  printf("finidhed\n");
   return tv.tv_usec / 1000;
 }
 
