@@ -45,11 +45,11 @@ void next(int rep) {
 }
 
 int main() {
-  printf("phase1");
+  printf("phase1\n");
   SDL_Init(0);
-  printf("phase2");
+  printf("phase2\n");
   SDL_Surface *screen = SDL_SetVideoMode(W, H, 32, SDL_HWSURFACE);
-printf("phase3");
+printf("phase3\n");
   int rep = 0, g = 0;
 
   render();
