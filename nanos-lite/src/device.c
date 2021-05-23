@@ -15,9 +15,13 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
+  printf("here1: %s\n", buf);
   yield();
+  printf("here2\n");
   const char* _p = buf;
+  printf("here3\n");
   for(int i = 0; i < len; i++) putch(*_p++);
+  printf("here4\n");
   return len;
 }
 
