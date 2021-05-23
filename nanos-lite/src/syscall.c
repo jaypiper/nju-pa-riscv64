@@ -39,7 +39,7 @@ void do_syscall(Context *c) {
   a[3] = c->GPR4;
   // printf("syscall: %ld %lx %lx %lx\n", a[0], a[1], a[2], a[3]);
   switch (a[0]) {
-    case SYS_exit: halt(a[0]); break;
+    case SYS_exit: assert(0); halt(a[0]); break;
     // case SYS_exit: _sys_execve("/bin/nterm", NULL, NULL); break;
     case SYS_yield: yield(); break; 
     case SYS_open: c->GPRx = fs_open((char*)a[1], a[2], a[3]); break;
