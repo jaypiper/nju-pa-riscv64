@@ -68,7 +68,7 @@ static intptr_t cur_brk = (intptr_t)&_end;
 
 void *_sbrk(intptr_t increment) {
   intptr_t old_break = cur_brk;
-  if(_syscall_(SYS_brk, cur_brk + increment, 0, 0) == 0){
+  if(_syscall_(SYS_brk, cur_brk + increment, old_break, 0) == 0){
     cur_brk = cur_brk + increment;
     return (void*)old_break;
   } 
