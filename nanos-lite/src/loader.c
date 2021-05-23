@@ -66,6 +66,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         read_sz = min(PG_END(_vaddr) - _vaddr, _Pheader.p_memsz - _offset);
         memset(PADDR_FROM_VADDR(_paddr, _vaddr), 0, read_sz);
       }
+      printf("offset: %lx\n", _offset);
     } 
   }
   printf("end load\n");
