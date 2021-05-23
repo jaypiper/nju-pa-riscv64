@@ -6,7 +6,7 @@
 #define VALID_MASK 1
 #define PGTABLE_MASK 0x3ffffffffffc00
 #define STAP_MASK 0xfffffffffff
-#define PG_OFFSET 0x3ff
+#define PG_OFFSET 0xfff
 
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   uint64_t* pg_base = (uintptr_t*)((reg_scr(SATP_ID) & STAP_MASK) << 12);
@@ -21,7 +21,7 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   }
   assert(val & VALID_MASK);
 
-  pg_base = (uintptr_t*)val;
+  pg_base = (uintptr_t*)((val & PGTABLE_MASK) << 2);
   idx = (addr >> 21) & 0x1ff;
   val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
   // printf("val2: %lx\n", val);
@@ -31,7 +31,7 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   }
   assert(val & VALID_MASK);
 
-  pg_base = (uintptr_t*)val;
+  pg_base = (uintptr_t*)((val & PGTABLE_MASK) << 2);
   idx = (addr >> 12) & 0x1ff;
   val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
   // printf("val3: %lx\n", val);
@@ -41,7 +41,7 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   }
   assert(val & VALID_MASK);
   
-  return (val & PGTABLE_MASK) | (addr & PG_OFFSET);
+  return ((val & PGTABLE_MASK) << 2) | (addr & PG_OFFSET);
 }
 
 word_t vaddr_mmu_read(vaddr_t addr, int len, int type){
