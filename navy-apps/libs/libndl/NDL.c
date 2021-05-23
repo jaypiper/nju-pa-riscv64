@@ -14,7 +14,7 @@ uint32_t NDL_GetTicks() {
   printf("here\n");
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  printf("finidhed %d\n", tv.tv_usec/1000);
+  printf("finisdhed %ld\n", tv.tv_usec);
   return tv.tv_usec / 1000;
 }
 
