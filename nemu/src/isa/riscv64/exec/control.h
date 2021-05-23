@@ -2,7 +2,7 @@ void raise_intr(DecodeExecState *s, word_t NO, vaddr_t epc);
 
 static inline def_EHelper(ecall){
   bool success;
-  raise_intr(s, isa_reg_str2val("$a7", &success), cpu.pc);
+  raise_intr(s, isa_reg_str2val("$a7", &success), cpu.pc+4);
   print_asm_template1(ecall);
 }
 
