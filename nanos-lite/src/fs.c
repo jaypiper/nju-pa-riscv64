@@ -66,7 +66,7 @@ size_t fs_read(int fd, void* buf, size_t len){
 }
 
 size_t fs_write(int fd, const void* buf, size_t len){
-  printf("fs write begin fd %d, buf: %lx, count %d\n", fd, (intptr_t)buf, len);
+  // printf("fs write begin fd %d, buf: %lx, count %d\n", fd, (intptr_t)buf, len);
   int write_sz;
   if(file_table[fd].write == NULL){
     assert(file_table[fd].open_offset <= file_table[fd].size);
@@ -76,9 +76,9 @@ size_t fs_write(int fd, const void* buf, size_t len){
   else{
     write_sz = file_table[fd].write(buf, file_table[fd].open_offset, len);
   }
-  printf("write phase1\n");
+  // printf("write phase1\n");
   file_table[fd].open_offset += write_sz;
-  printf("fs write end\n");
+  // printf("fs write end\n");
   return write_sz;
 }
 //允许offset处于filesz外部，此时gap为'\0'
