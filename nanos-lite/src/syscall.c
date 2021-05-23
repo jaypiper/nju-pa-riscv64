@@ -49,5 +49,5 @@ void do_syscall(Context *c) {
     case SYS_gettimeofday: c->GPRx = _sys_time(); break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
-  printf("syscall end %lx\n", c->GPRx);
+  // printf("syscall end %lx\n", c->GPRx);
 }
