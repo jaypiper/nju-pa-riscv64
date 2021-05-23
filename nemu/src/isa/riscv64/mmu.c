@@ -11,23 +11,23 @@
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   
   uint64_t* pg_base = (uintptr_t*)((reg_scr(SATP_ID) & STAP_MASK) << 12);
-  // printf("base %lx\n", (uintptr_t)pg_base);
+  printf("base %lx\n", (uintptr_t)pg_base);
   uint64_t idx = (addr >> 30) & 0x1ff; 
 
   uintptr_t val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
-  // printf("val1: %lx\n", val); 
+  printf("val1: %lx\n", val); 
   assert(val & VALID_MASK);
 
   pg_base = (uintptr_t*)val;
   idx = (addr >> 21) & 0x1ff;
   val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
-  // printf("val2: %lx\n", val);
+  printf("val2: %lx\n", val);
   assert(val & VALID_MASK);
 
   pg_base = (uintptr_t*)val;
   idx = (addr >> 12) & 0x1ff;
   val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
-  // printf("val3: %lx\n", val);
+  printf("val3: %lx\n", val);
   assert(val & VALID_MASK);
   
   return (val & PGTABLE_MASK) | (addr & PG_OFFSET);
