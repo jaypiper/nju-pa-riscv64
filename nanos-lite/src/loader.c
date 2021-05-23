@@ -69,6 +69,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         memset(PADDR_FROM_VADDR(_paddr, _vaddr), 0, read_sz);
       }
       pcb->max_brk = (uintptr_t)PG_BEGIN((_Pheader.p_vaddr + _offset + 0xfff));
+      printf("%lx brk %lx\n", _Pheader.p_vaddr + _offset, pcb->max_brk);
     } 
   }
   
