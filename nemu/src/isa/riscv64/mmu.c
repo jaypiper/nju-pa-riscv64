@@ -16,7 +16,7 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
 
   uintptr_t val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
   if(!(val&VALID_MASK)){
-    printf("base %lx idx: %ld addr: %lx pc: %lx\n", (uintptr_t)pg_base, idx, addr, cpu.pc);
+    printf("base %lx idx: %ld addr: %lx pc: %lx %d\n", (uintptr_t)pg_base, idx, addr, cpu.pc, type);
     printf("val1: %lx\n", val); 
   }
   assert(val & VALID_MASK);
