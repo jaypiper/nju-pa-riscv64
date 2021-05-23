@@ -23,7 +23,7 @@ void free_page(void *p) {
 /* The brk() system call handler. */
 int mm_brk(uintptr_t brk) { //max_brk表示下一页开头
 printf("pre brk: %lx, new_brk: %lx\n", current->max_brk, brk);
-  if(current->max_brk > brk) return 0;
+  if(current->max_brk >= brk) return 0;
   while(current->max_brk <= brk){
     void* _paddr = new_page(1);
     map(&current->as, (void*)current->max_brk, _paddr, 0);
