@@ -99,10 +99,10 @@ void map(AddrSpace *as, void *va, void *pa, int prot) { //proc暂时不使用
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
   printf("end: %lx\n", kstack.end);
-  Context* _context = (Context*)(kstack.end - (32+3)*8);
+  Context* _context = (Context*)(kstack.end - sizeof(Context));
+  _context->pdir = as->ptr;
   printf("context: %lx\n", (uintptr_t)_context);
   _context->epc = (uintptr_t)entry;
   printf("epc: %lx\n", (uintptr_t)entry);
-  _context->pdir = as->ptr;
   return _context;
 }
