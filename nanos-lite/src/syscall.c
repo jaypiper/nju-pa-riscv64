@@ -33,7 +33,7 @@ void do_syscall(Context *c) {
   a[1] = c->GPR2;
   a[2] = c->GPR3;
   a[3] = c->GPR4;
-  printf("syscall: %ld %lx %lx %lx\n", a[0], a[1], a[2], a[3]);
+  // printf("syscall: %ld %lx %lx %lx\n", a[0], a[1], a[2], a[3]);
   switch (a[0]) {
     case SYS_exit: halt(a[0]); break;
     // case SYS_exit: _sys_execve("/bin/nterm", NULL, NULL); break;
@@ -48,5 +48,5 @@ void do_syscall(Context *c) {
     case SYS_gettimeofday: c->GPRx = _sys_time(); break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
-  printf("syscall end %lx\n", c->GPRx);
+  // printf("syscall end %lx\n", c->GPRx);
 }
