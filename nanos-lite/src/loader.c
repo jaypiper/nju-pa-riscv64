@@ -95,59 +95,59 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   void* _end = (void*)((uint8_t*)_start + STACK_SIZE);
   // printf("as: %lx\n", (uintptr_t)(pcb->as.ptr));
   for(int i = 1; i <= 8; i++){
-    map(&pcb->as, pcb->as.area.end - i * PGSIZE, _end + i * PGSIZE, 0x7);
+    map(&pcb->as, pcb->as.area.end - i * PGSIZE, _end - i * PGSIZE, 0x7);
   }
   // Area _as = {_start, _end};
 
   uintptr_t entry = loader(pcb, filename);
   
-  // void* cur = _end;
+  void* cur = _end;
   
-  // int argc = 0, envc = 0;
-  // // int arg_len = 0, env_len = 0;
-  // while(argv && argv[argc]) argc ++;
-  // while(envp && envp[envc]) envc ++;
-  // // printf("argc: %d, envc: %d\n", argc, envc);
-  // uintptr_t arg_p[argc];
-  // uintptr_t env_p[envc];
+  int argc = 0, envc = 0;
+  // int arg_len = 0, env_len = 0;
+  while(argv && argv[argc]) argc ++;
+  while(envp && envp[envc]) envc ++;
+  // printf("argc: %d, envc: %d\n", argc, envc);
+  uintptr_t arg_p[argc];
+  uintptr_t env_p[envc];
   
-  // int offset = sizeof(uintptr_t);
-  // for(int i = 0; i < argc; i++){
-  //   int len = strlen(argv[i]);
-  //   strcpy(cur - offset - len - 1, argv[i]);
-  //   arg_p[i] = (uintptr_t)(cur - offset - len - 1);
-  //   // printf("%d %s %s %lx\n", argc, argv[i], (char*)(cur - offset - len - 1), cur - offset - len - 1);
-  //   offset += len + 1;
-  // }
+  int offset = sizeof(uintptr_t);
+  for(int i = 0; i < argc; i++){
+    int len = strlen(argv[i]);
+    strcpy(cur - offset - len - 1, argv[i]);
+    arg_p[i] = (uintptr_t)(cur - offset - len - 1);
+    // printf("%d %s %s %lx\n", argc, argv[i], (char*)(cur - offset - len - 1), cur - offset - len - 1);
+    offset += len + 1;
+  }
   
-  // for(int j = 0; j < envc; j++){
-  //   int len = strlen(envp[j]);
-  //   strcpy(cur - offset - len - 1, envp[j]);
-  //   env_p[j] = (uintptr_t)(cur - offset - len - 1);
-  //   offset += len + 1;
-  // }
+  for(int j = 0; j < envc; j++){
+    int len = strlen(envp[j]);
+    strcpy(cur - offset - len - 1, envp[j]);
+    env_p[j] = (uintptr_t)(cur - offset - len - 1);
+    offset += len + 1;
+  }
   
-  // *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = 0;
-  // *(uintptr_t*)(cur - offset - sizeof(uintptr_t)*2) = 0;
-  // offset += sizeof(uintptr_t) * 2;
+  *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = 0;
+  *(uintptr_t*)(cur - offset - sizeof(uintptr_t)*2) = 0;
+  offset += sizeof(uintptr_t) * 2;
   
-  // for(int j = envc-1; j >= 0; j--){
-  //   *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = env_p[j];
-  //   offset += sizeof(uintptr_t);
-  // }
-  // *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = 0;
-  // offset += sizeof(uintptr_t);
+  for(int j = envc-1; j >= 0; j--){
+    *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = env_p[j];
+    offset += sizeof(uintptr_t);
+  }
+  *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = 0;
+  offset += sizeof(uintptr_t);
 
-  // for(int i = argc-1; i >= 0; i--){
-  //   *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = arg_p[i];
-  //   offset += sizeof(uintptr_t);
-  // }
+  for(int i = argc-1; i >= 0; i--){
+    *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = arg_p[i];
+    offset += sizeof(uintptr_t);
+  }
   
-  // *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = argc; 
-  // offset += sizeof(uintptr_t);
+  *(uintptr_t*)(cur - offset - sizeof(uintptr_t)) = argc; 
+  offset += sizeof(uintptr_t);
 
   // printf("offset: %d %d\n", offset, sizeof(uintptr_t));
-  Area _area = {.start = pcb->as.area.start, .end = pcb->as.area.end };
+  Area _area = {.start = pcb->as.area.start, .end = pcb->as.area.end - offset};
   
   Area _stack = {pcb->stack, pcb->stack + STACK_SIZE};
   pcb->cp = ucontext(&pcb->as, _stack, (void*)entry);
