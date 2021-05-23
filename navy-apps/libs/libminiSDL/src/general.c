@@ -8,7 +8,7 @@ uint8_t* keystate = NULL;
 int screen_width = 0, screen_height = 0;
 
 int SDL_Init(uint32_t flags) {
-  printf("in init\n");
+
   keystate = (uint8_t*)malloc(256*sizeof(uint8_t));
   printf("before memset key_addr: %lx\n", (uintptr_t)keystate);
   memset(keystate, 0, sizeof(keystate));
