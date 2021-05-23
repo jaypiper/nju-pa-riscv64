@@ -149,7 +149,8 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   // printf("offset: %d %d\n", offset, sizeof(uintptr_t));
   Area _area = {.start = pcb->as.area.start, .end = pcb->as.area.end - offset};
   printf("phase6\n");
-  pcb->cp = ucontext(&pcb->as, pcb->as.area, (void*)entry);
+  Area _stack = {pcb->stack, pcb->stack + STACK_SIZE};
+  pcb->cp = ucontext(&pcb->as, _stack, (void*)entry);
 
   pcb->cp->GPRx = (uintptr_t)_area.end;
   // printf("GPRx: %lx %lx\n", (uintptr_t)_area.end, cur - offset - sizeof(uintptr_t), *(uintptr_t*)(cur - offset - sizeof(uintptr_t)));
