@@ -13,7 +13,7 @@
 #define PG_OFFSET 0xfff
 #define PG_BEGIN(addr) ((void*)((uintptr_t)addr & (~PG_OFFSET)))
 #define PG_END(addr) ((void*)(PG_BEGIN(addr) + PGSIZE))
-#define PADDR_FROM_VADDR(paddr,vaddr) ((void*)((uintptr_t)paddr | ((uintptr_t)(vaddr) & PG_OFFSET)))
+#define PADDR_FROM_VADDR(paddr,vaddr) ((void*)(((uintptr_t)paddr & !PG_OFFSET) | ((uintptr_t)(vaddr) & PG_OFFSET)))
 #define min(a,b) ((uintptr_t)(a) < (uintptr_t)(b)? (a):(b))
 
 int fs_open(const char *pathname, int flags, int mode);
