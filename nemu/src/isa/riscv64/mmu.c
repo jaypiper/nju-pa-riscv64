@@ -4,9 +4,9 @@
 #include "local-include/reg.h"
 
 #define VALID_MASK 1
-#define PGTABLE_MASK 0x3ffffffffffc00
+#define PGTABLE_MASK 0x3ffffffffffe00
 #define STAP_MASK 0xfffffffffff
-#define PG_OFFSET 0xfff
+#define PG_OFFSET 0x1ff
 
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   uint64_t* pg_base = (uintptr_t*)((reg_scr(SATP_ID) & STAP_MASK) << 12);
