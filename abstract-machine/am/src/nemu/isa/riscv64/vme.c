@@ -71,7 +71,7 @@ void __am_switch(Context *c) {
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) { //proc暂时不使用
-  printf("map in space ptr: %p va: %p pa: %p\n", as->ptr, va, pa);
+  // printf("map in space ptr: %p va: %p pa: %p\n", as->ptr, va, pa);
   assert(as->ptr);
   uint64_t* pg_base = (uint64_t*)as->ptr;
   uint64_t _vaddr = (uint64_t)va;
