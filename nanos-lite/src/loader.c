@@ -48,6 +48,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         read_sz = min(PG_END(_vaddr) - _vaddr, _Pheader.p_filesz - _offset);
         fs_lseek(fd, _Pheader.p_offset + _offset, SEEK_SET);
         fs_read(fd, PADDR_FROM_VADDR(_paddr, _vaddr), read_sz);
+        printf("loader read: %lx %d", (uintptr_t)PADDR_FROM_VADDR(_paddr, _vaddr), read_sz);
         // *((uint8_t*)(_Pheader.p_vaddr + _offset)) = _data;
       } 
       memset(PADDR_FROM_VADDR(_paddr, _Pheader.p_vaddr + _Pheader.p_filesz), 0, _offset - _Pheader.p_filesz);
