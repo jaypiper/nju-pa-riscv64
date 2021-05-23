@@ -9,8 +9,9 @@ int screen_width = 0, screen_height = 0;
 
 int SDL_Init(uint32_t flags) {
   keystate = (uint8_t*)malloc(256*sizeof(uint8_t));
+  printf("before memset\n");
   memset(keystate, 0, sizeof(keystate));
-  
+  printf("after memset\n");
   FILE* fp = fopen("/proc/dispinfo", "r");
   fscanf(fp, "WIDTH: %d\nHEIGHT: %d", &screen_width, &screen_height);
   fclose(fp);
