@@ -290,7 +290,7 @@ vaddr_t isa_exec_once() {
   DecodeExecState s;
   s.is_jmp = 0;
   s.seq_pc = cpu.pc;
-
+  printf("pc: %lx\n", cpu.pc);
   fetch_decode_exec(&s);
   update_pc(&s);
 
