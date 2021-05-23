@@ -4,8 +4,8 @@
 #include "local-include/reg.h"
 
 #define VALID_MASK 1
-#define PGTABLE_MASK 0x3ffffffffffc00
-#define STAP_MASK 0xfffffffffff
+#define PGTABLE_MASK 0x3ffffffffffc00LL
+#define STAP_MASK 0xfffffffffffLL
 #define PG_OFFSET 0xfff
 
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
