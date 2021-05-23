@@ -4,9 +4,9 @@
 #include "local-include/reg.h"
 
 #define VALID_MASK 1
-#define PGTABLE_MASK 0x3ffffffffffe00
+#define PGTABLE_MASK 0x3ffffffffffc00
 #define STAP_MASK 0xfffffffffff
-#define PG_OFFSET 0x1ff
+#define PG_OFFSET 0xfff
 
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   uint64_t* pg_base = (uintptr_t*)((reg_scr(SATP_ID) & STAP_MASK) << 12);
@@ -21,7 +21,7 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   }
   assert(val & VALID_MASK);
 
-  pg_base = (uintptr_t*)(val & PGTABLE_MASK);
+  pg_base = (uintptr_t*)val;
   idx = (addr >> 21) & 0x1ff;
   val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
   // printf("val2: %lx\n", val);
@@ -31,7 +31,7 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   }
   assert(val & VALID_MASK);
 
-  pg_base = (uintptr_t*)(val & PGTABLE_MASK);
+  pg_base = (uintptr_t*)val;
   idx = (addr >> 12) & 0x1ff;
   val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
   // printf("val3: %lx\n", val);
