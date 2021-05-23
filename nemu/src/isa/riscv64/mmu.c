@@ -15,30 +15,30 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
   // printf("base %lx idx: %ld addr: %lx\n", (uintptr_t)pg_base, idx, addr);
 
   uintptr_t val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
-  // if(!(val&VALID_MASK)){
+  if(!(val&VALID_MASK)){
     printf("base %lx idx: %ld addr: %lx pc: %lx %d\n", (uintptr_t)pg_base, idx, addr, cpu.pc, type);
     printf("val1: %lx\n", val); 
-  // }
+  }
   assert(val & VALID_MASK);
 
   pg_base = (uintptr_t*)((val & PGTABLE_MASK) << 2);
   idx = (addr >> 21) & 0x1ff;
   val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
   // printf("val2: %lx\n", val);
-  // if(!(val&VALID_MASK)){
+  if(!(val&VALID_MASK)){
     printf("base %lx idx: %ld addr: %lx pc: %lx %d\n", (uintptr_t)pg_base, idx, addr, cpu.pc, type);
     printf("val2: %lx\n", val); 
-  // }
+  }
   assert(val & VALID_MASK);
 
   pg_base = (uintptr_t*)((val & PGTABLE_MASK) << 2);
   idx = (addr >> 12) & 0x1ff;
   val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
   // printf("val3: %lx\n", val);
-  // if(!(val&VALID_MASK)){
+  if(!(val&VALID_MASK)){
     printf("base %lx idx: %ld addr: %lx pc: %lx %d\n", (uintptr_t)pg_base, idx, addr, cpu.pc, type);
     printf("val3: %lx\n\n", val); 
-  // }
+  }
   assert(val & VALID_MASK);
   
   return ((val & PGTABLE_MASK) << 2)  | (addr & PG_OFFSET);
