@@ -81,14 +81,14 @@ void map(AddrSpace *as, void *va, void *pa, int prot) { //proc暂时不使用
     void* _new_pg = pgalloc_usr(PGSIZE);
     pg_base[idx] = (((uint64_t)_new_pg >> 2) & PGTABLE_MASK) | VALID_MASK;
   }
-  // printf("pg_base: %p idx: %x item: %x\n", pg_base, idx, pg_base[idx]);
+  printf("pg_base: %p idx: %x item: %x\n", pg_base, idx, pg_base[idx]);
   pg_base = (uint64_t*)pg_base[idx];
   idx = (_vaddr >> 21) & 0x1ff;
   if(!(pg_base[idx] & VALID_MASK)){
     void* _new_pg = pgalloc_usr(PGSIZE);
     pg_base[idx] = (((uint64_t)_new_pg >> 2) & PGTABLE_MASK) | VALID_MASK;
   }
-  // printf("pg_base: %p idx: %x item: %x\n", pg_base, idx, pg_base[idx]);
+  printf("pg_base: %p idx: %x item: %x\n", pg_base, idx, pg_base[idx]);
   pg_base = (uint64_t*)pg_base[idx];
   idx = (_vaddr >> 12) & 0x1ff;
   pg_base[idx] = (((uint64_t)pa >> 2) & PGTABLE_MASK) |VALID_MASK;
