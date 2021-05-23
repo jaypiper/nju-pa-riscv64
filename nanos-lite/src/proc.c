@@ -54,6 +54,7 @@ void init_proc() {
 Context* schedule(Context *prev) {
   assert(prev);
   current = &pcb[0];
+  printf("after switch to 0\n");
   // static int i = 0;
   // i++;
   // // if(current == &pcb_boot) printf("leave boot\n");
