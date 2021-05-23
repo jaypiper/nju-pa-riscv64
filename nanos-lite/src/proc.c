@@ -32,20 +32,21 @@ void init_proc() {
   // load program here
   // naive_uload(NULL, "/bin/nterm");
   // context_kload(&pcb[1], hello_fun, "bb");
-  context_kload(&pcb[0], hello_fun, "aa");
+  // context_kload(&pcb[0], hello_fun, "aa");
   // context_uload(&pcb[0], "/bin/hello", NULL, NULL);
-  char* argv[] = {
-    "--skip",
-    // "hello",
-    // "/bin/exec-test",
-    NULL
-  };
-  char* envp[] = {
-    "envp1",
-    "envp2",
-    NULL
-  };
-  context_uload(&pcb[1], "/bin/pal", argv, envp);
+  // char* argv[] = {
+  //   "--skip",
+  //   // "hello",
+  //   // "/bin/exec-test",
+  //   NULL
+  // };
+  // char* envp[] = {
+  //   "envp1",
+  //   "envp2",
+  //   NULL
+  // };
+  // context_uload(&pcb[1], "/bin/pal", argv, envp);
+  context_uload(&pcb[0], "/bin/dummy", NULL, NULL);
   // context_uload(&pcb[1], "/bin/nterm",argv , NULL);
   // switch_boot_pcb();
 }
