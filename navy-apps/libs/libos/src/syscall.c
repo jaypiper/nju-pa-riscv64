@@ -66,6 +66,7 @@ extern char _end;
 static intptr_t cur_brk = (intptr_t)&_end;
 
 void *_sbrk(intptr_t increment) {
+  printf("in _sbrk: %lx\n", cur_brk);
   intptr_t old_break = cur_brk;
   if(_syscall_(SYS_brk, cur_brk + increment, 0, 0) == 0){
     cur_brk = cur_brk + increment;
