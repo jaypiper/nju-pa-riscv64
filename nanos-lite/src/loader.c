@@ -51,7 +51,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         // printf("loader read: %lx %lx %lx\n", (uintptr_t)_vaddr, (uintptr_t)PADDR_FROM_VADDR(_paddr, _vaddr), read_sz);
         if((uintptr_t)_vaddr == 0x40006000){
           uintptr_t* _tem = PADDR_FROM_VADDR(_paddr, _vaddr);
-          for(int i = 0; i < 0xc90; i+= sizeof(uintptr_t)) printf("i: %x %lx\n", i, _tem[i/sizeof(uintptr_t)]);
+          for(int i = 0; i < 0xc90; i+= sizeof(uintptr_t)) printf("i: %x %lx %lx\n", i, _tem[i/sizeof(uintptr_t)], (uintptr_t)PADDR_FROM_VADDR(_paddr, _vaddr) + i);
         }
         // *((uint8_t*)(_Pheader.p_vaddr + _offset)) = _data;
       } 
