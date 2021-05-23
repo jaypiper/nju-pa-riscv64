@@ -94,8 +94,8 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   void* _start = new_page(8);
   void* _end = (void*)((uint8_t*)_start + STACK_SIZE);
   
-  for(int i = 0; i <= 8; i++){
-    map(&pcb->as, pcb->as.area.start + i * PGSIZE, _start + i * PGSIZE, 0x7);
+  for(int i = 1; i <= 8; i++){
+    map(&pcb->as, pcb->as.area.end - i * PGSIZE, _end + i * PGSIZE, 0x7);
   }
   // Area _as = {_start, _end};
 
