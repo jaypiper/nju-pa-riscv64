@@ -46,7 +46,7 @@ void init_proc() {
   //   NULL
   // };
   // context_uload(&pcb[1], "/bin/pal", argv, envp);
-  context_uload(&pcb[0], "/bin/bmp-test", NULL, NULL);
+  context_uload(&pcb[0], "/bin/hello", NULL, NULL);
   // context_uload(&pcb[1], "/bin/nterm",argv , NULL);
   // switch_boot_pcb();
 }
