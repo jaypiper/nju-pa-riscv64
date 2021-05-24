@@ -49,12 +49,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         read_sz = min(PG_END(_vaddr) - _vaddr, _Pheader.p_filesz - _offset);
         fs_lseek(fd, _Pheader.p_offset + _offset, SEEK_SET);
         fs_read(fd, PADDR_FROM_VADDR(_paddr, _vaddr), read_sz);
-        // printf("loader read: %lx %lx %lx\n", (uintptr_t)_vaddr, (uintptr_t)PADDR_FROM_VADDR(_paddr, _vaddr), read_sz);
-        // if((uintptr_t)_vaddr == 0x40006000){
-        //   uintptr_t* _tem = PADDR_FROM_VADDR(_paddr, _vaddr);
-        //   for(int i = 0; i < 0xc90; i+= sizeof(uintptr_t)) printf("i: %x %lx %lx\n", i, _tem[i/sizeof(uintptr_t)], (uintptr_t)PADDR_FROM_VADDR(_paddr, _vaddr) + i);
-        // }
-        // *((uint8_t*)(_Pheader.p_vaddr + _offset)) = _data;
+        
       } 
       // _offset = (uintptr_t)(PG_END(_vaddr) - _vaddr);
       // memset(PADDR_FROM_VADDR(_paddr, _Pheader.p_vaddr + _Pheader.p_filesz), 0, _offset - _Pheader.p_filesz);
@@ -109,7 +104,7 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   // Area _as = {_start, _end};
 
   uintptr_t entry = loader(pcb, filename);
-  
+  /*
   void* cur = _end;
   
   int argc = 0, envc = 0;
@@ -157,11 +152,11 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
 
   // printf("offset: %d %d\n", offset, sizeof(uintptr_t));
   Area _area = {.start = pcb->as.area.start, .end = pcb->as.area.end - offset};
-  
+  */
   Area _stack = {pcb->stack, pcb->stack + STACK_SIZE};
   pcb->cp = ucontext(&pcb->as, _stack, (void*)entry);
 
-  pcb->cp->GPRx = (uintptr_t)_area.end;
+  pcb->cp->GPRx = (uintptr_t)pcb->as.area.end;
   // printf("GPRx: %lx %lx\n", (uintptr_t)_area.end, cur - offset - sizeof(uintptr_t), *(uintptr_t*)(cur - offset - sizeof(uintptr_t)));
   printf("load finished\n");
   switch_boot_pcb();
