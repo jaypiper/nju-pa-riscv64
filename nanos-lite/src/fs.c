@@ -109,6 +109,6 @@ int fs_open(char* filename, int flags, int mode){
       return i;
     }
   }
-  // panic("Invalid file: %s", filename);
+  panic("Invalid file: %s", filename);
   return -1;
 }
