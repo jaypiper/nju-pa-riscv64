@@ -100,7 +100,7 @@ int fs_close(int fd){
 }
 
 int fs_open(char* filename, int flags, int mode){
-  // printf("opening %s", filename);
+  printf("opening %s", filename);
   int item_num = sizeof(file_table) / sizeof(Finfo);
   for(int i = 0; i < item_num; i++){
     // printf("%d %s %s %d\n", i, filename, file_table[i].name, strcmp(filename, file_table[i].name));
