@@ -28,9 +28,13 @@ int atoi(const char* nptr) {
   }
   return x;
 }
-
+static char* addr = NULL;
 void *malloc(size_t size) {
-  return NULL;
+  if(!addr) addr = (char*)ROUNDUP(heap.start, 8);
+  char* ret = addr;
+  size = ROUNDUP(size, 8);
+  addr += size;
+  return ret;
 }
 
 void free(void *ptr) {
