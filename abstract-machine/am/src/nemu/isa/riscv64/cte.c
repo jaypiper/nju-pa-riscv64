@@ -8,6 +8,7 @@ void __am_switch(Context *c);
 
 Context* __am_irq_handle(Context *c) {
   __am_get_cur_as(c);
+  // printf("irq: %d\n", c->cause);
   if (user_handler) {
     Event ev = {0};
     switch (c->cause) {
@@ -39,7 +40,7 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  Context* _context = (Context*)(kstack.end - (32+3)*8);
+  Context* _context = (Context*)(kstack.end - sizeof(Context));
   _context->epc = (uintptr_t)entry;
   _context->gpr[10] = (uintptr_t)arg;
   // assert(0);

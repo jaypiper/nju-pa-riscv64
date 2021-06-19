@@ -261,7 +261,7 @@ static inline def_EHelper(inst){
 static inline void fetch_decode_exec(DecodeExecState *s) {
   s->isa.instr.val = instr_fetch(&s->seq_pc, 4);
   Assert(s->isa.instr.i.opcode1_0 == 0x3, "Invalid instruction");
-  // printf("decode: %x\n", s->isa.instr.val);
+  //  printf("pc: %lx decode: %x\n", s->seq_pc, s->isa.instr.val);
   switch (s->isa.instr.i.opcode6_2) {
     IDEX  (0b00000, I, load)
     IDEX  (0b00100, I, insti)
@@ -285,6 +285,8 @@ static inline void reset_zero() {
   reg_d(0) = 0;
 }
 
+void query_intr(DecodeExecState *s);
+
 vaddr_t isa_exec_once() {
   
   DecodeExecState s;
@@ -293,8 +295,7 @@ vaddr_t isa_exec_once() {
   
   fetch_decode_exec(&s);
   update_pc(&s);
-
   reset_zero();
-
+  query_intr(&s);
   return s.seq_pc;
 }

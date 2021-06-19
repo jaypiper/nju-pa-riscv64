@@ -31,9 +31,9 @@ void init_proc() {
 
   // load program here
   // naive_uload(NULL, "/bin/nterm");
-  // context_kload(&pcb[1], hello_fun, "bb");
+  context_kload(&pcb[1], hello_fun, "bb");
   // context_kload(&pcb[0], hello_fun, "aa");
-  // context_uload(&pcb[0], "/bin/hello", NULL, NULL);
+  // context_uload(&pcb[1], "/bin/hello", NULL, NULL);
   // char* argv[] = {
   //   // "--skip",
   //   // "hello",
@@ -46,28 +46,33 @@ void init_proc() {
   //   NULL
   // };
   // context_uload(&pcb[1], "/bin/pal", argv, envp);
-  context_uload(&pcb[0], "/bin/bmp-test", NULL, NULL);
-  // context_uload(&pcb[0], "/bin/pal", NULL, NULL);
+  // context_uload(&pcb[0], "/bin/event-test", NULL, NULL);
+  context_uload(&pcb[0], "/bin/pal", NULL, NULL);
+  // context_uload(&pcb[1], "/bin/hello", NULL, NULL);
+
   // context_uload(&pcb[1], "/bin/nterm",argv , NULL);
   // switch_boot_pcb();
 }
 
 Context* schedule(Context *prev) {
   assert(prev);
-  current->cp = prev;
-  current = &pcb[0];
-  // printf("after switch to 0\n");
-  // static int i = 0;
-  // i++;
-  // // if(current == &pcb_boot) printf("leave boot\n");
   // current->cp = prev;
-  // if(current == &pcb[1] && (i % 1000 == 0)){
-  //   current = &pcb[0];
-  //   // printf("switch to 0\n");
-  // }
-  // else {
-  //   current = &pcb[1];
-  //   // printf("switch to 1\n");
-  // }
+  // current = &pcb[0];
+  // printf("after switch to 0\n");
+  static int i = 0;
+  i++;
+  if(current == &pcb_boot) printf("leave boot\n");
+  current->cp = prev;
+  if(current == &pcb[0] && (i % 1000 == 0)){
+    current = &pcb[1];
+    // printf("switch to 1\n");
+  }
+  else {
+    current = &pcb[0];
+    // printf("switch to 0\n");
+  }
+  // assert(pcb[0].cp);
+  // assert(pcb[1].cp);
+  // assert(current->cp);
   return current->cp;
 }

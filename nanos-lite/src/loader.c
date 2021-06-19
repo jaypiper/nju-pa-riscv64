@@ -36,6 +36,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     fs_lseek(fd,  _Eheader.e_phoff + i * _Eheader.e_phentsize, SEEK_SET);
     fs_read(fd, &_Pheader, sizeof(_Pheader));
     if(_Pheader.p_type == PT_LOAD){
+      // printf("%x %x %x\n", _Pheader.p_vaddr, _Pheader.p_filesz, _Pheader.p_memsz);
       
       uintptr_t _offset = 0;
       void* _paddr = NULL;
@@ -62,6 +63,8 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         map(&(pcb->as), PG_BEGIN(_vaddr), _paddr, 0);
         read_sz = min(PG_END(_vaddr) - _vaddr, _Pheader.p_memsz - _offset);
         memset(PADDR_FROM_VADDR(_paddr, _vaddr), 0, read_sz);
+        
+        // printf("%x %x %x\n", _Pheader.p_vaddr, _Pheader.p_filesz, _offset);
       }
       pcb->max_brk = (uintptr_t)PG_BEGIN((_Pheader.p_vaddr + _Pheader.p_memsz + 0xfff));
       
@@ -155,7 +158,6 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   */
   Area _stack = {pcb->stack, pcb->stack + STACK_SIZE};
   pcb->cp = ucontext(&pcb->as, _stack, (void*)entry);
-
   pcb->cp->GPRx = (uintptr_t)pcb->as.area.end;
   // printf("GPRx: %lx %lx\n", (uintptr_t)_area.end, cur - offset - sizeof(uintptr_t), *(uintptr_t*)(cur - offset - sizeof(uintptr_t)));
   printf("load finished\n");

@@ -17,6 +17,7 @@ typedef struct {
   union {
     rtlreg_t _64;
   }csr[7];
+  bool INTR;
 } riscv64_CPU_state;
 
 // decode

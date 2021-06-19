@@ -46,7 +46,11 @@ paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
 
 word_t vaddr_mmu_read(vaddr_t addr, int len, int type){
   paddr_t paddr = isa_mmu_translate(addr, type, len);
-  // printf("paddr_read: %x \n", paddr);
+  if((paddr & (PAGE_SIZE - 1)) + len > PAGE_SIZE){
+    printf("paddr_read: addr: %lx paddr: %x len: %d\n", addr, paddr, len);
+    assert(0);
+  }
+  // if(addr < 0x80000000) printf("paddr_read: addr: %lx paddr: %x len: %d\n", addr, paddr, len);
   return paddr_read(paddr, len);
 
 }

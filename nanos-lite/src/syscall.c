@@ -15,7 +15,11 @@ int mm_brk(uintptr_t brk);
 
 static int _sys_time(){
   AM_TIMER_UPTIME_T _timer = io_read(AM_TIMER_UPTIME);
-  // printf("sys time %ld\n", _timer.us);
+  // static int count = 0;
+  // if(_timer.us/1000000  > count ){
+  //   printf("sys time %ld\n", _timer.us);
+  //   count ++;
+  // }
   return _timer.us;
 }
 static int _sys_execve(char* filename, char* argv[], char* envp[]){
@@ -33,7 +37,7 @@ void do_syscall(Context *c) {
   a[1] = c->GPR2;
   a[2] = c->GPR3;
   a[3] = c->GPR4;
-
+  // if(a[0] != 4) printf("sys: %d %x \n", a[0], a[1]);
   switch (a[0]) {
     case SYS_exit: halt(a[0]); break;
     // case SYS_exit: _sys_execve("/bin/nterm", NULL, NULL); break;

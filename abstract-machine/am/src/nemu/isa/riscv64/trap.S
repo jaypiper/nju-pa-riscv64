@@ -12,7 +12,7 @@ f(30) f(31)
 #define PUSH(n) sd concat(x, n), (n * 8)(sp);
 #define POP(n)  ld concat(x, n), (n * 8)(sp);
 
-#define CONTEXT_SIZE ((32 + 3) * 8)
+#define CONTEXT_SIZE ((32 + 4) * 8)
 #define OFFSET_SP     ( 2 * 8)
 #define OFFSET_CAUSE  (32 * 8)
 #define OFFSET_STATUS (33 * 8)
