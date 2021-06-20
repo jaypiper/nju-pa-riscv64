@@ -100,6 +100,7 @@ Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
   
   _context->pdir = as->ptr;
   _context->epc = (uintptr_t)entry;
-  // printf("epc: %lx\n", (uintptr_t)entry);
+  _context->status = 34;
+  printf("epc: %lx\n", (uintptr_t)entry);
   return _context;
 }

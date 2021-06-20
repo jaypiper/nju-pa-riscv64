@@ -295,7 +295,7 @@ vaddr_t isa_exec_once() {
   
   fetch_decode_exec(&s);
   update_pc(&s);
-  reset_zero();
   query_intr(&s);
+  reset_zero();
   return s.seq_pc;
 }

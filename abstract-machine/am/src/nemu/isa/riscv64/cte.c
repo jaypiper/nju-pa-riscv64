@@ -1,7 +1,7 @@
 #include <am.h>
 #include <nemu.h>
 #include <klib.h>
-
+#define IRQ_TIMER 0x8000000000000005
 static Context* (*user_handler)(Event, Context*) = NULL;
 void __am_get_cur_as(Context *c);
 void __am_switch(Context *c);
@@ -17,12 +17,14 @@ Context* __am_irq_handle(Context *c) {
       case 7: case 8: case 9: case 10: case 11: case 12:
       case 13: case 14: case 15: case 16: case 17: case 18:
       case 19: ev.event = EVENT_SYSCALL; break;
+      case IRQ_TIMER: ev.event = EVENT_IRQ_TIMER; break;
       default: ev.event = EVENT_ERROR; break;
     }
 
     c = user_handler(ev, c);
     assert(c != NULL);
   }
+  // printf("epc: %lx: status %lx\n", c->epc, c->status);
   __am_switch(c);
   return c;
 }
@@ -44,6 +46,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   _context->epc = (uintptr_t)entry;
   _context->gpr[10] = (uintptr_t)arg;
   // assert(0);
+  _context->status = 34;
   return _context;
 }
 

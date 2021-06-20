@@ -49,9 +49,9 @@ void init_proc() {
   // context_uload(&pcb[0], "/bin/event-test", NULL, NULL);
   context_uload(&pcb[0], "/bin/pal", NULL, NULL);
   // context_uload(&pcb[1], "/bin/hello", NULL, NULL);
-
+  switch_boot_pcb();
+  yield();
   // context_uload(&pcb[1], "/bin/nterm",argv , NULL);
-  // switch_boot_pcb();
 }
 
 Context* schedule(Context *prev) {
@@ -63,7 +63,8 @@ Context* schedule(Context *prev) {
   i++;
   if(current == &pcb_boot) printf("leave boot\n");
   current->cp = prev;
-  if(current == &pcb[0] && (i % 1000 == 0)){
+  // printf("i: %d\n", i);
+  if(current == &pcb[0] && (i % 100) == 0){
     current = &pcb[1];
     // printf("switch to 1\n");
   }

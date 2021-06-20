@@ -3,11 +3,22 @@ void raise_intr(DecodeExecState *s, word_t NO, vaddr_t epc);
 static inline def_EHelper(ecall){
   bool success;
   raise_intr(s, isa_reg_str2val("$a7", &success), s->seq_pc);
+  
   print_asm_template1(ecall);
 }
 
 static inline def_EHelper(sret){
+  // printf("before: %lx ", reg_scr(SSTATUS_ID));
+  if(reg_scr(SSTATUS_ID) & (1 << 5)){
+    reg_scr(SSTATUS_ID) |= 2;
+  }
+  else{
+    reg_scr(SSTATUS_ID) &= ~(intptr_t)(2);
+  }
+  reg_scr(SSTATUS_ID) |= (1 << 5);
+  // printf("aft: %lx \n", reg_scr(SSTATUS_ID));
   rtl_j(s, reg_scr(SEPC_ID));
+  
   print_asm_template1(sret);
 }
 
