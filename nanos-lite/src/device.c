@@ -20,7 +20,7 @@ size_t serial_write(const void *buf, size_t offset, size_t len) {
   for(int i = 0; i < len; i++) putch(*_p++);
   return len;
 }
-
+void set_next_pcb(int id);
 size_t events_read(void *buf, size_t offset, size_t len) {
   // yield();
   AM_INPUT_KEYBRD_T _keyboard = io_read(AM_INPUT_KEYBRD);
@@ -30,7 +30,11 @@ size_t events_read(void *buf, size_t offset, size_t len) {
     // *(char*)buf = 0;
     // return 0;
   }
-  if(_keyboard.keydown) sprintf(buf, "kd %s\n", keyname[_keyboard.keycode]);
+  if(_keyboard.keydown) {
+    sprintf(buf, "kd %s\n", keyname[_keyboard.keycode]);
+    if(_keyboard.keycode >= AM_KEY_F1 && _keyboard.keycode <= AM_KEY_F3)
+      set_next_pcb(_keyboard.keycode - AM_KEY_F1);
+  }
   else sprintf(buf, "ku %s\n", keyname[_keyboard.keycode]);
   // printf("event: %s", buf);
   return strlen(buf);
