@@ -159,6 +159,7 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
   Area _stack = {pcb->stack, pcb->stack + STACK_SIZE};
   pcb->cp = ucontext(&pcb->as, _stack, (void*)entry);
   pcb->cp->GPRx = (uintptr_t)pcb->as.area.end;
+  pcb->cp->gpr[2] = (uintptr_t)pcb->as.area.end;
   // printf("GPRx: %lx %lx\n", (uintptr_t)_area.end, cur - offset - sizeof(uintptr_t), *(uintptr_t*)(cur - offset - sizeof(uintptr_t)));
   printf("uload finished\n");
   // switch_boot_pcb();
