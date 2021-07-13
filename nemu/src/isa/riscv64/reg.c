@@ -18,6 +18,7 @@ void isa_reg_display() {
   printf("cause   %16lx    \n", reg_scr(SCAUSE_ID));
   printf("status  %16lx    \n", reg_scr(SSTATUS_ID));
   printf("epc     %16lx    \n", reg_scr(SEPC_ID));
+  printf("scratch %16lx    \n", reg_scr(SSCRATCH_ID));
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

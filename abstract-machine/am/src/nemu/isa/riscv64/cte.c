@@ -46,7 +46,8 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   _context->epc = (uintptr_t)entry;
   _context->gpr[10] = (uintptr_t)arg;
   // assert(0);
-  _context->status = 34;
+  _context->status = 32;
+  // _context->np = 1;
   return _context;
 }
 

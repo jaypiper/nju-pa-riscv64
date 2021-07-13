@@ -68,25 +68,13 @@ Context* schedule(Context *prev) {
     printf("leave boot\n");
     current = &pcb[0];
   }
-  // printf("i: %d\n", i);
   if(i % 100 == 0) current = &pcb[3];
   else{
       current = &pcb[next];
   }
   
- 
-  // assert(pcb[0].cp);
-  // assert(pcb[1].cp);
-  // assert(current->cp);
   return current->cp;
 }
-// if(current == &pcb[0] && (i % 100) == 0){
-//     current = &pcb[1];
-//     // printf("switch to 1\n");
-//   }
-//   else {
-//     current = &pcb[0];
-
 void set_next_pcb(int id){
   next = id;
 }

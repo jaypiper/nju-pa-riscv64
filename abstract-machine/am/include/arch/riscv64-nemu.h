@@ -3,6 +3,7 @@
 
 struct Context {
   uintptr_t gpr[32], cause, status, epc;
+  uintptr_t np;
   void *pdir;
 };
 

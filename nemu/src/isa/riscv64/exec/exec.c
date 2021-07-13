@@ -90,6 +90,7 @@ static inline def_EHelper(branch){
 }
 
 static inline def_EHelper(csr_inst){
+  // assert(0);
   switch(s->isa.instr.i.funct3){
     case 0:
       if(s->isa.instr.i.simm11_0 == 0) exec_ecall(s);
@@ -260,6 +261,9 @@ static inline def_EHelper(inst){
 
 static inline void fetch_decode_exec(DecodeExecState *s) {
   s->isa.instr.val = instr_fetch(&s->seq_pc, 4);
+  if(s->isa.instr.i.opcode1_0 != 0x3){
+    printf("%x\n", s->isa.instr.val);
+  }
   Assert(s->isa.instr.i.opcode1_0 == 0x3, "Invalid instruction");
   //  printf("pc: %lx decode: %x\n", s->seq_pc, s->isa.instr.val);
   switch (s->isa.instr.i.opcode6_2) {
@@ -295,7 +299,8 @@ vaddr_t isa_exec_once() {
   
   fetch_decode_exec(&s);
   update_pc(&s);
-  query_intr(&s);
   reset_zero();
+  
+  query_intr(&s);
   return s.seq_pc;
 }

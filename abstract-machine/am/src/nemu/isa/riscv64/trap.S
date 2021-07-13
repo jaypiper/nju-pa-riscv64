@@ -12,21 +12,47 @@ f(30) f(31)
 #define PUSH(n) sd concat(x, n), (n * 8)(sp);
 #define POP(n)  ld concat(x, n), (n * 8)(sp);
 
-#define CONTEXT_SIZE ((32 + 4) * 8)
+#define CONTEXT_SIZE ((32 + 5) * 8)
 #define OFFSET_SP     ( 2 * 8)
 #define OFFSET_CAUSE  (32 * 8)
 #define OFFSET_STATUS (33 * 8)
 #define OFFSET_EPC    (34 * 8)
+#define OFFSET_NP     (35 * 8)
 
 .globl __am_asm_trap
 __am_asm_trap:
+
+  csrrw sp, sscratch, sp
+  bnez sp, save_np_user
+  csrr sp, sscratch
+  j save_np_kernel
+
+save_np_user:
   addi sp, sp, -CONTEXT_SIZE
 
   MAP(REGS, PUSH)
+  
+  li t1, 1
+  sd t1, OFFSET_NP(sp)
 
-  mv t0, sp
-  addi t0, t0, CONTEXT_SIZE
+  j save_context
+
+save_np_kernel:
+  addi sp, sp, -CONTEXT_SIZE
+  MAP(REGS, PUSH)
+  
+  li t1, 0
+  sd t1, OFFSET_NP(sp)
+  
+  j save_context
+
+save_context:
+  csrr t0, sscratch
   sd t0, OFFSET_SP(sp)
+
+  csrwi sscratch, 0
+
+
 
   csrr t0, scause
   csrr t1, sstatus
@@ -39,14 +65,26 @@ __am_asm_trap:
   mv a0, sp
   jal __am_irq_handle
   mv sp, a0
-
+  
   ld t1, OFFSET_STATUS(sp)
   ld t2, OFFSET_EPC(sp)
   csrw sstatus, t1
   csrw sepc, t2
 
+  ld t1, OFFSET_NP(sp)
+  bnez t1, am_recover_user
   MAP(REGS, POP)
 
   addi sp, sp, CONTEXT_SIZE
+
+  sret
+
+am_recover_user:
+  MAP(REGS, POP)
+  
+  addi sp, sp, CONTEXT_SIZE
+  csrw sscratch, sp
+  addi sp, sp, -CONTEXT_SIZE
+  ld sp, OFFSET_SP(sp)
 
   sret
