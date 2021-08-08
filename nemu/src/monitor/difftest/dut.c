@@ -39,6 +39,7 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
     ref_difftest_exec(1);
   }
 }
+#define USING_SPIKE
 
 void init_difftest(char *ref_so_file, long img_size, int port) {
 #ifndef DIFF_TEST
@@ -47,24 +48,46 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
   assert(ref_so_file != NULL);
 
+  #ifdef USING_SPIKE
+  ref_so_file = "/home/piper/program/riscv-isa-sim/difftest/build/difftest.so";
+  #endif
+
   void *handle;
   handle = dlopen(ref_so_file, RTLD_LAZY | RTLD_DEEPBIND);
   assert(handle);
 
-  ref_difftest_memcpy_from_dut = dlsym(handle, "difftest_memcpy_from_dut");
-  assert(ref_difftest_memcpy_from_dut);
+  #ifdef USING_SPIKE
+    ref_difftest_memcpy_from_dut = (void (*)(paddr_t dest, void *src, size_t n))dlsym(handle, "_Z24difftest_memcpy_from_dutmPvm");
+    assert(ref_difftest_memcpy_from_dut);
 
-  ref_difftest_getregs = dlsym(handle, "difftest_getregs");
-  assert(ref_difftest_getregs);
+    ref_difftest_getregs = (void (*)(void *))dlsym(handle, "_Z16difftest_getregsPv");
+    assert(ref_difftest_getregs);
 
-  ref_difftest_setregs = dlsym(handle, "difftest_setregs");
-  assert(ref_difftest_setregs);
+    ref_difftest_setregs = (void (*)(const void *))dlsym(handle, "_Z16difftest_setregsPv");
+    assert(ref_difftest_setregs);
 
-  ref_difftest_exec = dlsym(handle, "difftest_exec");
-  assert(ref_difftest_exec);
+    ref_difftest_exec = (void (*)(uint64_t))dlsym(handle, "_Z13difftest_execv");
+    assert(ref_difftest_exec);
 
-  void (*ref_difftest_init)(int) = dlsym(handle, "difftest_init");
-  assert(ref_difftest_init);
+    void (*ref_difftest_init)(void) = (void (*)(void))dlsym(handle, "_Z13difftest_initv");
+    assert(ref_difftest_init);
+
+    ref_difftest_init();
+  #else
+    ref_difftest_memcpy_from_dut = dlsym(handle, "difftest_memcpy_from_dut");
+    assert(ref_difftest_memcpy_from_dut);
+
+    ref_difftest_getregs = dlsym(handle, "difftest_getregs");
+    assert(ref_difftest_getregs);
+
+    ref_difftest_setregs = dlsym(handle, "difftest_setregs");
+    assert(ref_difftest_setregs);
+
+    ref_difftest_exec = dlsym(handle, "difftest_exec");
+    assert(ref_difftest_exec);
+
+    void (*ref_difftest_init)(int) = dlsym(handle, "difftest_init");
+    assert(ref_difftest_init);
 
   Log("Differential testing: \33[1;32m%s\33[0m", "ON");
   Log("The result of every instruction will be compared with %s. "
@@ -72,6 +95,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
       "If it is not necessary, you can turn it off in include/common.h.", ref_so_file);
 
   ref_difftest_init(port);
+  #endif
   ref_difftest_memcpy_from_dut(IMAGE_START + PMEM_BASE, guest_to_host(IMAGE_START), img_size);
   ref_difftest_setregs(&cpu);
 }
