@@ -1,4 +1,4 @@
-
+#include "../../include/common.h"
 #define concat_temp(x, y) x ## y
 #define concat(x, y) concat_temp(x, y)
 #define MAP(c, f) c(f)
@@ -21,7 +21,7 @@ f(30) f(31)
 
 .globl __am_asm_trap
 __am_asm_trap:
-
+#ifdef HAS_VME
   csrrw sp, sscratch, sp
   bnez sp, save_np_user
   csrr sp, sscratch
@@ -31,7 +31,7 @@ save_np_user:
   addi sp, sp, -CONTEXT_SIZE
 
   MAP(REGS, PUSH)
-  
+
   li t1, 1
   sd t1, OFFSET_NP(sp)
 
@@ -40,10 +40,10 @@ save_np_user:
 save_np_kernel:
   addi sp, sp, -CONTEXT_SIZE
   MAP(REGS, PUSH)
-  
+
   li t1, 0
   sd t1, OFFSET_NP(sp)
-  
+
   j save_context
 
 save_context:
@@ -51,8 +51,6 @@ save_context:
   sd t0, OFFSET_SP(sp)
 
   csrwi sscratch, 0
-
-
 
   csrr t0, scause
   csrr t1, sstatus
@@ -65,7 +63,7 @@ save_context:
   mv a0, sp
   jal __am_irq_handle
   mv sp, a0
-  
+
   ld t1, OFFSET_STATUS(sp)
   ld t2, OFFSET_EPC(sp)
   csrw sstatus, t1
@@ -81,10 +79,45 @@ save_context:
 
 am_recover_user:
   MAP(REGS, POP)
-  
+
   addi sp, sp, CONTEXT_SIZE
   csrw sscratch, sp
   addi sp, sp, -CONTEXT_SIZE
   ld sp, OFFSET_SP(sp)
 
   sret
+
+#else
+
+  addi sp, sp, -CONTEXT_SIZE
+
+  MAP(REGS, PUSH)
+
+  mv t0, sp
+  addi t0, t0, CONTEXT_SIZE
+  sd t0, OFFSET_SP(sp)
+
+  csrr t0, scause
+  csrr t1, sstatus
+  csrr t2, sepc
+
+  sd t0, OFFSET_CAUSE(sp)
+  sd t1, OFFSET_STATUS(sp)
+  sd t2, OFFSET_EPC(sp)
+
+  mv a0, sp
+  jal __am_irq_handle
+  mv sp, a0
+
+  ld t1, OFFSET_STATUS(sp)
+  ld t2, OFFSET_EPC(sp)
+  csrw sstatus, t1
+  csrw sepc, t2
+
+  MAP(REGS, POP)
+
+  addi sp, sp, CONTEXT_SIZE
+
+  sret
+
+#endif

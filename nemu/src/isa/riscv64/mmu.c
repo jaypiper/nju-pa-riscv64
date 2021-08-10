@@ -62,6 +62,7 @@ void vaddr_mmu_write(vaddr_t addr, word_t data, int len){
   return paddr_write(paddr, data, len);
 }
 
+#ifdef VME
 int isa_vaddr_check(vaddr_t vaddr, int type, int len){ //type好像也没什么用？ 或许是为了实现读写权限
 
   rtlreg_t _satp = reg_scr(SATP_ID);
@@ -74,3 +75,4 @@ int isa_vaddr_check(vaddr_t vaddr, int type, int len){ //type好像也没什么�
     default: assert(0); //return MEM_RET_FAIL;
   }
 }
+#endif

@@ -79,7 +79,9 @@ typedef struct {
   } instr;
 } riscv64_ISADecodeInfo;
 
-// #define isa_vaddr_check(vaddr, type, len) (MEM_RET_OK)
+#ifndef VME
+#define isa_vaddr_check(vaddr, type, len) (MEM_RET_OK)
+#endif
 
 #define riscv64_has_mem_exception() (cpu.mem_exception != 0)
 

@@ -3,6 +3,8 @@
 
 // #define DEBUG
 // #define DIFF_TEST
+// #define VME
+
 
 #ifdef __ISA_riscv64__
 # define ISA64

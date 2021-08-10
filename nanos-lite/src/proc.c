@@ -45,22 +45,24 @@ void init_proc() {
   //   "envp2",
   //   NULL
   // };
+#ifdef HAS_VME
   // context_uload(&pcb[1], "/bin/pal", argv, envp);
   // context_uload(&pcb[0], "/bin/event-test", NULL, NULL);
   context_uload(&pcb[0], "/bin/pal", NULL, NULL);
   context_uload(&pcb[1], "/bin/bird", NULL, NULL);
   context_uload(&pcb[2], "/bin/nterm", NULL, NULL);
   context_uload(&pcb[3], "/bin/hello", NULL, NULL);
+#else
+  context_uload(&pcb[0], "/bin/pal", NULL, NULL);
+#endif
   switch_boot_pcb();
   yield();
   // context_uload(&pcb[1], "/bin/nterm",argv , NULL);
 }
 static int next = 0;
 Context* schedule(Context *prev) {
+#ifdef HAS_VME
   assert(prev);
-  // current->cp = prev;
-  // current = &pcb[0];
-  // printf("after switch to 0\n");
   static int i = 0;
   i++;
   current->cp = prev;
@@ -72,7 +74,10 @@ Context* schedule(Context *prev) {
   else{
       current = &pcb[next];
   }
-  
+#else
+  current = &pcb[0];
+#endif
+
   return current->cp;
 }
 void set_next_pcb(int id){

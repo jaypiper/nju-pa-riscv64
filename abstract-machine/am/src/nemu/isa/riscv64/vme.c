@@ -19,7 +19,6 @@ static Area segments[] = {      // Kernel memory mappings
 static inline void set_satp(void *pdir) {
   uintptr_t mode = 8ull << 60;
   asm volatile("csrw satp, %0" : : "r"(mode | ((uintptr_t)pdir >> 12)));
-  
 }
 
 static inline uintptr_t get_satp() {
@@ -76,7 +75,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) { //proc暂时不使用
   uint64_t* pg_base = (uint64_t*)as->ptr;
   uint64_t _vaddr = (uint64_t)va;
   uint64_t idx = (_vaddr >> 30) & 0x1ff;
-  
+
   if(!(pg_base[idx] & VALID_MASK)){
     void* _new_pg = pgalloc_usr(PGSIZE);
     pg_base[idx] = (((uint64_t)_new_pg >> 2) & PGTABLE_MASK) | VALID_MASK;
@@ -103,6 +102,5 @@ Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
   _context->status = 32;
   _context->np = 1;
 
-  // printf("epc: %lx\n", (uintptr_t)entry);
   return _context;
 }
