@@ -13,7 +13,7 @@ static int screen_w = 0, screen_h = 0;
 uint32_t NDL_GetTicks() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  // printf("%d\n", tv.tv_usec);
+  // printf("time: %ld %d\n", tv.tv_usec, (uint32_t)(tv.tv_usec/1000));
   return tv.tv_usec / 1000;
 }
 
@@ -59,15 +59,31 @@ void NDL_OpenCanvas(int *w, int *h) {
   }
 }
 
+static uint32_t screen[800][800];
+
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
-   FILE* fp = fopen("/dev/fb", "w");
+  FILE* fp = fopen("/dev/fb", "w");
   int fd = fileno(fp);
   for(int i = 0; i < h; i++){
     // printf("line %d %d %x\n", i, (y+i)*screen_w+x, *pixels+ i*w);
     lseek(fd, ((y+i)*screen_w+x), SEEK_SET);
     // printf("seek done\n");
     write(fd, pixels + i * w, w);
+    for(int j = 0; j < w; j++) screen[y+i][x+j] = *(pixels+(i*w+j));
   }
+
+  // printf("\033[0;0H");
+  // for (int y = 0; y < screen_h; y += 4) {
+  //   lseek(fd, y * screen_w, SEEK_SET);
+  //   for (int x = 0; x < screen_w; x += 2) {
+  //     uint32_t color = screen[y][x];
+  //     const char *list = "o. *O0@#&+=cxua$";
+  //     char c = list[color / 0x111111u];
+  //     putchar(c);
+  //   }
+  //   putchar('\n');
+  // }
+
   fclose(fp);
 }
 
