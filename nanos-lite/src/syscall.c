@@ -14,7 +14,7 @@ void context_uload(PCB* pcb, const char* filename, char *const argv[], char *con
 int mm_brk(uintptr_t brk);
 
 
-static int _sys_time(){
+static long long _sys_time(){
   AM_TIMER_UPTIME_T _timer = io_read(AM_TIMER_UPTIME);
   // static int count = 0;
   // if(_timer.us/1000000  > count ){
