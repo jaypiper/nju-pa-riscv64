@@ -15,6 +15,7 @@ void init_audio();
 
 void send_key(uint8_t, bool);
 void vga_update_screen();
+void send_uart(uint8_t scancode, bool is_keydown);
 
 static int device_update_flag = false;
 
@@ -41,6 +42,7 @@ void device_update() {
         uint8_t k = event.key.keysym.scancode;
         bool is_keydown = (event.key.type == SDL_KEYDOWN);
         send_key(k, is_keydown);
+        send_uart(k, is_keydown);
         break;
       }
       default: break;

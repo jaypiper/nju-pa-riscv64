@@ -16,7 +16,7 @@ typedef struct {
   vaddr_t pc;
   union {
     rtlreg_t _64;
-  }csr[7];
+  }csr[10000];
   bool INTR;
 } riscv64_CPU_state;
 

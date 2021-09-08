@@ -63,3 +63,7 @@ void init_i8042() {
   add_pio_map("keyboard", I8042_DATA_PORT, (void *)i8042_data_port_base, 4, i8042_data_io_handler);
   add_mmio_map("keyboard", I8042_DATA_MMIO, (void *)i8042_data_port_base, 4, i8042_data_io_handler);
 }
+
+uint32_t get_key(uint8_t scancode){
+  return keymap[scancode];
+}
