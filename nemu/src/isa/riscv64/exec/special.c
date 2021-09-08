@@ -29,3 +29,7 @@ def_EHelper(nemu_trap) {
   print_asm("nemu trap");
   return;
 }
+
+def_EHelper(fence){
+  return;
+}

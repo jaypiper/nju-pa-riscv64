@@ -282,7 +282,8 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
     IDEX  (0b11001, I, jalr)
     EX    (0b11010, nemu_trap)
     IDEX  (0b11011, J, jal)
-    IDEX  (0b11100, I, csr_inst);
+    IDEX  (0b11100, I, csr_inst)
+    EX    (0b00011, fence)
     default: exec_inv(s);
   }
   // printf("decode end: %x\n", s->isa.instr.val);
