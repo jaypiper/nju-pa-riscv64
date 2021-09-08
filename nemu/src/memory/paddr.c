@@ -6,9 +6,18 @@
 #include <time.h>
 
 static uint8_t pmem[PMEM_SIZE] PG_ALIGN = {};
+#ifdef FLASH
+#define FLASH_START  0x30000000
+#define FLASH_END (FLASH_START + PMEM_SIZE)
+static uint8_t flash[PMEM_SIZE] PG_ALIGN = {};
+#endif
 
 void* guest_to_host(paddr_t addr) { return &pmem[addr]; }
 paddr_t host_to_guest(void *addr) { return (void *)pmem - addr; }
+
+#ifdef FLASH
+void* get_flash_addr(paddr_t addr) { return &flash[addr]; }
+#endif
 
 IOMap* fetch_mmio_map(paddr_t addr);
 
@@ -27,6 +36,12 @@ static inline bool in_pmem(paddr_t addr) {
   return (PMEM_BASE <= addr) && (addr <= PMEM_BASE + PMEM_SIZE - 1);
 }
 
+#ifdef FLASH
+static inline bool in_flash(paddr_t addr){
+  return (addr >= FLASH_START) && (addr < FLASH_END);
+}
+#endif
+
 static inline word_t pmem_read(paddr_t addr, int len) {
   void *p = &pmem[addr - PMEM_BASE];
   switch (len) {
@@ -41,6 +56,7 @@ static inline word_t pmem_read(paddr_t addr, int len) {
 }
 
 static inline void pmem_write(paddr_t addr, word_t data, int len) {
+  // printf("%x\n", addr);
   void *p = &pmem[addr - PMEM_BASE];
   switch (len) {
     case 1: *(uint8_t  *)p = data; return;
@@ -53,15 +69,49 @@ static inline void pmem_write(paddr_t addr, word_t data, int len) {
   }
 }
 
+#ifdef FLASH
+static inline word_t flash_read(paddr_t addr, int len){
+  void *p = &flash[addr - FLASH_START];
+  Assert(len != 8, "ld flash %x\n", addr);
+  switch(len){
+    case 1: return *(uint8_t*)p;
+    case 2: return *(uint16_t *)p;
+    case 4: return *(uint32_t *)p;
+    case 8: return *(uint64_t *)p;
+  }
+  assert(0);
+}
+void flash_init(paddr_t addr, word_t data, int len){
+  // printf("addr %x data %lx len %x\n", addr, data, len);
+  void *p = &flash[addr - FLASH_START];
+  switch (len) {
+    case 1: *(uint8_t  *)p = data; return;
+    case 2: *(uint16_t *)p = data; return;
+    case 4: *(uint32_t *)p = data; return;
+  #ifdef ISA64
+    case 8: *(uint64_t *)p = data; return;
+  #endif
+    default: assert(0);
+  }
+}
+
+#endif
+
 /* Memory accessing interfaces */
 
 inline word_t paddr_read(paddr_t addr, int len) {
   if (in_pmem(addr)) return pmem_read(addr, len);
+#ifdef FLASH
+  if (in_flash(addr)) return flash_read(addr, len);
+#endif
   else return map_read(addr, len, fetch_mmio_map(addr));
 }
 
 inline void paddr_write(paddr_t addr, word_t data, int len) {
   if (in_pmem(addr)) pmem_write(addr, data, len);
+#ifdef FLASH
+  else if (in_flash(addr)) Assert(0, "flash is not writable at addr %x\n", addr);
+#endif
   else map_write(addr, data, len, fetch_mmio_map(addr));
 }
 

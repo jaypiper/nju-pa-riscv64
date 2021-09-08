@@ -13,7 +13,15 @@ static const uint32_t img [] = {
 
 static void restart() {
   /* Set the initial program counter. */
-  cpu.pc = PMEM_BASE + IMAGE_START;
+#ifdef FLASH
+  cpu.pc = 0x30000000;
+#else
+  #ifdef NANOS
+    cpu.pc = 0x80100000;
+  #else
+    cpu.pc = 0x80000000;
+  #endif
+#endif
 
   /* The zero register is always 0. */
   cpu.gpr[0]._64 = 0;

@@ -67,6 +67,11 @@ CFLAGS   += -O2 -MMD -Wall -Werror -ggdb3 $(INCLUDES) \
             -D__ENGINE_$(ENGINE)__ \
             -D__ISA__=$(ISA) -D__ISA_$(ISA)__ -D_ISA_H_=\"isa/$(ISA).h\"
 
+FLASH ?= 0
+ifeq ($(FLASH), 1)
+	CFLAGS += -DFLASH
+endif
+
 # Files to be compiled
 SRCS = $(shell find src/ -name "*.c" | grep -v "isa\|engine")
 SRCS += $(shell find src/isa/$(ISA) -name "*.c")

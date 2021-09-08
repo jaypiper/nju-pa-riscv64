@@ -49,7 +49,12 @@ static inline long load_img() {
   long size = ftell(fp);
 
   fseek(fp, 0, SEEK_SET);
+
+#ifdef FLASH
+  int ret = fread(get_flash_addr(0), size, 1, fp);
+#else
   int ret = fread(guest_to_host(IMAGE_START), size, 1, fp);
+#endif
   assert(ret == 1);
 
   fclose(fp);
