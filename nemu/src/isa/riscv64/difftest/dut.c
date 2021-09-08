@@ -5,6 +5,10 @@
 #include <memory/paddr.h>
 #include <monitor/monitor.h>
 
+void init_serial();
+void init_timer();
+void init_vga();
+
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if(cpu.pc != ref_r->pc) return false;
   for(int i = 0; i < 32; i++){
@@ -39,7 +43,9 @@ void isa_difftest_memcpy_from_dut(paddr_t dest, void* src, size_t n){
 }
 
 void isa_difftest_init(){
-  
+  init_serial();
+  init_timer();
+  init_vga();
 }
 extern NEMUState nemu_state;
 
