@@ -4,7 +4,12 @@
 #include <common.h>
 
 // memory
-#define riscv64_IMAGE_START 0x100000
+#ifdef NANOS
+  #define riscv64_IMAGE_START 0x100000
+#else
+  #define riscv64_IMAGE_START 0
+#endif
+
 #define riscv64_PMEM_BASE 0x80000000
 
 // reg

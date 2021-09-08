@@ -22,6 +22,19 @@ static inline def_EHelper(sret){
   print_asm_template1(sret);
 }
 
+static inline def_EHelper(mret){
+  rtl_j(s, reg_scr(MEPC_ID));
+  // printf("mret: %lx %lx\n", cpu.pc, reg_scr(MEPC_ID));
+  if(reg_scr(MSTATUS_ID) & (1 << 7)){
+    reg_scr(MSTATUS_ID) |= (1 << 3);
+  }
+  else{
+    reg_scr(MSTATUS_ID) &= ~(uintptr_t)(1 << 3);
+  }
+  reg_scr(MSTATUS_ID) |= (1 << 7);
+  print_asm_template1(mret);
+}
+
 static inline def_EHelper(csrrc){
   rtl_li(s, s0, reg_scr(s->src2.imm)); //t
   rtl_not(s, s1, s->src1.preg);

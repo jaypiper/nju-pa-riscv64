@@ -44,7 +44,7 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write) {
     default: panic("do not support offset = %d", offset);
   }
 }
-static int count = 0;
+
 static int receive = 0;
 static void uart_handler(uint32_t offset, int len, bool is_write){
   assert(len == 1);
@@ -55,9 +55,10 @@ static void uart_handler(uint32_t offset, int len, bool is_write){
       break;
     case LSR:
       uart_base[LSR] &= ~1;
-      if(receive && count == 0) uart_base[LSR] |= 1;
-      if(receive) count ++;
-      if(!receive || count == 5) count = 0;
+      if(receive) {
+        uart_base[LSR] |= 1;
+        receive = 0;
+      }
       break;
   }
 }

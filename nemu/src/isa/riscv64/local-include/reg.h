@@ -11,6 +11,15 @@
 #define SSTATUS_ID 0x100
 #define SATP_ID 0x180  
 
+#define MTVEC_ID 0x305
+#define MEPC_ID 0x341
+#define MCAUSE_ID 0x342
+#define MIE_ID 0x304
+#define MIP_ID 0x344
+#define MTVAL_ID 0x343
+#define MSCRATCH_ID 0x340
+#define MSTATUS_ID 0x300
+
 static inline int check_reg_index(int index) {
   assert(index >= 0 && index < 32);
   return index;
@@ -19,6 +28,7 @@ static inline int check_reg_index(int index) {
 static int all_scr[7] = {SEPC_ID, STVEC_ID, SCAUSE_ID, STVAL_ID, SSCRATCH_ID, SSTATUS_ID, SATP_ID};
 
 static inline int get_scr_id(int id){
+  return id;
   for(int i = 0; i < 7; i++){
     if(all_scr[i] == id) return i;
   }
@@ -27,7 +37,7 @@ static inline int get_scr_id(int id){
 }
 
 #define reg_d(index) (cpu.gpr[check_reg_index(index)]._64)
-#define reg_scr(id) (cpu.csr[get_scr_id(id)]._64)
+#define reg_scr(id) (cpu.csr[id]._64)
 
 static inline const char* reg_name(int index) {
   extern const char* regs[];

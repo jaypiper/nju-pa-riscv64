@@ -93,9 +93,12 @@ static inline def_EHelper(csr_inst){
   // assert(0);
   switch(s->isa.instr.i.funct3){
     case 0:
-      if(s->isa.instr.i.simm11_0 == 0) exec_ecall(s);
-      else if(s->isa.instr.i.simm11_0 == 0b100000010) exec_sret(s);
-      else exec_inv(s);
+       switch(s->isa.instr.i.simm11_0){
+        case 0: exec_ecall(s); break;
+        case 0b000100000010: exec_sret(s); break;
+        case 0b001100000010: exec_mret(s); break;
+        default: exec_inv(s);
+      }
       break;
     EX (1, csrrw)
     EX (2, csrrs)
