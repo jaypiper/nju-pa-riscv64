@@ -12,8 +12,10 @@ void init_difftest(char *ref_so_file, long img_size, int port);
 
 static char *log_file = NULL;
 static char *diff_so_file = NULL;
-static char *img_file = "../../program/rt-thread/bsp/qemu-riscv-virt64/rtthread.bin";
+// static char *img_file = "../../program/rt-thread/bsp/qemu-riscv-virt64/rtthread.bin";
 // static char *img_file = "/home/piper/ics2020/nanos-lite/build/nanos-lite-riscv64-nemu.bin";
+// static char *img_file = "/home/chenlu/ysyx/program/build/loader-riscv64-mycpu.bin";
+static char *img_file = NULL;
 static int batch_mode = false;
 static int difftest_port = 1234;
 

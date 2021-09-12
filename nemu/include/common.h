@@ -3,8 +3,8 @@
 
 // #define DEBUG
 // #define DIFF_TEST
-// #define VME
-
+#define VME
+#define NANOS
 
 #ifdef __ISA_riscv64__
 # define ISA64

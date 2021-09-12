@@ -22,11 +22,19 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
 void isa_difftest_attach() {
 }
 
+static int diff_csrs[] = {
+  SEPC_ID, STVEC_ID, SCAUSE_ID, STVAL_ID, SSCRATCH_ID, SSTATUS_ID,
+  SATP_ID
+};
 
 void isa_difftest_getregs(void* c){
   CPU_state* state = (CPU_state*)c; 
   for(int i = 0; i < 32; i++){
     state->gpr[i]._64 = cpu.gpr[i]._64;
+  }
+  for(int i = 0; i < sizeof(diff_csrs) / sizeof(int); i++){
+    int id = diff_csrs[i];
+    state->csr[id]._64 = cpu.csr[id]._64;
   }
   state->pc = cpu.pc;
 }

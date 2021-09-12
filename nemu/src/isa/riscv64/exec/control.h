@@ -8,7 +8,7 @@ static inline def_EHelper(ecall){
 }
 
 static inline def_EHelper(sret){
-  // printf("before: %lx ", reg_scr(SSTATUS_ID));
+  // printf("sret before: %lx ", reg_scr(SSTATUS_ID));
   rtl_j(s, reg_scr(SEPC_ID));
   if(reg_scr(SSTATUS_ID) & (1 << 5)){
     reg_scr(SSTATUS_ID) |= 2;
@@ -17,7 +17,7 @@ static inline def_EHelper(sret){
     reg_scr(SSTATUS_ID) &= ~(uintptr_t)(2);
   }
   reg_scr(SSTATUS_ID) |= (1 << 5);
-  // printf("aft: %lx \n", reg_scr(SEPC_ID));
+  // printf("sret aft: %lx \n", reg_scr(SSTATUS_ID));
   
   print_asm_template1(sret);
 }
