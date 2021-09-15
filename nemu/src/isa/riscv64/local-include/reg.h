@@ -36,8 +36,8 @@ static inline int get_scr_id(int id){
   assert(0);
 }
 
-#define reg_d(index) (cpu.gpr[check_reg_index(index)]._64)
-#define reg_scr(id) (cpu.csr[id]._64)
+#define reg_d(index) (cpu.gpr[check_reg_index(index)])
+#define reg_scr(id) (cpu.csr[id])
 
 static inline const char* reg_name(int index) {
   extern const char* regs[];

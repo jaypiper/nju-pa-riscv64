@@ -15,13 +15,9 @@
 // reg
 
 typedef struct {
-  union {
-    rtlreg_t _64;
-  } gpr[32];
-  vaddr_t pc;
-  union {
-    rtlreg_t _64;
-  }csr[10000];
+  word_t gpr[32];
+  word_t pc;
+  word_t csr[10000];
   bool INTR;
 } riscv64_CPU_state;
 

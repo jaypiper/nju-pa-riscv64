@@ -85,7 +85,7 @@ static int cmd_d(char* args){
 }
 
 static int cmd_info(char *args){
-  if(strcmp(args, "r") == 0) isa_reg_display();
+  if(strcmp(args, "r") == 0) isa_reg_display(NULL);
   else if(strcmp(args, "w") == 0) watchpoint_info();
   else assert(0);
   return 0;

@@ -14,7 +14,7 @@ void init_i8042();
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if(cpu.pc != ref_r->pc) return false;
   for(int i = 0; i < 32; i++){
-    if(!difftest_check_reg(reg_name(i), pc, ref_r->gpr[i]._64, cpu.gpr[i]._64)) return false;
+    if(!difftest_check_reg(reg_name(i), pc, ref_r->gpr[i], cpu.gpr[i])) return false;
   }
   return true;
 }
@@ -30,11 +30,11 @@ static int diff_csrs[] = {
 void isa_difftest_getregs(void* c){
   CPU_state* state = (CPU_state*)c; 
   for(int i = 0; i < 32; i++){
-    state->gpr[i]._64 = cpu.gpr[i]._64;
+    state->gpr[i] = cpu.gpr[i];
   }
   for(int i = 0; i < sizeof(diff_csrs) / sizeof(int); i++){
     int id = diff_csrs[i];
-    state->csr[id]._64 = cpu.csr[id]._64;
+    state->csr[id] = cpu.csr[id];
   }
   state->pc = cpu.pc;
 }
@@ -42,7 +42,7 @@ void isa_difftest_getregs(void* c){
 void isa_difftest_setregs(const void* c){
   CPU_state* state = (CPU_state*)c; 
   for(int i = 0; i < 32; i++){
-    cpu.gpr[i]._64 = state->gpr[i]._64;
+    cpu.gpr[i] = state->gpr[i];
   }
   cpu.pc = state->pc;
 }
@@ -71,7 +71,7 @@ void isa_difftest_init(){
 extern NEMUState nemu_state;
 
 void is_nemu_trap(void* indi){
-  if(nemu_state.state == NEMU_END) *(uint32_t*)indi = 1;
+  if(nemu_state.state == NEMU_END || nemu_state.state == NEMU_ABORT) *(uint32_t*)indi = 1;
   else *(uint32_t*)indi = 0;
 }
 

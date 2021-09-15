@@ -1,10 +1,10 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-// #define DEBUG
-// #define DIFF_TEST
+#define DEBUG
+#define DIFF_TEST
 #define VME
-#define NANOS
+// #define NANOS
 
 #ifdef __ISA_riscv64__
 # define ISA64
@@ -23,7 +23,9 @@
 #include <assert.h>
 #include <string.h>
 
+#ifndef IN_SPIKE
 typedef uint8_t bool;
+#endif
 
 #ifdef ISA64
 typedef uint64_t word_t;

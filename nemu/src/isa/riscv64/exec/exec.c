@@ -97,7 +97,8 @@ static inline def_EHelper(csr_inst){
         case 0: exec_ecall(s); break;
         case 0b000100000010: exec_sret(s); break;
         case 0b001100000010: exec_mret(s); break;
-        default: exec_inv(s);
+        default: if(s->isa.instr.r.funct7 == 0b0001001){ exec_fence(s);
+                }else{ exec_inv(s);}
       }
       break;
     EX (1, csrrw)
@@ -262,6 +263,13 @@ static inline def_EHelper(inst){
   }
 }
 
+static inline def_EHelper(atomic){
+  switch(s->isa.instr.r.funct7 >> 2){
+    EXW(0b00001, amoswap, 8)
+    default: exec_inv(s);
+  }
+}
+
 static inline void fetch_decode_exec(DecodeExecState *s) {
   s->isa.instr.val = instr_fetch(&s->seq_pc, 4);
   if(s->isa.instr.i.opcode1_0 != 0x3){
@@ -284,6 +292,7 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
     IDEX  (0b11011, J, jal)
     IDEX  (0b11100, I, csr_inst)
     EX    (0b00011, fence)
+    IDEX  (0b01011, R, atomic)
     default: exec_inv(s);
   }
   // printf("decode end: %x\n", s->isa.instr.val);

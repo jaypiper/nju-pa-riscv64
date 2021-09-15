@@ -1,6 +1,6 @@
 NAME = nemu
 
-ISA ?= x86
+ISA ?= riscv64
 ISAS = $(shell ls src/isa/)
 ifeq ($(filter $(ISAS), $(ISA)), ) # ISA must be valid
 $(error Invalid ISA. Supported: $(ISAS))
@@ -26,13 +26,7 @@ LD_LIBS = -lSDL2 -lreadline -ldl
 endif
 
 ifndef SHARE
-DIFF ?= kvm
-ifneq ($(ISA),x86)
-ifeq ($(DIFF),kvm)
-DIFF = qemu
-$(info KVM is only supported with ISA=x86, use QEMU instead)
-endif
-endif
+DIFF ?= spike
 
 ifeq ($(DIFF),qemu)
 DIFF_REF_PATH = $(NEMU_HOME)/tools/qemu-diff
@@ -42,12 +36,15 @@ else ifeq ($(DIFF),kvm)
 DIFF_REF_PATH = $(NEMU_HOME)/tools/kvm-diff
 DIFF_REF_SO = $(DIFF_REF_PATH)/build/$(ISA)-kvm-so
 CFLAGS += -D__DIFF_REF_KVM__
+else ifeq ($(DIFF),spike)
+DIFF_REF_PATH = $(NEMU_HOME)/tools/spike-diff
+DIFF_REF_SO = $(DIFF_REF_PATH)/build/$(ISA)-spike-so
+CFLAGS += -D__DIFF_REF_SPIKE__
 else ifeq ($(DIFF),nemu)
 DIFF_REF_PATH = $(NEMU_HOME)
 DIFF_REF_SO = $(DIFF_REF_PATH)/build/$(ISA)-nemu-interpreter-so
 CFLAGS += -D__DIFF_REF_NEMU__
 MKFLAGS = ISA=$(ISA) SHARE=1 ENGINE=interpreter
-else
 $(error invalid DIFF. Supported: qemu kvm nemu)
 endif
 endif
@@ -101,7 +98,7 @@ IMG :=
 NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 $(BINARY): $(OBJS)
-	
+	-@$(MAKE) -C $(DIFF_REF_PATH)
 	@echo + LD $@
 	@$(LD) -O2 -rdynamic $(SO_LDLAGS) -o $@ $^ $(LD_LIBS)
 
@@ -123,3 +120,4 @@ clean:
 	$(MAKE) -C tools/gen-expr clean
 	$(MAKE) -C tools/qemu-diff clean
 	$(MAKE) -C tools/kvm-diff clean
+	$(MAKE) -C tools/spike-diff clean

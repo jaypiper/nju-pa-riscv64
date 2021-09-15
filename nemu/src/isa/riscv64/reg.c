@@ -8,17 +8,31 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-void isa_reg_display() {
-  for(int i = 0; i < 32; i++){
-    printf("%-4s    %016lx    %lu\n", regs[i], reg_d(i), reg_d(i));
-    // if(i % 2) printf("\n");
-    // else printf("      ");
+void isa_reg_display(CPU_state* ref_r) {
+  if(ref_r){
+    for(int i = 0; i < 32; i++){
+      printf("%-4s    %016lx   |  %016lx\n", regs[i], reg_d(i), ref_r->gpr[i]);
+      // if(i % 2) printf("\n");
+      // else printf("      ");
+    }
+    printf("pc      %16lx   |  %16lx\n", cpu.pc, ref_r->pc);
+    printf("cause   %16lx    \n", reg_scr(SCAUSE_ID));
+    printf("status  %16lx    \n", reg_scr(SSTATUS_ID));
+    printf("epc     %16lx    \n", reg_scr(SEPC_ID));
+    printf("scratch %16lx    \n", reg_scr(SSCRATCH_ID));
   }
-  printf("pc      %16lx    %lu\n", cpu.pc, cpu.pc);
-  printf("cause   %16lx    \n", reg_scr(SCAUSE_ID));
-  printf("status  %16lx    \n", reg_scr(SSTATUS_ID));
-  printf("epc     %16lx    \n", reg_scr(SEPC_ID));
-  printf("scratch %16lx    \n", reg_scr(SSCRATCH_ID));
+  else{
+    for(int i = 0; i < 16; i++){
+      printf("%-4s    %016lx   | %-4s   %016lx\n", regs[i], reg_d(i), regs[i+16], reg_d(i+16));
+      // if(i % 2) printf("\n");
+      // else printf("      ");
+    }
+    printf("pc      %16lx    \n", cpu.pc);
+    printf("cause   %16lx    \n", reg_scr(SCAUSE_ID));
+    printf("status  %16lx    \n", reg_scr(SSTATUS_ID));
+    printf("epc     %16lx    \n", reg_scr(SEPC_ID));
+    printf("scratch %16lx    \n", reg_scr(SSCRATCH_ID));
+  }
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

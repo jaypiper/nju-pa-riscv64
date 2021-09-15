@@ -18,7 +18,7 @@
       fprintf(stderr, "\33[0m\n"); \
       extern void isa_reg_display(); \
       extern void monitor_statistic(); \
-      isa_reg_display(); \
+      isa_reg_display(NULL); \
       monitor_statistic(); \
       assert(cond); \
     } \

@@ -42,7 +42,7 @@ void query_intr(DecodeExecState *s) {
   if(cpu.INTR && reg_scr(SSTATUS_ID) & 2){
     cpu.INTR = 0;
     raise_intr(s, IRQ_TIMER, cpu.pc);
+    // printf("timer intr %lx jmp to %lx\n", cpu.pc, s->jmp_pc);
     update_pc(s);
-    
   }
 }
