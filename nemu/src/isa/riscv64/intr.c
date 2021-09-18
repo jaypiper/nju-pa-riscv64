@@ -1,5 +1,7 @@
 #include <cpu/exec.h>
 #include "local-include/rtl.h"
+#include <encoding.h>
+
 #define IRQ_TIMER 0x8000000000000005
 
 void raise_intr(DecodeExecState *s, word_t NO, vaddr_t epc) {
@@ -7,39 +9,39 @@ void raise_intr(DecodeExecState *s, word_t NO, vaddr_t epc) {
    * That is, use ``NO'' to index the IDT.
    */
 #ifdef NANOS
-  reg_scr(SEPC_ID) = epc;
-  reg_scr(SCAUSE_ID) = NO;
+  get_csr(SEPC_ID) = epc;
+  get_csr(SCAUSE_ID) = NO;
   //将sstatus.SIE保存到sstatus.SPIE中, 然后将sstatus.SIE位置为0
   //sie: 1 spie: 5
-  // printf("intr before: %lx ", reg_scr(SSTATUS_ID));
-  if(reg_scr(SSTATUS_ID) & 2){
-    reg_scr(SSTATUS_ID) |= (1 << 5);
+  // printf("intr before: %lx ", get_csr(SSTATUS_ID));
+  if(get_csr(SSTATUS_ID) & 2){
+    get_csr(SSTATUS_ID) |= (1 << 5);
   }
   else{
-    reg_scr(SSTATUS_ID) &= ~(uintptr_t)(1 << 5);
+    get_csr(SSTATUS_ID) &= ~(uintptr_t)(1 << 5);
   }
-  reg_scr(SSTATUS_ID) &= ~(uintptr_t)2;
+  get_csr(SSTATUS_ID) &= ~(uintptr_t)2;
   
-  // printf("intr aft: %lx \n", reg_scr(SSTATUS_ID));
-  // printf("stvec %lx\n", reg_scr(STVEC_ID));
-  rtl_j(s, reg_scr(STVEC_ID));
+  // printf("intr aft: %lx \n", get_csr(SSTATUS_ID));
+  // printf("stvec %lx\n", get_csr(STVEC_ID));
+  rtl_j(s, get_csr(STVEC_ID));
 #else
-  reg_scr(MEPC_ID) = epc;
-  reg_scr(MCAUSE_ID) = NO;
-  if(reg_scr(MSTATUS_ID) & (1 << 3)){
-    reg_scr(MSTATUS_ID) |= (1 << 7);
+  set_csr(CSR_MEPC, epc);
+  set_csr(CSR_MCAUSE, NO);
+  if(get_csr(CSR_MSTATUS) & (1 << 3)){
+    set_csr(CSR_MSTATUS, get_csr(CSR_MSTATUS) | (1 << 7));
   }
   else{
-    reg_scr(MSTATUS_ID) &= ~(uintptr_t)(1 << 7);
+    set_csr(CSR_MSTATUS, get_csr(MSTATUS_ID) & ~(uintptr_t)(1 << 7));
   }
-  reg_scr(MSTATUS_ID) &= ~(uintptr_t)(1 << 3);
-  rtl_j(s, reg_scr(MTVEC_ID));
+  set_csr(CSR_MSTATUS, get_csr(MSTATUS_ID) & ~(uintptr_t)(1 << 3));
+  rtl_j(s, get_csr(MTVEC_ID));
 #endif
 }
 
 void query_intr(DecodeExecState *s) {
-  // if(cpu.INTR && reg_scr(SSTATUS_ID) != 0) printf("INTR: %d status: %lx %lx\n", cpu.INTR, reg_scr(SSTATUS_ID), cpu.pc);
-  if(cpu.INTR && reg_scr(SSTATUS_ID) & 2){
+  // if(cpu.INTR && get_csr(SSTATUS_ID) != 0) printf("INTR: %d status: %lx %lx\n", cpu.INTR, get_csr(SSTATUS_ID), cpu.pc);
+  if(cpu.INTR && get_csr(SSTATUS_ID) & 2){
     cpu.INTR = 0;
     raise_intr(s, IRQ_TIMER, cpu.pc);
     // printf("timer intr %lx jmp to %lx\n", cpu.pc, s->jmp_pc);

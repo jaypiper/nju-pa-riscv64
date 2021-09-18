@@ -5,6 +5,7 @@
 #include <memory/paddr.h>
 #include <monitor/monitor.h>
 #include <cpu/exec.h>
+#include <encoding.h>
 
 void init_serial();
 void init_timer();
@@ -16,6 +17,13 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   for(int i = 0; i < 32; i++){
     if(!difftest_check_reg(reg_name(i), pc, ref_r->gpr[i], cpu.gpr[i])) return false;
   }
+  for(int i = 0; i < csr_num; i++){
+    int csr_id = csrs[i];
+    if(!difftest_check_reg(csr_name[i], pc, ref_r->csr[csr_id], cpu.csr[csr_id])){
+      return false;
+    }
+  }
+  if(ref_r->privilege != cpu.privilege) return false;
   return true;
 }
 

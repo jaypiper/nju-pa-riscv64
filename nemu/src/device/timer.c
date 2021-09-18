@@ -39,7 +39,7 @@ static void timer_cmp(uint32_t offset, int len, bool is_write){
 
 void timer_update(){
   *clint_mtime_port = *clint_mtime_port + 1;
-  if(*clint_mtime_port > *clint_mtimecmp_port) cpu.INTR = 1;
+  // if(*clint_mtime_port > *clint_mtimecmp_port) cpu.INTR = 1;
 }
 
 void init_timer() {

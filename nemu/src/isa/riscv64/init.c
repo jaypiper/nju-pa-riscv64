@@ -1,6 +1,7 @@
 #include <isa.h>
 #include <memory/paddr.h>
-
+#include <encoding.h>
+#include <csr.h>
 // this is not consistent with uint8_t
 // but it is ok since we do not access the array directly
 static const uint32_t img [] = {
@@ -10,6 +11,8 @@ static const uint32_t img [] = {
   0x0000006b,  // nemu_trap
   0xdeadbeef,  //some data
 };
+
+void init_csr();
 
 static void restart() {
   /* Set the initial program counter. */
@@ -25,6 +28,8 @@ static void restart() {
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
+  cpu.privilege = M_MODE;
+  init_csr();
 }
 
 void init_isa() {
@@ -33,4 +38,11 @@ void init_isa() {
 
   /* Initialize this virtual computer system. */
   restart();
+}
+
+
+void init_csr(){
+  cpu.csr[CSR_MSTATUS] = set_val(cpu.csr[CSR_MSTATUS], MSTATUS_SXL, 0b10);
+  cpu.csr[CSR_MSTATUS] = set_val(cpu.csr[CSR_MSTATUS], MSTATUS_UXL, 0b10);
+  cpu.csr[CSR_SSTATUS] = set_val(cpu.csr[CSR_SSTATUS], SSTATUS_UXL, 0b10);
 }

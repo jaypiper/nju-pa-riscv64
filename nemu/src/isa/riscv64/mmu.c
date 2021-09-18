@@ -9,7 +9,7 @@
 #define PG_OFFSET 0xfff
 
 paddr_t isa_mmu_translate(vaddr_t addr, int type, int len) {
-  uint64_t* pg_base = (uintptr_t*)((reg_scr(SATP_ID) & STAP_MASK) << 12);
+  uint64_t* pg_base = (uintptr_t*)((get_csr(SATP_ID) & STAP_MASK) << 12);
   uint64_t idx = (addr >> 30) & 0x1ff; 
   
   // printf("base %lx idx: %ld addr: %lx\n", (uintptr_t)pg_base, idx, addr);
@@ -65,7 +65,7 @@ void vaddr_mmu_write(vaddr_t addr, word_t data, int len){
 #ifdef VME
 int isa_vaddr_check(vaddr_t vaddr, int type, int len){ //type好像也没什么用？ 或许是为了实现读写权限
 
-  rtlreg_t _satp = reg_scr(SATP_ID);
+  rtlreg_t _satp = get_csr(SATP_ID);
 
   _satp >>= 60;
 

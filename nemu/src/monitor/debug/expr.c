@@ -18,9 +18,9 @@ enum {
   TK_AND, TK_OR,
   // TK_PLUS, TK_MINUS, TK_MULTI, TK_DIV, 
   TK_REG, TK_NUM, TK_HEX, TK_OCT,
-  TK_LP, TK_RP
+  TK_LP, TK_RP,
   /* TODO: Add more token types */
-
+  TK_LESS, TK_MORE
 };
 
 static struct rule {
@@ -43,7 +43,9 @@ static struct rule {
   {"0[0-7]+", TK_OCT},
   {"0|([1-9][0-9]*)", TK_NUM},
   {"\\(", TK_LP},
-  {"\\)", TK_RP}
+  {"\\)", TK_RP},
+  {"<", TK_LESS},
+  {">", TK_MORE}
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -157,13 +159,17 @@ uint64_t eval(int p, int q){
   }
   if(last_id == p && tokens[p].type == '-' ) return 0 - eval(p+1, q);
   if(last_id == p && tokens[p].type == '*' ) return *((word_t*)guest_to_host(eval(p+1, q) - PMEM_BASE));
+  uint64_t a = eval(p, last_id-1);
+  uint64_t b = eval(last_id+1, q);
   switch(tokens[last_id].type){
-    case '+': return eval(p, last_id-1) + eval(last_id+1, q); break;
-    case '-': return eval(p, last_id-1) - eval(last_id+1, q); break;
-    case '*': return eval(p, last_id-1) * eval(last_id+1, q); break;
-    case '/': return eval(p, last_id-1) / eval(last_id+1, q); break;
-    case TK_EQ: return eval(p, last_id-1) == eval(last_id+1, q); break;
-    case TK_UEQ: return eval(p, last_id-1) != eval(last_id+1, q); break;
+    case '+': return a + b; break;
+    case '-': return a - b; break;
+    case '*': return a * b; break;
+    case '/': return a / b; break;
+    case TK_EQ: return a == b; break;
+    case TK_UEQ: return a != b; break;
+    case TK_LESS: return a < b; break;
+    case TK_MORE: return a > b; break;
     default: printf("token should be an op: p: %d, q: %d, lastid: %d %s\n", p, q, tokens[last_id].type, tokens[last_id].str); assert(0);
   }
   assert(0);
@@ -171,11 +177,17 @@ uint64_t eval(int p, int q){
 
 int get_priority(int p){
   assert(0 <= p && p < nr_token);
-  if(tokens[p].type == TK_EQ || tokens[p].type == TK_UEQ) return 1;
   if((tokens[p].type == '-' || tokens[p].type == '*') && (p == 0 || get_priority(p-1) < 3)) return 5; // 前面存在其他运算符，为负数/解引用
-  if(tokens[p].type == '+' || tokens[p].type == '-') return 2;
-  else if(tokens[p].type == '*' || tokens[p].type == '/') return 3;
-  else if(tokens[p].type == '-' || tokens[p].type == '*') return 4;
+  switch(tokens[p].type){
+    case TK_EQ: case TK_UEQ: case TK_LESS: case TK_MORE: return 1;
+    case '+': case '-': return 2;
+    case '*': case '/': return 3;
+  }
+  // if(tokens[p].type == TK_EQ || tokens[p].type == TK_UEQ || tokens[p].type == TK_LESS || tokens[p].type == TK_MORE) return 1;
+  // if((tokens[p].type == '-' || tokens[p].type == '*') && (p == 0 || get_priority(p-1) < 3)) return 5; // 前面存在其他运算符，为负数/解引用
+  // if(tokens[p].type == '+' || tokens[p].type == '-') return 2;
+  // else if(tokens[p].type == '*' || tokens[p].type == '/') return 3;
+  // else if(tokens[p].type == '-' || tokens[p].type == '*') return 4;
   return 5;
 }
 

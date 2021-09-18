@@ -1,5 +1,5 @@
 #include "../local-include/rtl.h"
-
+#include <csr.h>
 #include "compute.h"
 #include "control.h"
 #include "ldst.h"

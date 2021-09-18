@@ -2,6 +2,7 @@
 #define __RISCV64_REG_H__
 
 #include <common.h>
+#include <encoding.h>
 
 #define SEPC_ID 0x141
 #define STVEC_ID 0x105
@@ -37,12 +38,21 @@ static inline int get_scr_id(int id){
 }
 
 #define reg_d(index) (cpu.gpr[check_reg_index(index)])
-#define reg_scr(id) (cpu.csr[id])
+// #define get_csr(id) (cpu.csr[id])
+
+extern int csr_num;
+extern const int csrs[];
+extern const char* csr_name[];
 
 static inline const char* reg_name(int index) {
   extern const char* regs[];
   assert(index >= 0 && index < 32);
   return regs[index];
 }
+
+void set_csr(int id, rtlreg_t val);
+rtlreg_t get_csr(int id);
+void set_priv(int priv);
+word_t get_priv();
 
 #endif
