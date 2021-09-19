@@ -1,1 +1,1 @@
-// #define HAS_VME
+#define HAS_VME

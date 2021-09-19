@@ -363,6 +363,7 @@ uint32_t __inline __builtin_clzll(uint64_t value) {
 
 #include <am.h>
 
+#if !defined(__riscv) || defined(__riscv_m)
 /* Returns: a / b */
 
 COMPILER_RT_ABI di_int
@@ -409,6 +410,17 @@ __udivdi3(du_int a, du_int b)
 {
     return __udivmoddi4(a, b, 0);
 }
+
+/* Returns: a % b */
+
+COMPILER_RT_ABI du_int
+__umoddi3(du_int a, du_int b)
+{
+    du_int r;
+    __udivmoddi4(a, b, &r);
+    return r;
+}
+#endif
 
 
 COMPILER_RT_ABI du_int
@@ -621,16 +633,6 @@ __udivmoddi4(du_int a, du_int b, du_int* rem)
     return q.all;
 }
 
-/* Returns: a % b */
-
-COMPILER_RT_ABI du_int
-__umoddi3(du_int a, du_int b)
-{
-    du_int r;
-    __udivmoddi4(a, b, &r);
-    return r;
-}
-
 // Returns: the number of leading 0-bits
 
 // Precondition: a != 0
@@ -704,4 +706,26 @@ COMPILER_RT_ABI si_int __ctzsi2(si_int a) {
   //         return r;
   //     }
   return r + ((2 - (x >> 1)) & -((x & 1) == 0));
+}
+
+typedef int si_int;
+typedef long long di_int;
+typedef unsigned su_int;
+#define CHAR_BIT __CHAR_BIT__
+
+
+si_int __ctzdi2(di_int a) {
+  dwords x;
+  x.all = a;
+  const si_int f = -(x.s.low == 0);
+  return __ctzsi2((x.s.high & f) | (x.s.low & ~f)) +
+         (f & ((si_int)(sizeof(si_int) * CHAR_BIT)));
+}
+
+si_int __clzdi2(di_int a) {
+  dwords x;
+  x.all = a;
+  const si_int f = -(x.s.high == 0);
+  return __clzsi2((x.s.high & ~f) | (x.s.low & f)) +
+         (f & ((si_int)(sizeof(si_int) * CHAR_BIT)));
 }
