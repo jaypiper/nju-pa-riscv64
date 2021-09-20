@@ -8,8 +8,8 @@ def_EHelper(inv) {
 
   uint32_t instr[2];
   s->seq_pc = cpu.pc;
-  instr[0] = instr_fetch(&s->seq_pc, 4);
-  instr[1] = instr_fetch(&s->seq_pc, 4);
+  instr[0] = instr_fetch(s, &s->seq_pc, 4);
+  instr[1] = instr_fetch(s, &s->seq_pc, 4);
 
   printf("invalid opcode(PC = " FMT_WORD ": %08x %08x ...\n\n",
       cpu.pc, instr[0], instr[1]);

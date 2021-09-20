@@ -4,22 +4,26 @@
 #include <common.h>
 #include <encoding.h>
 
-#define SEPC_ID 0x141
-#define STVEC_ID 0x105
-#define SCAUSE_ID 0x142
-#define STVAL_ID 0x143
-#define SSCRATCH_ID 0x140
-#define SSTATUS_ID 0x100
-#define SATP_ID 0x180  
-
-#define MTVEC_ID 0x305
-#define MEPC_ID 0x341
-#define MCAUSE_ID 0x342
-#define MIE_ID 0x304
-#define MIP_ID 0x344
-#define MTVAL_ID 0x343
-#define MSCRATCH_ID 0x340
-#define MSTATUS_ID 0x300
+#define SEPC_ID       0x141
+#define STVEC_ID      0x105
+#define SCAUSE_ID     0x142
+#define STVAL_ID      0x143
+#define SSCRATCH_ID   0x140
+#define SSTATUS_ID    0x100
+#define SATP_ID       0x180
+#define SIE_ID        0x104
+#define SIP_ID        0x144
+#define MTVEC_ID      0x305
+#define MEPC_ID       0x341
+#define MCAUSE_ID     0x342
+#define MIE_ID        0x304
+#define MIP_ID        0x344
+#define MTVAL_ID      0x343
+#define MSCRATCH_ID   0x340
+#define MSTATUS_ID    0x300
+#define MEDELEG_ID    0x302
+#define MIDELEG_ID    0x303
+#define MHARTID       0xf14
 
 static inline int check_reg_index(int index) {
   assert(index >= 0 && index < 32);

@@ -115,27 +115,27 @@ inline void paddr_write(paddr_t addr, word_t data, int len) {
   else map_write(addr, data, len, fetch_mmio_map(addr));
 }
 
-word_t vaddr_mmu_read(vaddr_t addr, int len, int type);
-void vaddr_mmu_write(vaddr_t addr, word_t data, int len);
+word_t vaddr_mmu_read(DecodeExecState* s, vaddr_t addr, int len, int type);
+void vaddr_mmu_write(DecodeExecState* s, vaddr_t addr, word_t data, int len);
 
 
 #define def_vaddr_template(bytes) \
-word_t concat(vaddr_ifetch, bytes) (vaddr_t addr) { \
+word_t concat(vaddr_ifetch, bytes) (DecodeExecState* s, vaddr_t addr) { \
   int ret = isa_vaddr_check(addr, MEM_TYPE_IFETCH, bytes); \
   if (ret == MEM_RET_OK) return paddr_read(addr, bytes); \
-  else if (ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_read(addr, bytes, MEM_TYPE_IFETCH);\
+  else if (ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_read(s, addr, bytes, MEM_TYPE_IFETCH);\
   return 0; \
 } \
-word_t concat(vaddr_read, bytes) (vaddr_t addr) { \
+word_t concat(vaddr_read, bytes) (DecodeExecState* s, vaddr_t addr) { \
   int ret = isa_vaddr_check(addr, MEM_TYPE_READ, bytes); \
   if (ret == MEM_RET_OK) return paddr_read(addr, bytes); \
-  else if (ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_read(addr, bytes, MEM_TYPE_READ); \
+  else if (ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_read(s, addr, bytes, MEM_TYPE_READ); \
   return 0; \
 } \
-void concat(vaddr_write, bytes) (vaddr_t addr, word_t data) { \
+void concat(vaddr_write, bytes) (DecodeExecState* s, vaddr_t addr, word_t data) { \
   int ret = isa_vaddr_check(addr, MEM_TYPE_WRITE, bytes); \
   if (ret == MEM_RET_OK) paddr_write(addr, data, bytes); \
-  else if(ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_write(addr, data, bytes);\
+  else if(ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_write(s, addr, data, bytes);\
 }
 
 

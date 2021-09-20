@@ -19,6 +19,12 @@ typedef struct {
   char str[OP_STR_SIZE];
 } Operand;
 
+typedef struct Trap_t{
+    rtlreg_t cause;
+    rtlreg_t pc;
+    rtlreg_t tval;
+}trap_t;
+
 typedef struct {
   uint32_t opcode;
   vaddr_t seq_pc;  // sequential pc
@@ -28,6 +34,8 @@ typedef struct {
   int width;
   rtlreg_t tmp_reg[4];
   ISADecodeInfo isa;
+  bool is_trap;
+  trap_t trap;
 } DecodeExecState;
 
 #define def_DHelper(name) void concat(decode_, name) (DecodeExecState *s)

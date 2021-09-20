@@ -48,10 +48,12 @@ void init_proc() {
 #ifdef HAS_VME
   // context_uload(&pcb[1], "/bin/pal", argv, envp);
   // context_uload(&pcb[0], "/bin/event-test", NULL, NULL);
-  context_uload(&pcb[0], "/bin/pal", NULL, NULL);
-  context_uload(&pcb[1], "/bin/bird", NULL, NULL);
-  context_uload(&pcb[2], "/bin/nterm", NULL, NULL);
-  context_uload(&pcb[3], "/bin/hello", NULL, NULL);
+  context_uload(&pcb[0], "/bin/hello", NULL, NULL);
+  context_uload(&pcb[1], "/bin/pal", NULL, NULL);
+  // context_uload(&pcb[0], "/bin/pal", NULL, NULL);
+  // context_uload(&pcb[1], "/bin/bird", NULL, NULL);
+  // context_uload(&pcb[2], "/bin/nterm", NULL, NULL);
+  // context_uload(&pcb[3], "/bin/hello", NULL, NULL);
 #else
   context_uload(&pcb[0], "/bin/pal", NULL, NULL);
 #endif
@@ -61,6 +63,14 @@ void init_proc() {
 }
 static int next = 0;
 Context* schedule(Context *prev) {
+  current->cp = prev;
+  if(current == &pcb[0]){
+    current = &pcb[1];
+  }
+  else{
+    current = &pcb[0];
+  }
+  return current->cp;
 #ifdef HAS_VME
   assert(prev);
   static int i = 0;

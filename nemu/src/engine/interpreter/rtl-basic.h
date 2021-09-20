@@ -3,6 +3,7 @@
 
 #include "c_op.h"
 #include <memory/vaddr.h>
+#include <encoding.h>
 
 /* RTL basic instructions */
 
@@ -103,15 +104,27 @@ static inline def_rtl(idiv64_r, rtlreg_t* dest,
 // memory
 
 static inline def_rtl(lm, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
-  *dest = vaddr_read(*addr + offset, len);
+  *dest = vaddr_read(s, *addr + offset, len);
+  if(s->is_trap){
+    s->trap.cause = CAUSE_LOAD_PAGE_FAULT;
+    s->trap.tval = (rtlreg_t)(*addr + offset);
+  }
 }
 
 static inline def_rtl(sm, const rtlreg_t* addr, word_t offset, const rtlreg_t* src1, int len) {
-  vaddr_write(*addr + offset, *src1, len);
+  vaddr_write(s, *addr + offset, *src1, len);
+  if(s->is_trap){
+    s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+    s->trap.tval = (rtlreg_t)(*addr + offset);
+  }
 }
 
 static inline def_rtl(lms, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
-  word_t val = vaddr_read(*addr + offset, len);
+  word_t val = vaddr_read(s, *addr + offset, len);
+  if(s->is_trap){
+    s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+    s->trap.tval = (rtlreg_t)(*addr + offset);
+  }
   switch (len) {
     case 4: *dest = (sword_t)(int32_t)val; return;
     case 1: *dest = (sword_t)( int8_t)val; return;

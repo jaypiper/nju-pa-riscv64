@@ -22,7 +22,10 @@ static inline def_EHelper(ecall){
     sstatus = set_val(sstatus, SSTATUS_SPP, cpu.privilege);
     sstatus = set_val(sstatus, SSTATUS_SIE, 0);
     set_csr(CSR_SSTATUS, sstatus);
+    set_csr(CSR_STVAL, 0);
     set_priv(PRV_S);
+  }else{
+    assert(0);
   }
   print_asm_template1(ecall);
 }

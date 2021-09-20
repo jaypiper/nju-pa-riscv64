@@ -31,8 +31,9 @@ void isa_difftest_attach() {
 }
 
 static int diff_csrs[] = {
-  SEPC_ID, STVEC_ID, SCAUSE_ID, STVAL_ID, SSCRATCH_ID, SSTATUS_ID,
-  SATP_ID
+    SEPC_ID, STVEC_ID, SCAUSE_ID, STVAL_ID, SSCRATCH_ID, SSTATUS_ID,
+    SATP_ID, SIE_ID, SIP_ID, MTVEC_ID, MEPC_ID, MCAUSE_ID, MIE_ID, MIP_ID, MTVAL_ID,
+    MSCRATCH_ID, MSTATUS_ID, MHARTID, MEDELEG_ID, MIDELEG_ID
 };
 
 void isa_difftest_getregs(void* c){
@@ -45,6 +46,7 @@ void isa_difftest_getregs(void* c){
     state->csr[id] = cpu.csr[id];
   }
   state->pc = cpu.pc;
+  state->privilege = cpu.privilege;
 }
 
 void isa_difftest_setregs(const void* c){
@@ -53,6 +55,7 @@ void isa_difftest_setregs(const void* c){
     cpu.gpr[i] = state->gpr[i];
   }
   cpu.pc = state->pc;
+  cpu.privilege = state->privilege;
 }
 
 

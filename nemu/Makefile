@@ -25,7 +25,6 @@ else
 LD_LIBS = -lSDL2 -lreadline -ldl
 endif
 
-ifndef SHARE
 DIFF ?= spike
 
 ifeq ($(DIFF),qemu)
@@ -46,7 +45,6 @@ DIFF_REF_SO = $(DIFF_REF_PATH)/build/$(ISA)-nemu-interpreter-so
 CFLAGS += -D__DIFF_REF_NEMU__
 MKFLAGS = ISA=$(ISA) SHARE=1 ENGINE=interpreter
 $(error invalid DIFF. Supported: qemu kvm nemu)
-endif
 endif
 
 OBJ_DIR ?= $(BUILD_DIR)/obj-$(ISA)-$(ENGINE)$(SO)

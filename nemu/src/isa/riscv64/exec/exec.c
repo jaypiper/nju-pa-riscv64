@@ -266,13 +266,26 @@ static inline def_EHelper(inst){
 
 static inline def_EHelper(atomic){
   switch(s->isa.instr.r.funct7 >> 2){
-    EXW(0b00001, amoswap, 8)
+    case 0b00001:
+      switch(s->isa.instr.r.funct3){
+        EXW(0b010, amoswap, 4)
+        EXW(0b011, amoswap, 8)
+        default: exec_inv(s);
+      }
+      break;
+
     default: exec_inv(s);
   }
 }
 
 static inline void fetch_decode_exec(DecodeExecState *s) {
-  s->isa.instr.val = instr_fetch(&s->seq_pc, 4);
+  s->isa.instr.val = instr_fetch(s, &s->seq_pc, 4);
+  if(s->is_trap){
+    s->trap.cause = CAUSE_FETCH_PAGE_FAULT;
+    s->trap.pc = cpu.pc;
+    s->trap.tval = cpu.pc;
+    return;
+  }
   if(s->isa.instr.i.opcode1_0 != 0x3){
     printf("%x\n", s->isa.instr.val);
   }
@@ -296,6 +309,9 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
     IDEX  (0b01011, R, atomic)
     default: exec_inv(s);
   }
+  if(s->is_trap){
+    s->trap.pc = cpu.pc;
+  }
   // printf("decode end: %x\n", s->isa.instr.val);
 }
 
@@ -306,13 +322,52 @@ static inline void reset_zero() {
 
 void query_intr(DecodeExecState *s);
 
+void take_trap(DecodeExecState* s){
+  printf("cause: %lx pc: %lx\n", s->trap.cause, s->trap.pc);
+  rtlreg_t cause, medeleg, tvec, status;
+  cause = s->trap.cause;
+  medeleg = get_csr(CSR_MEDELEG);
+  if(cpu.privilege <= PRV_S && ((medeleg >> cause) & 1)){
+    tvec = get_csr(CSR_STVEC);
+    status = get_csr(CSR_SSTATUS);
+    rtlreg_t seq_pc = tvec + (tvec & 1? 4*cause : 0);
+    rtl_j(s, seq_pc);
+    set_csr(CSR_SCAUSE, cause);
+    set_csr(CSR_SEPC, s->trap.pc);
+    status = set_val(status, SSTATUS_SPIE, get_val(status, SSTATUS_SIE));
+    status = set_val(status, SSTATUS_SPP, cpu.privilege);
+    status = set_val(status, SSTATUS_SIE, 0);
+    set_csr(CSR_SSTATUS, status);
+    set_csr(CSR_STVAL, s->trap.tval);
+    set_priv(PRV_S);
+  }else{
+    tvec = get_csr(CSR_MTVEC);
+    status = get_csr(CSR_MSTATUS);
+    rtlreg_t seq_pc = tvec + (tvec & 1? 4*cause : 0);
+    rtl_j(s, seq_pc);
+    set_csr(CSR_MCAUSE, cause);
+    set_csr(CSR_MEPC, s->trap.pc);
+    status = set_val(status, MSTATUS_MPIE, get_val(status, MSTATUS_MIE));
+    status = set_val(status, MSTATUS_MPP, cpu.privilege);
+    status = set_val(status, MSTATUS_MIE, 0);
+    set_csr(CSR_MSTATUS, status);
+    set_csr(CSR_MTVAL, s->trap.tval);
+    set_priv(PRV_M);
+  }
+}
+
 vaddr_t isa_exec_once() {
 
   DecodeExecState s;
   s.is_jmp = 0;
   s.seq_pc = cpu.pc;
-  
+  s.is_trap = 0;
+
   fetch_decode_exec(&s);
+  if(s.is_trap){
+    s.is_trap = 0;
+    take_trap(&s);
+  }
   update_pc(&s);
 
   reset_zero();
