@@ -10,6 +10,8 @@ void (*ref_difftest_getregs)(void *c) = NULL;
 void (*ref_difftest_setregs)(const void *c) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 void (*ref_difftest_regcpy)(void *c, bool direction) = NULL;
+void (*ref_raise_intr)(uint64_t NO) = NULL;
+void (*ref_clear_mip)() = NULL;
 
 static bool is_skip_ref = false;
 static int skip_dut_nr_instr = 0;
@@ -67,6 +69,12 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
     ref_difftest_exec = (void (*)(uint64_t))dlsym(handle, "difftest_exec");
     assert(ref_difftest_exec);
+
+    ref_raise_intr = (void (*)(uint64_t))dlsym(handle, "difftest_raise_intr");
+    assert(ref_raise_intr);
+
+    ref_clear_mip = (void (*)())dlsym(handle, "difftest_clear_mip");
+    assert(ref_clear_mip);
 
     void (*ref_difftest_init)(void) = (void (*)(void))dlsym(handle, "difftest_init");
     assert(ref_difftest_init);

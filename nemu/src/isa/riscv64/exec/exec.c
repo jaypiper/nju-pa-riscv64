@@ -281,7 +281,6 @@ static inline def_EHelper(atomic){
 static inline void fetch_decode_exec(DecodeExecState *s) {
   s->isa.instr.val = instr_fetch(s, &s->seq_pc, 4);
   if(s->is_trap){
-    s->trap.cause = CAUSE_FETCH_PAGE_FAULT;
     s->trap.pc = cpu.pc;
     s->trap.tval = cpu.pc;
     return;
@@ -319,15 +318,15 @@ static inline void reset_zero() {
   reg_d(0) = 0;
 }
 
-
-void query_intr(DecodeExecState *s);
-
 void take_trap(DecodeExecState* s){
-  printf("cause: %lx pc: %lx\n", s->trap.cause, s->trap.pc);
-  rtlreg_t cause, medeleg, tvec, status;
+  rtlreg_t cause, deleg, tvec, status;
   cause = s->trap.cause;
-  medeleg = get_csr(CSR_MEDELEG);
-  if(cpu.privilege <= PRV_S && ((medeleg >> cause) & 1)){
+  bool is_interrupt = (cause >> 63) != 0;
+  deleg = is_interrupt? get_csr(CSR_MIDELEG) : get_csr(CSR_MEDELEG);
+  if(!is_interrupt)
+    printf("nemu exception cause: %lx pc: %lx\n", s->trap.cause, s->trap.pc);
+
+  if(cpu.privilege <= PRV_S && ((deleg >> cause) & 1)){
     tvec = get_csr(CSR_STVEC);
     status = get_csr(CSR_SSTATUS);
     rtlreg_t seq_pc = tvec + (tvec & 1? 4*cause : 0);
@@ -355,6 +354,50 @@ void take_trap(DecodeExecState* s){
     set_priv(PRV_M);
   }
 }
+void (*ref_raise_intr)(uint64_t NO);
+void timer_update();
+
+void query_intr(DecodeExecState* s){
+#ifndef AS_REF
+  timer_update();
+#endif
+  rtlreg_t pending_int = get_csr(CSR_MIE) & get_csr(CSR_MIP);
+  if(!pending_int) return;
+  // printf("nemu raise intr: pc %lx cause %lx \n", cpu.pc, pending_int);
+  rtlreg_t mstatus = get_csr(CSR_MSTATUS);
+  rtlreg_t mideleg = get_csr(CSR_MIDELEG);
+  rtlreg_t m_enable = cpu.privilege < PRV_M || (cpu.privilege == PRV_M && get_val(mstatus, MSTATUS_MIE));
+  rtlreg_t enable_int = pending_int & ~mideleg & -m_enable; // must in M-mode
+  if(!enable_int){
+    rtlreg_t s_enable = cpu.privilege <= PRV_S && get_val(mstatus, MSTATUS_SIE);
+    enable_int = mideleg & pending_int & -s_enable;
+  }
+//priority: MEI, MSI, MTI, SEI, SSI, STI
+  if(enable_int){
+    if(enable_int & MIP_MTIP){
+      enable_int = MIP_MTIP;
+      s->is_trap = 1;
+      s->trap.cause = 7 | ((rtlreg_t)1 << 63);
+      s->trap.pc = s->seq_pc;
+      s->trap.tval = 0;
+    }else if(enable_int & MIP_SSIP){
+      s->is_trap = 1;
+      s->trap.cause = 1 | ((rtlreg_t)1 << 63);
+      s->trap.pc = s->seq_pc;
+      s->trap.tval = 0;
+    }else if(enable_int & MIP_STIP){
+      enable_int = MIP_STIP;
+      s->is_trap = 1;
+      s->trap.cause = 5 | ((rtlreg_t)1 << 63);
+      s->trap.pc = s->seq_pc;
+      s->trap.tval = 0;
+    }else{
+      printf("enable int %lx\n", enable_int);
+      assert(0);
+    }
+  }
+
+}
 
 vaddr_t isa_exec_once() {
 
@@ -362,8 +405,13 @@ vaddr_t isa_exec_once() {
   s.is_jmp = 0;
   s.seq_pc = cpu.pc;
   s.is_trap = 0;
+#ifndef AS_REF
+  query_intr(&s);
+#endif
+  if(!s.is_trap){
+    fetch_decode_exec(&s);
+  }
 
-  fetch_decode_exec(&s);
   if(s.is_trap){
     s.is_trap = 0;
     take_trap(&s);
@@ -371,7 +419,18 @@ vaddr_t isa_exec_once() {
   update_pc(&s);
 
   reset_zero();
-  
-  query_intr(&s);
+  set_csr(CSR_MINSTRET, get_csr(CSR_MINSTRET) + 1);
   return s.seq_pc;
+}
+
+void isa_intr_exec(vaddr_t pc, word_t cause){
+  // printf("nemu intr pc: %lx cause: %lx\n", pc, cause);
+  DecodeExecState s;
+  s.is_trap = 1;
+  s.trap.pc = pc;
+  s.trap.cause = cause;
+  s.trap.tval = 0;
+
+  take_trap(&s);
+  update_pc(&s);
 }

@@ -45,4 +45,5 @@ void init_csr(){
   cpu.csr[CSR_MSTATUS] = set_val(cpu.csr[CSR_MSTATUS], MSTATUS_SXL, 0b10);
   cpu.csr[CSR_MSTATUS] = set_val(cpu.csr[CSR_MSTATUS], MSTATUS_UXL, 0b10);
   cpu.csr[CSR_SSTATUS] = set_val(cpu.csr[CSR_SSTATUS], SSTATUS_UXL, 0b10);
+  cpu.csr[CSR_MINSTRET] = 0;
 }

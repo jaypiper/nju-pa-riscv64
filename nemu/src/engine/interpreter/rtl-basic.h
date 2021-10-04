@@ -104,17 +104,17 @@ static inline def_rtl(idiv64_r, rtlreg_t* dest,
 // memory
 
 static inline def_rtl(lm, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
-  *dest = vaddr_read(s, *addr + offset, len);
+  *t0 = vaddr_read(s, *addr + offset, len);
   if(s->is_trap){
-    s->trap.cause = CAUSE_LOAD_PAGE_FAULT;
     s->trap.tval = (rtlreg_t)(*addr + offset);
+  }else{
+    *dest = *t0;
   }
 }
 
 static inline def_rtl(sm, const rtlreg_t* addr, word_t offset, const rtlreg_t* src1, int len) {
   vaddr_write(s, *addr + offset, *src1, len);
   if(s->is_trap){
-    s->trap.cause = CAUSE_STORE_PAGE_FAULT;
     s->trap.tval = (rtlreg_t)(*addr + offset);
   }
 }
@@ -122,7 +122,6 @@ static inline def_rtl(sm, const rtlreg_t* addr, word_t offset, const rtlreg_t* s
 static inline def_rtl(lms, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
   word_t val = vaddr_read(s, *addr + offset, len);
   if(s->is_trap){
-    s->trap.cause = CAUSE_STORE_PAGE_FAULT;
     s->trap.tval = (rtlreg_t)(*addr + offset);
   }
   switch (len) {

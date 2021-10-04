@@ -27,7 +27,6 @@ static void set_device_update_flag() {
 }
 
 void device_update() {
-  timer_update();
   if (!device_update_flag) {
     return;
   }

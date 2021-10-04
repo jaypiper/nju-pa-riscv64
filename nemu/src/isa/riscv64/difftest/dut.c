@@ -77,6 +77,7 @@ void isa_difftest_init(){
   init_timer();
   init_vga();
   init_i8042();
+  memset(cpu.csr, 0, sizeof(cpu.csr));
 }
 
 extern NEMUState nemu_state;
@@ -87,10 +88,10 @@ void is_nemu_trap(void* indi){
 }
 
 #define IRQ_TIMER 0x8000000000000007
-void raise_intr(DecodeExecState *s, word_t NO, vaddr_t epc);
+// void raise_intr(DecodeExecState *s, word_t NO, vaddr_t epc);
 
 void isa_raise_intr(){
-  DecodeExecState s;
-  raise_intr(&s, IRQ_TIMER, cpu.pc);
-  update_pc(&s);
+  // DecodeExecState s;
+  // raise_intr(&s, IRQ_TIMER, cpu.pc);
+  // update_pc(&s);
 }

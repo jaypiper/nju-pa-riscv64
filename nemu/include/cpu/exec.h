@@ -29,7 +29,7 @@ static inline uint32_t instr_fetch(DecodeExecState* s, vaddr_t *pc, int len) {
   int i;
   for (i = 0; i < len; i ++) {
     extern char log_bytebuf[];
-    strcatf(log_bytebuf, "%02x ", p_instr[i]);
+    strcatf(log_bytebuf, "%02x ", p_insPtr[i]);
   }
 #endif
   (*pc) += len;

@@ -3,6 +3,8 @@
 #include <monitor/monitor.h>
 #include <sys/time.h>
 #include <isa.h>
+#include <csr.h>
+#include "../isa/riscv64/local-include/reg.h"
 
 #define RTC_PORT 0x48   // Note that this is not the standard
 #define RTC_MMIO 0xa1000048
@@ -33,13 +35,26 @@ static void timer_intr() {
   }
 }
 
-static void timer_cmp(uint32_t offset, int len, bool is_write){
+void (*ref_raise_intr)(uint64_t NO);
+void (*ref_clear_mip)();
 
+static void write_timer_cmp(uint32_t offset, int len, bool is_write){
+  if(is_write){
+    set_csr(CSR_MIP, set_val(get_csr(CSR_MIP), MIP_MTIP, 0));
+    ref_clear_mip();
+  }
 }
+
+static void write_timer(uint32_t offset, int len, bool is_write){
+}
+
 
 void timer_update(){
   *clint_mtime_port = *clint_mtime_port + 1;
-  // if(*clint_mtime_port > *clint_mtimecmp_port) cpu.INTR = 1;
+  if(*clint_mtime_port > *clint_mtimecmp_port && (get_csr(CSR_MIP) & MIP_MTIP) == 0){
+    set_csr(CSR_MIP, set_val(get_csr(CSR_MIP), MIP_MTIP, 1));
+    ref_raise_intr(7);
+  }
 }
 
 void init_timer() {
@@ -51,7 +66,7 @@ void init_timer() {
   clint_port = new_space(1);
   add_mmio_map("clint", CLINT, clint_port, 1, NULL);
   clint_mtimecmp_port = (void*)new_space(0x8);
-  add_mmio_map("clint_mtimecmp", CLINT_MTIMECMP(0), (void*)clint_mtimecmp_port, 8, timer_cmp);
+  add_mmio_map("clint_mtimecmp", CLINT_MTIMECMP(0), (void*)clint_mtimecmp_port, 8, write_timer_cmp);
   clint_mtime_port = (void*)new_space(8);
-  add_mmio_map("clint_mtime", CLINT_MTIME, (void*)clint_mtime_port, 8, timer_cmp);
+  add_mmio_map("clint_mtime", CLINT_MTIME, (void*)clint_mtime_port, 8, write_timer);
 }

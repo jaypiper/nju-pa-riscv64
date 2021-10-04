@@ -4,10 +4,4 @@
 #include <memory/paddr.h>
 #include <memory/vaddr.h>
 
-enum access_mem{
-    LOAD,
-    STORE,
-    FETCH
-};
-
 #endif

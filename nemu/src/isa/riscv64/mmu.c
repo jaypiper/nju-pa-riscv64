@@ -11,37 +11,59 @@
 #define PG_OFFSET 0xfff
 #define SV39_PREFIX_MASK 0x1ffffff
 paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
-  uint64_t* pg_base = (uintptr_t*)((get_csr(SATP_ID) & STAP_MASK) << 12);
+  int levels = 3;
   uint64_t prefix = addr >> 39;
   uint64_t msb = (addr >> 38) & 1;
   if(!(((prefix & SV39_PREFIX_MASK) == 0 &&(!msb)) || ((prefix & SV39_PREFIX_MASK) == SV39_PREFIX_MASK && msb))){
-    s->is_trap = true;
-    return 0;
+    printf("above addr: %lx\n", addr);
+    levels = 0; // bits 63–39 all equal to bit 38, or else page fault
   }
 
-  uint64_t idx = (addr >> 30) & 0x1ff;
-  uintptr_t val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
-  if(!(val&VALID_MASK)){
-    s->is_trap = true;
-    return 0;
+  uint64_t ppn = get_csr(SATP_ID) & STAP_MASK;
+  uint64_t* pg_base = (uintptr_t*)(ppn << 12);
+  uint64_t shift_num = 30;
+  bool sum = get_csr(CSR_MSTATUS) & MSTATUS_SUM;
+  bool mxr = get_csr(CSR_MSTATUS) & MSTATUS_MXR;
+  uint64_t ad = PTE_A | ((type == MEM_TYPE_WRITE) * PTE_D);
+  for(int i = levels-1; i >= 0; i--){
+    uint64_t idx = (addr >> shift_num) & 0x1ff;
+    uintptr_t pte = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
+
+    if(PTE_TABLE(pte)){ //pointer to next level of page table
+      if(pte & (PTE_D | PTE_A | PTE_U)) break;
+      pg_base = (uintptr_t*)((pte & PGTABLE_MASK) << 2);
+      ppn = (pte & PGTABLE_MASK) >> 10;
+    }else if((pte & PTE_U) ? (get_priv() == PRV_S && (!sum || type == MEM_TYPE_IFETCH)) : get_priv() != PRV_S){
+      // U mode software can only access(U=1); sum=1 S-mode can access(but can not execute)
+      break;
+    }else if(!(pte & PTE_V) || (!(pte & PTE_R) && (pte & PTE_W))){
+      break;
+    }else if((type == MEM_TYPE_IFETCH && !(pte & PTE_X)) ||
+             (type == MEM_TYPE_READ && !((pte & PTE_R) || (mxr && (pte & PTE_X)))) ||
+             (type == MEM_TYPE_WRITE && !(pte & PTE_W))){
+      break;
+    }else{ // leaf pte here
+      if((pte & ad) != ad){
+        paddr_write((uintptr_t)(pg_base + idx), pte | ad, sizeof(uintptr_t));
+      }
+      return ((pte & PGTABLE_MASK) << 2)  | (addr & PG_OFFSET);
+    }
+
+    shift_num -= 9;
   }
 
-  pg_base = (uintptr_t*)((val & PGTABLE_MASK) << 2);
-  idx = (addr >> 21) & 0x1ff;
-  val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
-  if(!(val&VALID_MASK)){
-    s->is_trap = true;
-    return 0;
+  s->is_trap = true;
+  switch(type){
+    case MEM_TYPE_IFETCH:
+        s->trap.cause = CAUSE_FETCH_PAGE_FAULT; break;
+    case MEM_TYPE_READ:
+        s->trap.cause = CAUSE_LOAD_PAGE_FAULT; break;
+    case MEM_TYPE_WRITE:
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT; break;
+    default:
+      assert(0);
   }
-
-  pg_base = (uintptr_t*)((val & PGTABLE_MASK) << 2);
-  idx = (addr >> 12) & 0x1ff;
-  val = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
-  if(!(val&VALID_MASK)){
-    s->is_trap = true;
-    return 0;
-  }
-  return ((val & PGTABLE_MASK) << 2)  | (addr & PG_OFFSET);
+  return 0;
 }
 
 word_t vaddr_mmu_read(DecodeExecState *s, vaddr_t addr, int len, int type){
@@ -56,7 +78,7 @@ word_t vaddr_mmu_read(DecodeExecState *s, vaddr_t addr, int len, int type){
 }
 
 void vaddr_mmu_write(DecodeExecState *s, vaddr_t addr, word_t data, int len){
-  paddr_t paddr = isa_mmu_translate(s, addr, 0, len);
+  paddr_t paddr = isa_mmu_translate(s, addr, MEM_TYPE_WRITE, len);
   if(s->is_trap) return;
   return paddr_write(paddr, data, len);
 }

@@ -66,6 +66,9 @@ FLASH ?= 0
 ifeq ($(FLASH), 1)
 	CFLAGS += -DFLASH
 endif
+ifeq ($(SHARE), 1)
+	CFLAGS += -DAS_REF
+endif
 
 # Files to be compiled
 SRCS = $(shell find src/ -name "*.c" | grep -v "isa\|engine")
