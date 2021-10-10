@@ -265,15 +265,17 @@ static inline def_EHelper(inst){
 }
 
 static inline def_EHelper(atomic){
+  int amo_width = s->isa.instr.r.funct3 == 0b010? 4 : 8;
   switch(s->isa.instr.r.funct7 >> 2){
-    case 0b00001:
-      switch(s->isa.instr.r.funct3){
-        EXW(0b010, amoswap, 4)
-        EXW(0b011, amoswap, 8)
-        default: exec_inv(s);
-      }
-      break;
-
+    EXW(0b00001, amoswap, amo_width)
+    EXW(0b00000, amoadd,  amo_width)
+    EXW(0b00100, amoxor,  amo_width)
+    EXW(0b01100, amoand,  amo_width)
+    EXW(0b01000, amoor,   amo_width)
+    EXW(0b10000, amomin,  amo_width)
+    EXW(0b10100, amomax,  amo_width)
+    EXW(0b11000, amominu, amo_width)
+    EXW(0b11100, amomaxu, amo_width)
     default: exec_inv(s);
   }
 }
@@ -326,6 +328,10 @@ void take_trap(DecodeExecState* s){
   if(!is_interrupt)
     printf("nemu exception cause: %lx pc: %lx\n", s->trap.cause, s->trap.pc);
 
+  if(!(!is_interrupt || (get_priv() == PRV_S && (get_val(get_csr(CSR_SSTATUS), SSTATUS_SIE) || cause == 0x8000000000000007ULL)) || (get_priv() == PRV_M && get_val(get_csr(CSR_MSTATUS), MSTATUS_MIE)) || get_priv() == PRV_U)){
+    printf("priv: %ld sstatus: %lx mstatus: %lx cause: %lx\n", get_priv(), get_csr(CSR_SSTATUS), get_csr(CSR_MSTATUS), cause);
+    assert(0);
+  }
   if(cpu.privilege <= PRV_S && ((deleg >> cause) & 1)){
     tvec = get_csr(CSR_STVEC);
     status = get_csr(CSR_SSTATUS);
@@ -354,7 +360,7 @@ void take_trap(DecodeExecState* s){
     set_priv(PRV_M);
   }
 }
-void (*ref_raise_intr)(uint64_t NO);
+extern void (*ref_raise_intr)(uint64_t NO);
 void timer_update();
 
 void query_intr(DecodeExecState* s){
@@ -419,7 +425,7 @@ vaddr_t isa_exec_once() {
   update_pc(&s);
 
   reset_zero();
-  set_csr(CSR_MINSTRET, get_csr(CSR_MINSTRET) + 1);
+  set_csr(CSR_INSTRET, get_csr(CSR_INSTRET) + 1);
   return s.seq_pc;
 }
 

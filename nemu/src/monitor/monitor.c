@@ -15,7 +15,8 @@ static char *diff_so_file = NULL;
 // static char *img_file = "../../program/rt-thread/bsp/qemu-riscv-virt64/rtthread.bin";
 // static char *img_file = "/home/piper/ics2020/nanos-lite/build/nanos-lite-riscv64-nemu.bin";
 // static char *img_file = "/home/chenlu/ysyx/program/build/loader-riscv64-mycpu.bin";
-static char *img_file = "../../program/xv6-riscv/kernel/kernel.bin";
+// static char *img_file = "../../program/xv6-riscv/kernel/kernel.bin";
+static char *img_file = "../../program/riscv-pk/build/bbl.bin";
 static int batch_mode = false;
 static int difftest_port = 1234;
 

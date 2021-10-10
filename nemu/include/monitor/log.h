@@ -5,14 +5,14 @@
 
 #ifdef DEBUG
 extern FILE* log_fp;
-#	define log_write(...) /* \
+#	define log_write(...)  \
   do { \
     extern bool log_enable(); \
     if (log_fp != NULL && log_enable()) { \
       fprintf(log_fp, __VA_ARGS__); \
       fflush(log_fp); \
     } \
-  } while (0) */
+  } while (0)
 #else
 #	define log_write(...)
 #endif

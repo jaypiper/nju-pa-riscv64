@@ -34,9 +34,13 @@ static void timer_intr() {
     dev_raise_intr();
   }
 }
-
-void (*ref_raise_intr)(uint64_t NO);
-void (*ref_clear_mip)();
+#ifdef DIFF_TEST
+  extern void (*ref_raise_intr)(uint64_t NO);
+  extern void (*ref_clear_mip)();
+#else
+  #define ref_raise_intr(no)
+  #define ref_clear_mip()
+#endif
 
 static void write_timer_cmp(uint32_t offset, int len, bool is_write){
   if(is_write){
@@ -53,7 +57,9 @@ void timer_update(){
   *clint_mtime_port = *clint_mtime_port + 1;
   if(*clint_mtime_port > *clint_mtimecmp_port && (get_csr(CSR_MIP) & MIP_MTIP) == 0){
     set_csr(CSR_MIP, set_val(get_csr(CSR_MIP), MIP_MTIP, 1));
+#ifdef DIFF_TEST
     ref_raise_intr(7);
+#endif
   }
 }
 

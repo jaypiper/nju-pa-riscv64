@@ -77,6 +77,12 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 
 void set_csr(int id, rtlreg_t val){
   rtlreg_t supervisor_ints = MIP_SSIP | MIP_STIP | MIP_SEIP;
+  id = id & 0xfff;
+  rtlreg_t w_sstatus_mask = SSTATUS_SIE | SSTATUS_SPIE | SSTATUS_SPP | SSTATUS_FS
+              | SSTATUS_XS | SSTATUS_SUM | SSTATUS_MXR | SSTATUS_VS;
+  rtlreg_t w_mstatus_mask = MSTATUS_MIE | MSTATUS_MPIE | MSTATUS_MPRV | MSTATUS_SIE | MSTATUS_SPIE
+                  | MSTATUS_TW | MSTATUS_TSR | MSTATUS_MXR | MSTATUS_SUM | MSTATUS_TVM
+                  | MSTATUS_FS | MSTATUS_VS | MSTATUS_SPP | MSTATUS_MPP;
   switch(id){
     case CSR_MEDELEG: {
         rtlreg_t mask = mask =
@@ -102,10 +108,18 @@ void set_csr(int id, rtlreg_t val){
       break;
     }
     case CSR_SSTATUS: {
-      rtlreg_t mask = SSTATUS_SIE | SSTATUS_SPIE | SSTATUS_SPP | SSTATUS_FS
-                 | SSTATUS_XS | SSTATUS_SUM | SSTATUS_MXR | SSTATUS_VS;
-      cpu.csr[id] = set_partial_val(cpu.csr[CSR_SSTATUS], mask, val);
-      cpu.csr[CSR_MSTATUS] = set_partial_val(cpu.csr[CSR_MSTATUS], mask, val);
+      cpu.csr[id] = set_partial_val(cpu.csr[CSR_SSTATUS], w_sstatus_mask, val);
+      cpu.csr[CSR_MSTATUS] = set_partial_val(cpu.csr[CSR_MSTATUS], w_sstatus_mask, val);
+      break;
+    }
+    case CSR_MSTATUS: {
+      cpu.csr[id] = set_partial_val(cpu.csr[CSR_MSTATUS], w_mstatus_mask, val);
+
+      bool dirty = (cpu.csr[CSR_MSTATUS] & MSTATUS_FS) == MSTATUS_FS;
+      dirty |= (cpu.csr[CSR_MSTATUS] & MSTATUS_XS) == MSTATUS_XS;
+      cpu.csr[CSR_MSTATUS] = set_val(cpu.csr[CSR_MSTATUS], MSTATUS64_SD, dirty);
+      w_sstatus_mask |= SSTATUS64_SD;
+      cpu.csr[CSR_SSTATUS] = set_partial_val(cpu.csr[CSR_SSTATUS], w_sstatus_mask, cpu.csr[CSR_MSTATUS]);
       break;
     }
     case CSR_SIP: {
@@ -113,13 +127,21 @@ void set_csr(int id, rtlreg_t val){
       cpu.csr[id] = set_partial_val(cpu.csr[id], mask, val);
       cpu.csr[CSR_MIP] = set_partial_val(cpu.csr[CSR_MIP], mask, val);
     }
+    case CSR_PMPADDR0:
+    case CSR_PMPADDR1:
+    case CSR_PMPADDR2:
+    case CSR_PMPADDR3:{
+      rtlreg_t mask = (uint64_t)(-1) >> 10;
+      cpu.csr[id] = set_partial_val(cpu.csr[id], mask, val);
+      break;
+    }
 
     default: cpu.csr[id] = val;
   }
 }
 
 rtlreg_t get_csr(int id){
-  return cpu.csr[id];
+  return cpu.csr[id&0xfff];
 }
 
 void set_priv(int priv){

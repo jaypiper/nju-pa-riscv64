@@ -47,6 +47,7 @@ void isa_difftest_getregs(void* c){
   }
   state->pc = cpu.pc;
   state->privilege = cpu.privilege;
+  state->csr[CSR_USCRATCH] = cpu.csr[CSR_USCRATCH];
 }
 
 void isa_difftest_setregs(const void* c){
@@ -56,6 +57,7 @@ void isa_difftest_setregs(const void* c){
   }
   cpu.pc = state->pc;
   cpu.privilege = state->privilege;
+  cpu.csr[CSR_USCRATCH] = state->csr[CSR_USCRATCH];
 }
 
 

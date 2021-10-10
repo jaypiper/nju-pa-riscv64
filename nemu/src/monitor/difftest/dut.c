@@ -5,6 +5,7 @@
 #include <monitor/monitor.h>
 #include <difftest-def.h>
 
+#ifdef DIFF_TEST
 void (*ref_difftest_memcpy)(paddr_t dest, void *src, size_t n, bool direction) = NULL;
 void (*ref_difftest_getregs)(void *c) = NULL;
 void (*ref_difftest_setregs)(const void *c) = NULL;
@@ -12,6 +13,15 @@ void (*ref_difftest_exec)(uint64_t n) = NULL;
 void (*ref_difftest_regcpy)(void *c, bool direction) = NULL;
 void (*ref_raise_intr)(uint64_t NO) = NULL;
 void (*ref_clear_mip)() = NULL;
+#else
+#define ref_difftest_memcpy(dest, src, n, direction)
+#define ref_difftest_getregs(c)
+#define ref_difftest_setregs(c)
+#define ref_difftest_exec(n)
+#define ref_difftest_regcpy(c, direction)
+#define ref_raise_intr(NO)
+#define ref_clear_mip()
+#endif
 
 static bool is_skip_ref = false;
 static int skip_dut_nr_instr = 0;
@@ -46,9 +56,7 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
 #define USING_SPIKE
 
 void init_difftest(char *ref_so_file, long img_size, int port) {
-#ifndef DIFF_TEST
-  return;
-#endif
+#ifdef DIFF_TEST
 
   assert(ref_so_file != NULL);
 
@@ -107,7 +115,10 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   // cpu
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 
+#endif
 }
+
+#ifdef DIFF_TEST
 
 static void checkregs(CPU_state *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
@@ -143,5 +154,5 @@ void difftest_step(vaddr_t this_pc, vaddr_t next_pc) {
   ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
   checkregs(&ref_r, this_pc);
-
 }
+#endif
