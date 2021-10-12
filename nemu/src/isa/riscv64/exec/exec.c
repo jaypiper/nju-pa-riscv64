@@ -325,8 +325,6 @@ void take_trap(DecodeExecState* s){
   cause = s->trap.cause;
   bool is_interrupt = (cause >> 63) != 0;
   deleg = is_interrupt? get_csr(CSR_MIDELEG) : get_csr(CSR_MEDELEG);
-  if(!is_interrupt)
-    printf("nemu exception cause: %lx pc: %lx\n", s->trap.cause, s->trap.pc);
 
   if(!(!is_interrupt || (get_priv() == PRV_S && (get_val(get_csr(CSR_SSTATUS), SSTATUS_SIE) || cause == 0x8000000000000007ULL)) || (get_priv() == PRV_M && get_val(get_csr(CSR_MSTATUS), MSTATUS_MIE)) || get_priv() == PRV_U)){
     printf("priv: %ld sstatus: %lx mstatus: %lx cause: %lx\n", get_priv(), get_csr(CSR_SSTATUS), get_csr(CSR_MSTATUS), cause);

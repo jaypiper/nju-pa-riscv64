@@ -3,30 +3,16 @@ void raise_intr(DecodeExecState *s, word_t NO, vaddr_t epc);
 static inline def_EHelper(ecall){
   // bool success;
 
-  rtlreg_t cause, medeleg, stvec, sstatus;
+  s->is_trap = 1;
+
+  // rtlreg_t cause, medeleg, stvec, sstatus;
   switch(cpu.privilege){
-    case PRV_U: cause = CAUSE_USER_ECALL; break;
-    case PRV_S: cause = CAUSE_SUPERVISOR_ECALL; break;
+    case PRV_U: s->trap.cause = CAUSE_USER_ECALL; break;
+    case PRV_S: s->trap.cause = CAUSE_SUPERVISOR_ECALL; break;
+    case PRV_M: s->trap.cause = CAUSE_MACHINE_ECALL; break;
     default: assert(0);
   }
-  medeleg = get_csr(CSR_MEDELEG);
-  stvec = get_csr(CSR_STVEC);
-  sstatus = get_csr(CSR_SSTATUS);
-  if(cpu.privilege <= PRV_S && (medeleg >> cause)&1){
-    // handle trap in S-mode
-    rtlreg_t seq_pc = stvec + (stvec & 1? 4*cause: 0);
-    rtl_j(s, seq_pc);
-    set_csr(CSR_SCAUSE, cause);
-    set_csr(CSR_SEPC, cpu.pc);
-    sstatus = set_val(sstatus, SSTATUS_SPIE, get_val(sstatus, SSTATUS_SIE));
-    sstatus = set_val(sstatus, SSTATUS_SPP, cpu.privilege);
-    sstatus = set_val(sstatus, SSTATUS_SIE, 0);
-    set_csr(CSR_SSTATUS, sstatus);
-    set_csr(CSR_STVAL, 0);
-    set_priv(PRV_S);
-  }else{
-    assert(0);
-  }
+  s->trap.tval = 0;
   print_asm_template1(ecall);
 }
 
