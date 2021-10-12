@@ -110,6 +110,10 @@ void set_csr(int id, rtlreg_t val){
     case CSR_SSTATUS: {
       cpu.csr[id] = set_partial_val(cpu.csr[CSR_SSTATUS], w_sstatus_mask, val);
       cpu.csr[CSR_MSTATUS] = set_partial_val(cpu.csr[CSR_MSTATUS], w_sstatus_mask, val);
+      bool dirty = (cpu.csr[CSR_MSTATUS] & MSTATUS_FS) == MSTATUS_FS;
+      dirty |= (cpu.csr[CSR_MSTATUS] & MSTATUS_XS) == MSTATUS_XS;
+      cpu.csr[CSR_MSTATUS] = set_val(cpu.csr[CSR_MSTATUS], MSTATUS64_SD, dirty);
+      cpu.csr[CSR_SSTATUS] = set_val(cpu.csr[CSR_SSTATUS], SSTATUS64_SD, dirty);
       break;
     }
     case CSR_MSTATUS: {
