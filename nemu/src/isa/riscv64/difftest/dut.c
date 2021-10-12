@@ -57,7 +57,7 @@ void isa_difftest_setregs(const void* c){
   }
   cpu.pc = state->pc;
   cpu.privilege = state->privilege;
-  cpu.csr[CSR_USCRATCH] = state->csr[CSR_USCRATCH];
+  memcpy(cpu.csr, state->csr, sizeof(state->csr));
 }
 
 
