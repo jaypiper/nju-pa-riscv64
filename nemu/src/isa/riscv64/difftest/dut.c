@@ -13,7 +13,7 @@ void init_vga();
 void init_i8042();
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  if(cpu.pc != ref_r->pc) return false;
+  if(!difftest_check_reg("pc", pc, ref_r->pc, cpu.pc)) return false;
   for(int i = 0; i < 32; i++){
     if(!difftest_check_reg(reg_name(i), pc, ref_r->gpr[i], cpu.gpr[i])) return false;
   }
@@ -23,7 +23,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
       return false;
     }
   }
-  if(ref_r->privilege != cpu.privilege) return false;
+  if(!difftest_check_reg("priv", pc, ref_r->privilege, cpu.privilege)) return false;
   return true;
 }
 
