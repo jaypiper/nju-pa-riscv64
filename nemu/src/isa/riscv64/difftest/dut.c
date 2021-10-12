@@ -68,8 +68,9 @@ void isa_difftest_memcpy_from_dut(paddr_t dest, void* src, size_t n){
       flash_init(dest + i, *(word_t*)(src+i), 1);
     }
 #else
+  DecodeExecState s;
   for(int i = 0; i < n; i++){
-    paddr_write(dest + i, *(word_t*)(src+i), 1);
+    paddr_write(&s, dest + i, *(word_t*)(src+i), 1, MEM_TYPE_WRITE);
   }
 #endif
 }

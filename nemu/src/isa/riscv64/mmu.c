@@ -26,7 +26,8 @@ paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
   uint64_t ad = PTE_A | ((type == MEM_TYPE_WRITE) * PTE_D);
   for(int i = levels-1; i >= 0; i--){
     uint64_t idx = (addr >> shift_num) & 0x1ff;
-    uintptr_t pte = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
+    uintptr_t pte = paddr_read(s, (uintptr_t)(pg_base + idx), sizeof(uintptr_t), MEM_TYPE_READ); // misaligned will never occur
+    if(s->is_trap) return 0;
     ppn = (pte & PGTABLE_MASK) >> 10;
     if(PTE_TABLE(pte)){ //pointer to next level of page table
       if(pte & (PTE_D | PTE_A | PTE_U)) break;
@@ -42,7 +43,7 @@ paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
       break;
     }else{ // leaf pte here
       if((pte & ad) != ad){
-        paddr_write((uintptr_t)(pg_base + idx), pte | ad, sizeof(uintptr_t));
+        paddr_write(s, (uintptr_t)(pg_base + idx), pte | ad, sizeof(uintptr_t), MEM_TYPE_WRITE);
       }
       // super-page
       if(i > 0 && (ppn & ((1 << (9 * i)) - 1)) != 0) break;
@@ -72,16 +73,16 @@ word_t vaddr_mmu_read(DecodeExecState *s, vaddr_t addr, int len, int type){
   if(s->is_trap) return 0;
   if((paddr & (PAGE_SIZE - 1)) + len > PAGE_SIZE){
     printf("paddr_read: addr: %lx paddr: %x len: %d\n", addr, paddr, len);
-    assert(0);
+    // assert(0);
   }
-  return paddr_read(paddr, len);
+  return paddr_read(s, paddr, len, type);
 
 }
 
 void vaddr_mmu_write(DecodeExecState *s, vaddr_t addr, word_t data, int len){
   paddr_t paddr = isa_mmu_translate(s, addr, MEM_TYPE_WRITE, len);
   if(s->is_trap) return;
-  return paddr_write(paddr, data, len);
+  return paddr_write(s, paddr, data, len, MEM_TYPE_WRITE);
 }
 
 #ifdef VME

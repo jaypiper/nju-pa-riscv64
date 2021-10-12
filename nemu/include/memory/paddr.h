@@ -14,7 +14,7 @@ paddr_t host_to_guest(void *addr);
 void* get_flash_addr(paddr_t addr);
 #endif
 
-word_t paddr_read(paddr_t addr, int len);
-void paddr_write(paddr_t addr, word_t data, int len);
+word_t paddr_read(DecodeExecState* s, paddr_t addr, int len, int type);
+void paddr_write(DecodeExecState* s, paddr_t addr, word_t data, int len, int type);
 
 #endif

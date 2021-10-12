@@ -4,6 +4,7 @@
 #include <device/map.h>
 #include <stdlib.h>
 #include <time.h>
+#include <encoding.h>
 
 static uint8_t pmem[PMEM_SIZE] PG_ALIGN = {};
 #ifdef FLASH
@@ -99,7 +100,13 @@ void flash_init(paddr_t addr, word_t data, int len){
 
 /* Memory accessing interfaces */
 
-inline word_t paddr_read(paddr_t addr, int len) {
+inline word_t paddr_read(DecodeExecState* s, paddr_t addr, int len, int type) {
+  assert(type != MEM_TYPE_WRITE);
+  if(addr & (len - 1)){
+    // printf("addr: %x len: %d type: %d\n", addr, len, type);
+    s->is_trap = 1;
+    s->trap.cause = type == MEM_TYPE_IFETCH ? CAUSE_MISALIGNED_FETCH : CAUSE_MISALIGNED_LOAD;
+  }
   if (in_pmem(addr)) return pmem_read(addr, len);
 #ifdef FLASH
   if (in_flash(addr)) return flash_read(addr, len);
@@ -107,7 +114,13 @@ inline word_t paddr_read(paddr_t addr, int len) {
   else return map_read(addr, len, fetch_mmio_map(addr));
 }
 
-inline void paddr_write(paddr_t addr, word_t data, int len) {
+inline void paddr_write(DecodeExecState* s, paddr_t addr, word_t data, int len, int type) {
+  assert(type == MEM_TYPE_WRITE);
+  if(addr & (len - 1)){
+    // printf("addr: %x len: %d type: %d\n", addr, len, type);
+    s->is_trap = 1;
+    s->trap.cause = CAUSE_MISALIGNED_STORE;
+  }
   if (in_pmem(addr)) pmem_write(addr, data, len);
 #ifdef FLASH
   else if (in_flash(addr)) Assert(0, "flash is not writable at addr %x\n", addr);
@@ -122,19 +135,19 @@ void vaddr_mmu_write(DecodeExecState* s, vaddr_t addr, word_t data, int len);
 #define def_vaddr_template(bytes) \
 word_t concat(vaddr_ifetch, bytes) (DecodeExecState* s, vaddr_t addr) { \
   int ret = isa_vaddr_check(addr, MEM_TYPE_IFETCH, bytes); \
-  if (ret == MEM_RET_OK) return paddr_read(addr, bytes); \
+  if (ret == MEM_RET_OK) return paddr_read(s, addr, bytes, MEM_TYPE_IFETCH); \
   else if (ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_read(s, addr, bytes, MEM_TYPE_IFETCH);\
   return 0; \
 } \
 word_t concat(vaddr_read, bytes) (DecodeExecState* s, vaddr_t addr) { \
   int ret = isa_vaddr_check(addr, MEM_TYPE_READ, bytes); \
-  if (ret == MEM_RET_OK) return paddr_read(addr, bytes); \
+  if (ret == MEM_RET_OK) return paddr_read(s, addr, bytes, MEM_TYPE_READ); \
   else if (ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_read(s, addr, bytes, MEM_TYPE_READ); \
   return 0; \
 } \
 void concat(vaddr_write, bytes) (DecodeExecState* s, vaddr_t addr, word_t data) { \
   int ret = isa_vaddr_check(addr, MEM_TYPE_WRITE, bytes); \
-  if (ret == MEM_RET_OK) paddr_write(addr, data, bytes); \
+  if (ret == MEM_RET_OK) paddr_write(s, addr, data, bytes, MEM_TYPE_WRITE); \
   else if(ret == MEM_RET_NEED_TRANSLATE) return vaddr_mmu_write(s, addr, data, bytes);\
 }
 
