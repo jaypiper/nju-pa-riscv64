@@ -32,7 +32,7 @@ paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
     if(PTE_TABLE(pte)){ //pointer to next level of page table
       if(pte & (PTE_D | PTE_A | PTE_U)) break;
       pg_base = (uintptr_t*)((pte & PGTABLE_MASK) << 2);
-    }else if((pte & PTE_U) ? (get_priv() == PRV_S && (!sum || type == MEM_TYPE_IFETCH)) : get_priv() != PRV_S){
+    }else if((pte & PTE_U) ? (get_priv() == PRV_S && (!sum || type == MEM_TYPE_IFETCH)) : get_priv() == PRV_U){
       // U mode software can only access(U=1); sum=1 S-mode can access(but can not execute)
       break;
     }else if(!(pte & PTE_V) || (!(pte & PTE_R) && (pte & PTE_W))){
