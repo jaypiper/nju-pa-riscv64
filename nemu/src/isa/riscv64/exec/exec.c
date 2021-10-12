@@ -267,6 +267,8 @@ static inline def_EHelper(inst){
 static inline def_EHelper(atomic){
   int amo_width = s->isa.instr.r.funct3 == 0b010? 4 : 8;
   switch(s->isa.instr.r.funct7 >> 2){
+    EXW(0b00010, lr,      amo_width)
+    EXW(0b00011, sc,      amo_width)
     EXW(0b00001, amoswap, amo_width)
     EXW(0b00000, amoadd,  amo_width)
     EXW(0b00100, amoxor,  amo_width)
