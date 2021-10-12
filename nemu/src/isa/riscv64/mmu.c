@@ -86,8 +86,9 @@ void vaddr_mmu_write(DecodeExecState *s, vaddr_t addr, word_t data, int len){
 }
 
 #ifdef VME
-int isa_vaddr_check(vaddr_t vaddr, int type, int len){ //type好像也没什么用？ 或许是为了实现读写权限
-  if(cpu.privilege == PRV_M) return MEM_RET_OK;
+int isa_vaddr_check(vaddr_t vaddr, int type, int len){
+  if(cpu.privilege == PRV_M &&
+  ((get_csr(CSR_MSTATUS) & MSTATUS_MPRV) == 0 || type == MEM_TYPE_IFETCH)) return MEM_RET_OK;
   rtlreg_t _satp = get_csr(SATP_ID);
 
   _satp >>= 60;
