@@ -18,7 +18,6 @@ paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
     printf("above addr: %lx\n", addr);
     levels = 0; // bits 63–39 all equal to bit 38, or else page fault
   }
-
   uint64_t ppn = get_csr(SATP_ID) & STAP_MASK;
   uint64_t* pg_base = (uintptr_t*)(ppn << 12);
   uint64_t shift_num = 30;
@@ -28,11 +27,10 @@ paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
   for(int i = levels-1; i >= 0; i--){
     uint64_t idx = (addr >> shift_num) & 0x1ff;
     uintptr_t pte = paddr_read((uintptr_t)(pg_base + idx), sizeof(uintptr_t));
-
+    ppn = (pte & PGTABLE_MASK) >> 10;
     if(PTE_TABLE(pte)){ //pointer to next level of page table
       if(pte & (PTE_D | PTE_A | PTE_U)) break;
       pg_base = (uintptr_t*)((pte & PGTABLE_MASK) << 2);
-      ppn = (pte & PGTABLE_MASK) >> 10;
     }else if((pte & PTE_U) ? (get_priv() == PRV_S && (!sum || type == MEM_TYPE_IFETCH)) : get_priv() != PRV_S){
       // U mode software can only access(U=1); sum=1 S-mode can access(but can not execute)
       break;
@@ -46,7 +44,10 @@ paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
       if((pte & ad) != ad){
         paddr_write((uintptr_t)(pg_base + idx), pte | ad, sizeof(uintptr_t));
       }
-      return ((pte & PGTABLE_MASK) << 2)  | (addr & PG_OFFSET);
+      // super-page
+      if(i > 0 && (ppn & ((1 << (9 * i)) - 1)) != 0) break;
+      uint64_t pg_offset = addr & ((1 << (shift_num))-1);
+      return ((pte & PGTABLE_MASK) << 2)  | pg_offset;
     }
 
     shift_num -= 9;
