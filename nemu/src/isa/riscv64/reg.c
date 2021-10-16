@@ -130,6 +130,18 @@ void set_csr(int id, rtlreg_t val){
       rtlreg_t mask = supervisor_ints;
       cpu.csr[id] = set_partial_val(cpu.csr[id], mask, val);
       cpu.csr[CSR_MIP] = set_partial_val(cpu.csr[CSR_MIP], mask, val);
+      break;
+    }
+    case CSR_MIP: {
+      rtlreg_t mask = supervisor_ints;
+      cpu.csr[id] = val;
+      cpu.csr[CSR_SIP] = set_partial_val(cpu.csr[CSR_SIP], mask, val);
+      break;
+    }
+    case CSR_SATP: {
+      rtlreg_t mask = SATP64_PPN | SATP64_MODE;
+      cpu.csr[id] = set_partial_val(cpu.csr[CSR_SATP], mask, val);
+      break;
     }
     case CSR_PMPADDR0:
     case CSR_PMPADDR1:
