@@ -426,6 +426,9 @@ vaddr_t isa_exec_once() {
 
   reset_zero();
   set_csr(CSR_INSTRET, get_csr(CSR_INSTRET) + 1);
+  if(s.isa.instr.val == 0x6f){
+    exec_nemu_exit(&s);
+  }
   return s.seq_pc;
 }
 
