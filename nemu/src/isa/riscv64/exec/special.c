@@ -30,6 +30,10 @@ def_EHelper(nemu_trap) {
   return;
 }
 
+def_EHelper(nemu_exit){
+  rtl_exit(NEMU_END, cpu.pc, 0);
+}
+
 def_EHelper(fence){
   return;
 }

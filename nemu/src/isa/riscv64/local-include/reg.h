@@ -58,5 +58,10 @@ void set_csr(int id, rtlreg_t val);
 rtlreg_t get_csr(int id);
 void set_priv(int priv);
 word_t get_priv();
-
+void set_csr_cond(DecodeExecState* s, int id, rtlreg_t val);
+rtlreg_t get_csr_cond(DecodeExecState* s, int id);
+rtlreg_t get_pre_lr();
+bool pre_lr_valid();
+void set_pre_lr(rtlreg_t pre_lr);
+void clear_pre_lr();
 #endif

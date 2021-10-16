@@ -1,5 +1,6 @@
 static inline def_EHelper(lr){
     rtl_lm(s, s0, dsrc1, 0, s->width);
+    set_pre_lr(*dsrc1);
     if(s->width == 4){
         rtl_li(s, s0, c_sext32to64(*s0));
     }
@@ -7,8 +8,12 @@ static inline def_EHelper(lr){
 }
 
 static inline def_EHelper(sc){
-    rtl_sm(s, dsrc1, 0, dsrc2, s->width);
-    rtl_li(s, ddest, 0);
+    if(pre_lr_valid() && *dsrc1 == get_pre_lr()){
+        rtl_sm(s, dsrc1, 0, dsrc2, s->width);
+        rtl_li(s, ddest, 0);
+    }else{
+        rtl_li(s, ddest, 1);
+    }
 }
 
 static inline def_EHelper(amoswap){

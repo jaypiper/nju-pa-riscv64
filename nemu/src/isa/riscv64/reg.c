@@ -160,10 +160,71 @@ rtlreg_t get_csr(int id){
   return cpu.csr[id&0xfff];
 }
 
-void set_priv(int priv){
+void inline set_priv(int priv){
   cpu.privilege = priv;
 }
 
-word_t get_priv(){
+word_t inline get_priv(){
   return cpu.privilege;
+}
+
+#define CSR_ACCESS_MASK 0xc00
+#define CSR_ACCESS_SHIFT 10
+#define GET_CSR_ACCESS(id) (((id) & CSR_ACCESS_MASK) >> CSR_ACCESS_SHIFT)
+#define CSR_PRIV_MASK 0x300
+#define CSR_PRIV_SHIFT 8
+#define GET_CSR_PRIV(id) (((id) & CSR_PRIV_MASK) >> CSR_PRIV_SHIFT)
+
+static int valid_csr[] = {
+  CSR_SEPC, CSR_STVEC, CSR_SCAUSE, CSR_STVAL, CSR_SSCRATCH, CSR_SSTATUS, CSR_SATP,
+  CSR_SIE, CSR_SIP, CSR_MTVEC, CSR_MEPC, CSR_MCAUSE, CSR_MIE, CSR_MIP, CSR_MTVAL,
+  CSR_MSCRATCH, CSR_MSTATUS, CSR_MHARTID, CSR_MEDELEG, CSR_MIDELEG, CSR_PMPADDR0,
+  CSR_PMPADDR1, CSR_PMPADDR2, CSR_PMPADDR3, CSR_PMPCFG0, CSR_USCRATCH, CSR_MISA,
+  CSR_SCOUNTEREN, CSR_MCOUNTEREN
+};
+static int valid_csr_num = sizeof(valid_csr) / sizeof(valid_csr[0]);
+
+static inline int get_valid_csr(int id){
+  for(int i = 0; i < valid_csr_num; i++){
+    if(valid_csr[i] == id) return i;
+  }
+  return -1;
+}
+
+void set_csr_cond(DecodeExecState* s, int id, rtlreg_t val){
+  id = id & 0xfff;
+  if(GET_CSR_PRIV(id) > get_priv() || GET_CSR_ACCESS(id) == 3 || get_valid_csr(id) == -1){
+    s->is_trap = true;
+    s->trap.cause = CAUSE_ILLEGAL_INSTRUCTION;
+    s->trap.tval = s->isa.instr.val;
+    // printf("pc: %lx set_csr_cond id: %x priv: %ld\n", s->seq_pc, id, get_priv());
+    return;
+  }
+  set_csr(id, val);
+}
+
+rtlreg_t get_csr_cond(DecodeExecState* s, int id){
+  id = id & 0xfff;
+  if(GET_CSR_PRIV(id) > get_priv() || get_valid_csr(id) == -1){
+    s->is_trap = true;
+    s->trap.cause = CAUSE_ILLEGAL_INSTRUCTION;
+    s->trap.tval = s->isa.instr.val;
+    // printf("pc: %lx get_csr_cond id: %x priv: %ld\n", s->seq_pc, id, get_priv());
+    return 0;
+  }
+  return get_csr(id);
+}
+
+rtlreg_t inline get_pre_lr(){
+  return cpu.pre_lr;
+}
+bool inline pre_lr_valid(){
+  return cpu.pre_lr_valid;
+}
+void inline set_pre_lr(rtlreg_t pre_lr){
+  cpu.pre_lr = pre_lr;
+  cpu.pre_lr_valid = 1;
+}
+void inline clear_pre_lr(){
+  cpu.pre_lr_valid = 0;
 }

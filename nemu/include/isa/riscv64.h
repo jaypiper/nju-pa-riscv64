@@ -20,6 +20,8 @@ typedef struct {
   word_t csr[0x1000];
   word_t privilege;
   bool INTR;
+  word_t pre_lr;
+  bool pre_lr_valid;
 } riscv64_CPU_state;
 
 // decode
