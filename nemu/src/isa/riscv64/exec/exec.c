@@ -212,7 +212,7 @@ static inline def_EHelper(inst){
     case 1:
         switch(s->isa.instr.r.funct7){
           EX (0, sll)
-          // EX (1, mulh)
+          EX (1, mulh)
           default: exec_inv(s);
         }
         break;
@@ -226,7 +226,7 @@ static inline def_EHelper(inst){
     case 3:
         switch(s->isa.instr.r.funct7){
           EX (0, sltu)
-          // EX (1, mulhu)
+          EX (1, mulhu)
           default: exec_inv(s);
         }
         break;

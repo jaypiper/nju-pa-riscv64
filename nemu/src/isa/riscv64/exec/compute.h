@@ -46,6 +46,14 @@ static inline def_EHelper(mul){
   }
 }
 
+static inline def_EHelper(mulh){
+  rtl_imul_hi(s, s->dest.preg, s->src1.preg, s->src2.preg);
+}
+
+static inline def_EHelper(mulhu){
+  rtl_mul_hi(s, s->dest.preg, s->src1.preg, s->src2.preg);
+}
+
 static inline def_EHelper(div){
   if(s->width == 4){
     rtl_divw(s, s->dest.preg, s->src1.preg, s->src2.preg);
