@@ -362,10 +362,12 @@ void take_trap(DecodeExecState* s){
 }
 extern void (*ref_raise_intr)(uint64_t NO);
 void timer_update();
+void update_uart();
 
 void query_intr(DecodeExecState* s){
 #ifndef AS_REF
   timer_update();
+  update_uart();
 #endif
   rtlreg_t pending_int = get_csr(CSR_MIE) & get_csr(CSR_MIP);
   if(!pending_int) return;
@@ -384,6 +386,12 @@ void query_intr(DecodeExecState* s){
       enable_int = MIP_MTIP;
       s->is_trap = 1;
       s->trap.cause = 7 | ((rtlreg_t)1 << 63);
+      s->trap.pc = s->seq_pc;
+      s->trap.tval = 0;
+    }else if(enable_int & MIP_SEIP){
+      enable_int = MIP_SEIP;
+      s->is_trap = 1;
+      s->trap.cause = 9 | ((rtlreg_t)1 << 63);
       s->trap.pc = s->seq_pc;
       s->trap.tval = 0;
     }else if(enable_int & MIP_SSIP){

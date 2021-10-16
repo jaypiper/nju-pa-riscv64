@@ -21,8 +21,8 @@ paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
   uint64_t ppn = get_csr(SATP_ID) & STAP_MASK;
   uint64_t* pg_base = (uintptr_t*)(ppn << 12);
   uint64_t shift_num = 30;
-  bool sum = get_csr(CSR_MSTATUS) & MSTATUS_SUM;
-  bool mxr = get_csr(CSR_MSTATUS) & MSTATUS_MXR;
+  uint64_t sum = get_csr(CSR_MSTATUS) & MSTATUS_SUM;
+  uint64_t mxr = get_csr(CSR_MSTATUS) & MSTATUS_MXR;
   uint64_t ad = PTE_A | ((type == MEM_TYPE_WRITE) * PTE_D);
   for(int i = levels-1; i >= 0; i--){
     uint64_t idx = (addr >> shift_num) & 0x1ff;
@@ -72,7 +72,7 @@ word_t vaddr_mmu_read(DecodeExecState *s, vaddr_t addr, int len, int type){
   paddr_t paddr = isa_mmu_translate(s, addr, type, len);
   if(s->is_trap) return 0;
   if((paddr & (PAGE_SIZE - 1)) + len > PAGE_SIZE){
-    printf("paddr_read: addr: %lx paddr: %x len: %d\n", addr, paddr, len);
+    printf("pc: %lx paddr_read: addr: %lx paddr: %x len: %d\n", cpu.pc, addr, paddr, len);
     // assert(0);
   }
   return paddr_read(s, paddr, len, type);

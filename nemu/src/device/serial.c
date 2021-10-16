@@ -1,4 +1,7 @@
 #include <device/map.h>
+#include <isa.h>
+#include <csr.h>
+#include "../isa/riscv64/local-include/reg.h"
 
 /* http://en.wikibooks.org/wiki/Serial_Programming/8250_UART_Programming */
 // NOTE: this is compatible to 16550
@@ -61,6 +64,10 @@ static void uart_handler(uint32_t offset, int len, bool is_write){
       }
       break;
   }
+}
+
+void update_uart(){
+
 }
 
 void send_uart(uint8_t scancode, bool is_keydown){

@@ -29,7 +29,7 @@ void init_plic(){
     plic_mclain = new_space(4);
     plic_sclain = new_space(4);
 
-    add_mmio_map("plic", PLIC_PRIORITY, plic_priority, 0x1000, NULL);
+    add_mmio_map("plic", PLIC_PRIORITY, plic_priority, 0x3000, NULL);
     add_mmio_map("plic", PLIC_PENDING, plic_pending, 0x1000, NULL);
     add_mmio_map("plic", PLIC_MENABLE(0), plic_menable, 4, NULL);
     add_mmio_map("plic", PLIC_SENABLE(0), plic_senable, 4, NULL);
