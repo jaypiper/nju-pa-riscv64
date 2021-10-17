@@ -17,7 +17,8 @@ static char *diff_so_file = NULL;
 // static char *img_file = "/home/chenlu/ysyx/program/build/loader-riscv64-mycpu.bin";
 // static char *img_file = "../../program/xv6-riscv/kernel/kernel.bin";
 // static char *img_file = "../../program/riscv-pk/build/bbl.bin";
-static char *img_file = "../../program/bbl.bin";
+// static char *img_file = "../../program/bbl.bin";
+static char *img_file = NULL;
 static int batch_mode = false;
 static int difftest_port = 1234;
 

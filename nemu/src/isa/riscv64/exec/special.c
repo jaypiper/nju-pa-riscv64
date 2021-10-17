@@ -37,3 +37,7 @@ def_EHelper(nemu_exit){
 def_EHelper(fence){
   return;
 }
+
+def_EHelper(nop){
+  return;
+}

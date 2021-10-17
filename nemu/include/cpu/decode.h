@@ -34,6 +34,7 @@ typedef struct {
   int width;
   rtlreg_t tmp_reg[4];
   ISADecodeInfo isa;
+  riscv64c_IDInfo c_inst;
   bool is_trap;
   trap_t trap;
 } DecodeExecState;

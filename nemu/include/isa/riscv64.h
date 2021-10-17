@@ -83,6 +83,54 @@ typedef struct {
   } instr;
 } riscv64_ISADecodeInfo;
 
+typedef union{
+  struct{
+    uint16_t op     : 2;
+    uint16_t rs2    : 5;
+    uint16_t rs1    : 5;
+    uint16_t funct4 : 4;
+  }cr; // register
+  struct{
+    uint16_t op     : 2;
+    uint16_t imm5   : 5;
+    uint16_t rs1    : 5;
+    int16_t imm1    : 1;
+    uint16_t funct3 : 3;
+  }ci; // immediate
+  struct{
+    uint16_t op     : 2;
+    uint16_t rs2    : 5;
+    uint16_t imm6   : 6;
+    uint16_t funct3 : 3;
+  }css; // stack relative store
+  struct{
+    uint16_t op     : 2;
+    uint16_t rd_3   : 3;
+    uint16_t imm8   : 8;
+    uint16_t funct3 : 3;
+  }ciw; // wide immediate
+  struct{
+    uint16_t op     : 2;
+    uint16_t rs2_3  : 3;
+    uint16_t imm2   : 2;
+    uint16_t rs1_3  : 3;
+    uint16_t imm3   : 3;
+    uint16_t funct3 : 3;
+  }cls; // load & store
+  struct{
+    uint16_t op     : 2;
+    uint16_t imm5   : 5;
+    uint16_t rs1_3  : 3;
+    uint16_t imm3   : 3;
+    uint16_t funct3 : 3;
+  }cb; // branch
+  struct{
+    uint16_t op     : 2;
+    uint16_t imm11  : 11;
+    uint16_t funct3 : 3;
+  }cj; //jump
+  uint16_t val;
+} riscv64c_IDInfo;
 #ifndef VME
 #define isa_vaddr_check(vaddr, type, len) (MEM_RET_OK)
 #endif

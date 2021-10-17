@@ -186,3 +186,6 @@ static inline def_EHelper(andi){
   print_asm_template3(andi);
 }
 
+static inline def_EHelper(li){
+  rtl_li(s, s->dest.preg, s->src2.imm);
+}

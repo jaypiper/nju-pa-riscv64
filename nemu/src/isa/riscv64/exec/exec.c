@@ -59,7 +59,7 @@ static inline def_EHelper(jal){
 }
 
 static inline def_EHelper(jalr){
-  rtl_li(s, s0, cpu.pc+4); //s0 = pc+4
+  rtl_li(s, s0, s->seq_pc);
   rtl_li(s, s1, s->src2.imm);
   rtl_add(s, s1, s->src1.preg, s1);
   rtl_li(s, s2, 1);
@@ -284,38 +284,121 @@ static inline def_EHelper(atomic){
 
 static inline void fetch_decode_exec(DecodeExecState *s) {
   s->isa.instr.val = instr_fetch(s, &s->seq_pc, 4);
+  s->c_inst.val = (uint16_t)s->isa.instr.val;
   if(s->is_trap){
     s->trap.pc = cpu.pc;
     s->trap.tval = cpu.pc;
     return;
   }
-  if(s->isa.instr.i.opcode1_0 != 0x3){
-    printf("%x\n", s->isa.instr.val);
-  }
-  Assert(s->isa.instr.i.opcode1_0 == 0x3, "Invalid instruction");
-  //  printf("pc: %lx decode: %x\n", s->seq_pc, s->isa.instr.val);
-  switch (s->isa.instr.i.opcode6_2) {
-    IDEX  (0b00000, I, load)
-    IDEX  (0b00100, I, insti)
-    IDEX  (0b00101, U, auipc)
-    IDEX  (0b00110, I, instiw)
-    IDEX  (0b01000, S, store)
-    IDEX  (0b01100, R, inst)
-    IDEX  (0b01101, U, lui)
-    IDEX  (0b01110, R, instw)
-    IDEX  (0b11000, B, branch)
-    IDEX  (0b11001, I, jalr)
-    EX    (0b11010, nemu_trap)
-    IDEX  (0b11011, J, jal)
-    IDEX  (0b11100, I, csr_inst)
-    EX    (0b00011, fence)
-    IDEX  (0b01011, R, atomic)
-    default: exec_inv(s);
+  if(s->isa.instr.i.opcode1_0 != 0x3){ // rv64c
+    update_seq_pc(s, 2);
+    assert(s->c_inst.val); // 0's : illegal instruction
+    if(s->c_inst.ci.op == 0){
+      switch(s->c_inst.ci.funct3){
+        IDEX(0b000, CIW, addi)
+        IDEXW(0b010, CLS_W, c_ld, 4)
+        IDEXW(0b011, CLS_D, c_ld, 8)
+        IDEXW(0b110, CLS_W, st, 4)
+        IDEXW(0b111, CLS_D, st, 8)
+        default: exec_inv(s);
+      }
+    }else if(s->c_inst.ci.op == 0x1){
+      switch(s->c_inst.ci.funct3){
+        case 0b000:
+          if(s->c_inst.ci.rs1 == 0){
+            exec_nop(s);
+          }else{
+            decode_CI(s); set_width(s, 0); exec_addi(s);
+          }
+          break;
+        IDEXW(0b001, CI, addi, 4)
+        IDEX(0b010, CI, li)
+        case 0b011:
+          if(s->c_inst.ci.rs1 == 2){ // addi16sp
+            decode_CI_ADDSP(s); set_width(s, 0); exec_addi(s);
+          }else if(s->c_inst.ci.rs1 == 0){
+            exec_inv(s);
+          }else{
+            decode_CI_LUI(s); set_width(s, 0); exec_lui(s);
+          }
+          break;
+        case 0b100:{
+          switch(s->c_inst.cls.imm3 & 0x3){
+            IDEX(0b00, CB_SHIFT, srli)
+            IDEX(0b01, CB_SHIFT, srai)
+            IDEX(0b10, CB_ANDI, andi)
+            case 0b11:{
+              switch(s->c_inst.cls.imm3 << 2 | s->c_inst.cls.imm2){
+                IDEX(0b01100, CLS_R, sub)
+                IDEX(0b01101, CLS_R, xor)
+                IDEX(0b01110, CLS_R, or)
+                IDEX(0b01111, CLS_R, and)
+                IDEXW(0b11100, CLS_R, sub, 4)
+                IDEXW(0b11101, CLS_R, add, 4)
+                default: exec_inv(s); break;
+              }
+            }
+          }
+          break;
+        }
+        IDEX(0b101, CJ, jal)
+        IDEX(0b110, CB, c_beqz)
+        IDEX(0b111, CB, c_bnez)
+      }
+    }else if(s->c_inst.ci.op == 0x2){
+      switch(s->c_inst.ci.funct3){
+        IDEX(0b000, CI_U, slli)
+        IDEXW(0b010, CI_LW, c_ld, 4)
+        IDEXW(0b011, CI_LD, c_ld, 8)
+        IDEXW(0b110, CSS_SW, st, 4)
+        IDEXW(0b111, CSS_SD, st, 8)
+        case 0b100:{
+          if(s->c_inst.ci.imm1 == 0){
+            if(s->c_inst.cr.rs1 != 0 && s->c_inst.cr.rs2 == 0){ // C.JR
+              decode_CR_JR(s); set_width(s, 4); exec_jalr(s);
+            }else if(s->c_inst.ci.rs1 != 0 && s->c_inst.cr.rs2 != 0){ // C.MV
+              decode_CR_MV(s); set_width(s, 0); exec_addi(s);
+            }else{
+              exec_inv(s);
+            }
+          }else{
+            if(s->c_inst.cr.rs1 != 0 && s->c_inst.cr.rs2 == 0){ // C.JALR
+               decode_CR_JALR(s); set_width(s, 4); exec_jalr(s);
+            }else if(s->c_inst.ci.rs1 != 0 && s->c_inst.cr.rs2 != 0){
+              decode_CR(s); set_width(s, 0); exec_add(s);
+            }
+          }
+          break;
+        }
+        default: exec_inv(s); break;
+      }
+    }else{
+      exec_inv(s);
+    }
+  }else{
+    update_seq_pc(s, 4);
+    switch (s->isa.instr.i.opcode6_2) {
+      IDEX  (0b00000, I, load)
+      IDEX  (0b00100, I, insti)
+      IDEX  (0b00101, U, auipc)
+      IDEX  (0b00110, I, instiw)
+      IDEX  (0b01000, S, store)
+      IDEX  (0b01100, R, inst)
+      IDEX  (0b01101, U, lui)
+      IDEX  (0b01110, R, instw)
+      IDEX  (0b11000, B, branch)
+      IDEX  (0b11001, I, jalr)
+      EX    (0b11010, nemu_trap)
+      IDEX  (0b11011, J, jal)
+      IDEX  (0b11100, I, csr_inst)
+      EX    (0b00011, fence)
+      IDEX  (0b01011, R, atomic)
+      default: exec_inv(s);
+    }
   }
   if(s->is_trap){
     s->trap.pc = cpu.pc;
   }
-  // printf("decode end: %x\n", s->isa.instr.val);
 }
 
 static inline void reset_zero() {

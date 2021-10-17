@@ -32,8 +32,11 @@ static inline uint32_t instr_fetch(DecodeExecState* s, vaddr_t *pc, int len) {
     strcatf(log_bytebuf, "%02x ", p_instr[i]);
   }
 #endif
-  (*pc) += len;
   return instr;
+}
+
+static inline void update_seq_pc(DecodeExecState *s, int step){
+  s->seq_pc += step;
 }
 
 static inline void update_pc(DecodeExecState *s) {
