@@ -190,7 +190,7 @@ static inline def_DHelper(CI_ADDSP){
 
 static inline def_DHelper(CI_LUI){ // store imm in src1 to adapt preivious decoder
   decode_op_r(s, id_dest, s->c_inst.ci.rs1, true);
-  decode_op_i(s, id_src1, (word_t)(s->c_inst.ci.imm1 & 1) << 17 | s->c_inst.ci.imm5 << 12, true);
+  decode_op_i(s, id_src1, s->c_inst.ci.imm1 << 17 | s->c_inst.ci.imm5 << 12, true);
 }
 
 static inline def_DHelper(CJ){ // imm in src1
