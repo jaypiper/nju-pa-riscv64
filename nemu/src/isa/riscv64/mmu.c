@@ -72,7 +72,7 @@ word_t vaddr_mmu_read(DecodeExecState *s, vaddr_t addr, int len, int type){
   paddr_t paddr = isa_mmu_translate(s, addr, type, len);
   if(s->is_trap) return 0;
   if((paddr & (PAGE_SIZE - 1)) + len > PAGE_SIZE){
-    printf("pc: %lx paddr_read: addr: %lx paddr: %x len: %d\n", cpu.pc, addr, paddr, len);
+    // printf("pc: %lx paddr_read: addr: %lx paddr: %x len: %d\n", cpu.pc, addr, paddr, len);
     // assert(0);
   }
   return paddr_read(s, paddr, len, type);

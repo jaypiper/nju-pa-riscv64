@@ -201,7 +201,6 @@ void set_csr_cond(DecodeExecState* s, int id, rtlreg_t val){
     s->is_trap = true;
     s->trap.cause = CAUSE_ILLEGAL_INSTRUCTION;
     s->trap.tval = s->isa.instr.val;
-    // printf("pc: %lx set_csr_cond id: %x priv: %ld\n", s->seq_pc, id, get_priv());
     return;
   }
   set_csr(id, val);
@@ -213,7 +212,6 @@ rtlreg_t get_csr_cond(DecodeExecState* s, int id){
     s->is_trap = true;
     s->trap.cause = CAUSE_ILLEGAL_INSTRUCTION;
     s->trap.tval = s->isa.instr.val;
-    // printf("pc: %lx get_csr_cond id: %x priv: %ld\n", s->seq_pc, id, get_priv());
     return 0;
   }
   return get_csr(id);
