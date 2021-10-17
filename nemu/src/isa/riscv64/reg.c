@@ -151,6 +151,10 @@ void set_csr(int id, rtlreg_t val){
       cpu.csr[id] = set_partial_val(cpu.csr[id], mask, val);
       break;
     }
+    case CSR_MCOUNTEREN:
+    case CSR_SCOUNTEREN:
+      cpu.csr[id] = val & 0xffffffff;
+      break;
 
     default: cpu.csr[id] = val;
   }
