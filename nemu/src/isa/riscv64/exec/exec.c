@@ -296,8 +296,10 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
     if(s->c_inst.ci.op == 0){
       switch(s->c_inst.ci.funct3){
         IDEX(0b000, CIW, addi)
+        EX(0b001, illegal)
         IDEXW(0b010, CLS_W, c_ld, 4)
         IDEXW(0b011, CLS_D, c_ld, 8)
+        EX(0b101, illegal)
         IDEXW(0b110, CLS_W, st, 4)
         IDEXW(0b111, CLS_D, st, 8)
         default: exec_inv(s);
@@ -348,8 +350,10 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
     }else if(s->c_inst.ci.op == 0x2){
       switch(s->c_inst.ci.funct3){
         IDEX(0b000, CI_U, slli)
+        EX(0b001, illegal)
         IDEXW(0b010, CI_LW, c_ld, 4)
         IDEXW(0b011, CI_LD, c_ld, 8)
+        EX(0b101, illegal)
         IDEXW(0b110, CSS_SW, st, 4)
         IDEXW(0b111, CSS_SD, st, 8)
         case 0b100:{
@@ -379,13 +383,20 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
     update_seq_pc(s, 4);
     switch (s->isa.instr.i.opcode6_2) {
       IDEX  (0b00000, I, load)
+      EX    (0b00001, illegal) //flw
       IDEX  (0b00100, I, insti)
       IDEX  (0b00101, U, auipc)
       IDEX  (0b00110, I, instiw)
       IDEX  (0b01000, S, store)
+      EX    (0b01001, illegal)
       IDEX  (0b01100, R, inst)
       IDEX  (0b01101, U, lui)
       IDEX  (0b01110, R, instw)
+      EX    (0b10000, illegal)
+      EX    (0b10001, illegal)
+      EX    (0b10010, illegal)
+      EX    (0b10011, illegal)
+      EX    (0b10100, illegal)
       IDEX  (0b11000, B, branch)
       IDEX  (0b11001, I, jalr)
       EX    (0b11010, nemu_trap)

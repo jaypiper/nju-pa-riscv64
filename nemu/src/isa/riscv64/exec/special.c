@@ -41,3 +41,9 @@ def_EHelper(fence){
 def_EHelper(nop){
   return;
 }
+
+def_EHelper(illegal){
+  s->is_trap = 1;
+  s->trap.cause = CAUSE_ILLEGAL_INSTRUCTION;
+  s->trap.tval = s->isa.instr.i.opcode1_0 == 0x3 ? s->isa.instr.val : s->c_inst.val;
+}

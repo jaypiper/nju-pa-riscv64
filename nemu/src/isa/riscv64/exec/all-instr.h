@@ -13,3 +13,4 @@ def_EHelper(nemu_trap);
 def_EHelper(nemu_exit);
 def_EHelper(fence);
 def_EHelper(nop);
+def_EHelper(illegal);
