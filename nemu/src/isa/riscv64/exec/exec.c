@@ -77,7 +77,6 @@ static int fun2op[8] = {/*000*/ RELOP_EQ, RELOP_NE,
                         /*100*/ RELOP_LT, RELOP_GE, 
                         /*110*/ RELOP_LTU, RELOP_GEU};
 static inline def_EHelper(branch){
-  // printf("%d %lx %lx %d\n", s->isa.instr.b.funct3, *(id_src1->preg), *(id_src2->preg), interpret_relop(fun2op[s->isa.instr.b.funct3], id_src1->preg, id_src2->preg));
   rtl_jrelop(s, fun2op[s->isa.instr.b.funct3], id_src1->preg, id_src2->preg, cpu.pc + id_dest->simm);
   switch(s->isa.instr.b.funct3){
     case 0: print_asm_template3(beq); break;
@@ -424,7 +423,7 @@ void take_trap(DecodeExecState* s){
 
   if(!(!is_interrupt || (get_priv() == PRV_S && (get_val(get_csr(CSR_SSTATUS), SSTATUS_SIE) || cause == 0x8000000000000007ULL)) || (get_priv() == PRV_M && get_val(get_csr(CSR_MSTATUS), MSTATUS_MIE)) || get_priv() == PRV_U)){
     printf("priv: %ld sstatus: %lx mstatus: %lx cause: %lx\n", get_priv(), get_csr(CSR_SSTATUS), get_csr(CSR_MSTATUS), cause);
-    assert(0);
+    // assert(0);
   }
   if(cpu.privilege <= PRV_S && ((deleg >> cause) & 1)){
     tvec = get_csr(CSR_STVEC);
@@ -538,7 +537,7 @@ void isa_intr_exec(vaddr_t pc, word_t cause){
   // printf("nemu intr pc: %lx cause: %lx\n", pc, cause);
   DecodeExecState s;
   s.is_trap = 1;
-  s.trap.pc = pc;
+  s.trap.pc = cpu.pc;
   s.trap.cause = cause;
   s.trap.tval = 0;
 
