@@ -4,6 +4,7 @@
 #include "local-include/reg.h"
 #include "local-include/mmu.h"
 #include <cpu/decode.h>
+#include <csr.h>
 
 #define VALID_MASK 1
 #define PGTABLE_MASK 0x3ffffffffffc00LL
@@ -87,8 +88,14 @@ void vaddr_mmu_write(DecodeExecState *s, vaddr_t addr, word_t data, int len){
 
 #ifdef VME
 int isa_vaddr_check(vaddr_t vaddr, int type, int len){
-  if(cpu.privilege == PRV_M &&
-  ((get_csr(CSR_MSTATUS) & MSTATUS_MPRV) == 0 || type == MEM_TYPE_IFETCH)) return MEM_RET_OK;
+  int mode = cpu.privilege;
+  if(type != MEM_TYPE_IFETCH){
+    if((get_csr(CSR_MSTATUS) & MSTATUS_MPRV) != 0){
+      mode = get_val(get_csr(CSR_MSTATUS), MSTATUS_MPP);
+    }
+  }
+  if(mode == PRV_M) return MEM_RET_OK;
+
   rtlreg_t _satp = get_csr(SATP_ID);
 
   _satp >>= 60;
