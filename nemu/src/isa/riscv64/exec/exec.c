@@ -425,6 +425,9 @@ void take_trap(DecodeExecState* s){
     printf("priv: %ld sstatus: %lx mstatus: %lx cause: %lx\n", get_priv(), get_csr(CSR_SSTATUS), get_csr(CSR_MSTATUS), cause);
     // assert(0);
   }
+  if(is_interrupt){
+    clear_pre_lr();
+  }
   if(cpu.privilege <= PRV_S && ((deleg >> cause) & 1)){
     tvec = get_csr(CSR_STVEC);
     status = get_csr(CSR_SSTATUS);

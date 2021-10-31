@@ -25,7 +25,6 @@ static inline def_EHelper(sret){
   sstatus = set_val(sstatus, SSTATUS_SPP, PRV_U);
   set_csr(CSR_SSTATUS, sstatus);
   set_priv(prev_prv);
-  clear_pre_lr();
   print_asm_template1(sret);
 }
 
@@ -38,7 +37,6 @@ static inline def_EHelper(mret){
   mstatus = set_val(mstatus, MSTATUS_MPP, PRV_U);
   set_csr(CSR_MSTATUS, mstatus);
   set_priv(prev_prv);
-  clear_pre_lr();
   print_asm_template1(mret);
 }
 
