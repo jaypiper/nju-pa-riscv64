@@ -116,6 +116,7 @@ void difftest_raise_intr(uint64_t NO) {
   reg_t mip = p->get_csr(CSR_MIP);
   mip |= 1 << NO;
   state->mip = mip;
+  p->get_mmu()->yield_load_reservation();
   // printf("no: %lx\n", NO);
 }
 
