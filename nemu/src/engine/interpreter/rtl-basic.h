@@ -123,6 +123,7 @@ static inline def_rtl(lms, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, 
   word_t val = vaddr_read(s, *addr + offset, len);
   if(s->is_trap){
     s->trap.tval = (rtlreg_t)(*addr + offset);
+    return;
   }
   switch (len) {
     case 4: *dest = (sword_t)(int32_t)val; return;
