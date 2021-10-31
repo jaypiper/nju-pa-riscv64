@@ -97,6 +97,7 @@ static inline def_EHelper(csr_inst){
         case 0: exec_ecall(s); break;
         case 0b000100000010: exec_sret(s); break;
         case 0b001100000010: exec_mret(s); break;
+        case 0b000100000101: exec_wfi(s); break;
         default: if(s->isa.instr.r.funct7 == 0b0001001){ exec_sfence_vma(s);
                 }else{ exec_inv(s);}
       }

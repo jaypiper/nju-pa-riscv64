@@ -40,6 +40,10 @@ static inline def_EHelper(mret){
   print_asm_template1(mret);
 }
 
+static inline def_EHelper(wfi){
+  return;
+}
+
 static inline def_EHelper(csrrc){
   rtl_li(s, s0, get_csr_cond(s, s->src2.imm)); //t
   if(s->is_trap) return;
