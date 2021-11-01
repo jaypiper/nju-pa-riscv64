@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <monitor/log.h>
+void disp_inst_buf();
 
 #define Log(format, ...) \
     _Log("\33[1;34m[%s,%d,%s] " format "\33[0m\n", \
@@ -20,6 +21,7 @@
       extern void monitor_statistic(); \
       isa_reg_display(NULL); \
       monitor_statistic(); \
+      disp_inst_buf(); \
       assert(cond); \
     } \
   } while (0)

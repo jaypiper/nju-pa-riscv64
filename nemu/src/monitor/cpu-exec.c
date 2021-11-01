@@ -64,6 +64,17 @@ static uint64_t get_time() {
 }
 bool check_watchpoint();
 /* Simulate how the CPU works. */
+
+extern uint32_t inst_buf[4];
+extern uint64_t pc_buf[4];
+extern int inst_p;
+
+void disp_inst_buf(){
+  for(int i = 0; i < 4; i++){
+    printf("pc: %lx inst: %x\n", pc_buf[(inst_p + i) % 4], inst_buf[(inst_p + i) % 4]);
+  }
+}
+
 void cpu_exec(uint64_t n) {
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT:
@@ -112,6 +123,7 @@ void cpu_exec(uint64_t n) {
           (nemu_state.state == NEMU_ABORT ? "\33[1;31mABORT" :
            (nemu_state.halt_ret == 0 ? "\33[1;32mHIT GOOD TRAP" : "\33[1;31mHIT BAD TRAP")),
           nemu_state.halt_pc);
+      disp_inst_buf();
       // fall through
     case NEMU_QUIT:
       monitor_statistic();

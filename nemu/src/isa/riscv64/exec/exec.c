@@ -282,6 +282,9 @@ static inline def_EHelper(atomic){
   }
 }
 
+uint32_t inst_buf[4];
+uint64_t pc_buf[4];
+int inst_p = 0;
 static inline void fetch_decode_exec(DecodeExecState *s) {
   s->isa.instr.val = instr_fetch(s, &s->seq_pc, 4);
   s->c_inst.val = (uint16_t)s->isa.instr.val;
@@ -290,7 +293,10 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
     s->trap.tval = cpu.pc;
     return;
   }
+
+  pc_buf[inst_p] = s->seq_pc;
   if(s->isa.instr.i.opcode1_0 != 0x3){ // rv64c
+    inst_buf[inst_p] = s->c_inst.val;
     update_seq_pc(s, 2);
     assert(s->c_inst.val); // 0's : illegal instruction
     if(s->c_inst.ci.op == 0){
@@ -380,6 +386,7 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
       exec_inv(s);
     }
   }else{
+    inst_buf[inst_p] = s->isa.instr.val;
     update_seq_pc(s, 4);
     switch (s->isa.instr.i.opcode6_2) {
       IDEX  (0b00000, I, load)
@@ -410,6 +417,7 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
   if(s->is_trap){
     s->trap.pc = cpu.pc;
   }
+  inst_p = (inst_p + 1) % 4;
 }
 
 static inline void reset_zero() {
