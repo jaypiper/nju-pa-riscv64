@@ -14,6 +14,7 @@ void init_i8042();
 void init_audio();
 void init_plic();
 void init_virtio();
+void init_sdcard();
 
 void send_key(uint8_t, bool);
 void vga_update_screen();
@@ -68,6 +69,7 @@ void init_device() {
   init_alarm();
   init_plic();
   init_virtio();
+  init_sdcard();
 }
 #else
 
