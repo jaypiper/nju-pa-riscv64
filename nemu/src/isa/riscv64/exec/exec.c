@@ -290,7 +290,6 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
   s->c_inst.val = (uint16_t)s->isa.instr.val;
   if(s->is_trap){
     s->trap.pc = cpu.pc;
-    s->trap.tval = cpu.pc;
     return;
   }
 

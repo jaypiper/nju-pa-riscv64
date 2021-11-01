@@ -71,12 +71,25 @@ paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
 
 word_t vaddr_mmu_read(DecodeExecState *s, vaddr_t addr, int len, int type){
   paddr_t paddr = isa_mmu_translate(s, addr, type, len);
-  if(s->is_trap) return 0;
-  if((paddr & (PAGE_SIZE - 1)) + len > PAGE_SIZE){
-    // printf("pc: %lx paddr_read: addr: %lx paddr: %x len: %d\n", cpu.pc, addr, paddr, len);
-    // assert(0);
+  if(s->is_trap) {
+    s->trap.tval = addr;
+    return 0;
   }
-  return paddr_read(s, paddr, len, type);
+  if((paddr & (PAGE_SIZE - 1)) + len > PAGE_SIZE && (type == MEM_TYPE_IFETCH)){
+    int first = PAGE_SIZE - (paddr & (PAGE_SIZE-1));
+    uint32_t inst1 = paddr_read(s, paddr, first, type);
+    if((inst1 & 3) != 3){
+      return paddr_read(s, paddr, first, type);
+    }
+    paddr_t paddr2 = isa_mmu_translate(s, addr + first, type, len - first);
+    if(s->is_trap) {
+      s->trap.tval = addr + first;
+      return 0;
+    }
+    return paddr_read(s, paddr2, len - first, type) << (8 * first) | paddr_read(s, paddr, first, type);
+  }else{
+    return paddr_read(s, paddr, len, type);
+  }
 
 }
 
