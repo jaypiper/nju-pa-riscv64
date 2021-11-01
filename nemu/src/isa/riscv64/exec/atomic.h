@@ -19,12 +19,14 @@ static inline def_EHelper(sc){
 
 static inline def_EHelper(amoswap){
     rtl_lm(s, s0, dsrc1, 0, s->width);
+    if(s->is_trap) return;
     rtl_sm(s, dsrc1, 0, dsrc2, s->width);
     rtl_mv(s, ddest, s0);
 }
 
 static inline def_EHelper(amoadd){
     rtl_lm(s, s0, dsrc1, 0, s->width);
+    if(s->is_trap) return;
     rtl_add(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
     if(s->width == 4){
@@ -35,6 +37,7 @@ static inline def_EHelper(amoadd){
 
 static inline def_EHelper(amoxor){
     rtl_lm(s, s0, dsrc1, 0, s->width);
+    if(s->is_trap) return;
     rtl_xor(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
     if(s->width == 4){
@@ -45,6 +48,7 @@ static inline def_EHelper(amoxor){
 
 static inline def_EHelper(amoand){
     rtl_lm(s, s0, dsrc1, 0, s->width);
+    if(s->is_trap) return;
     rtl_and(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
     if(s->width == 4){
@@ -55,6 +59,7 @@ static inline def_EHelper(amoand){
 
 static inline def_EHelper(amoor){
     rtl_lm(s, s0, dsrc1, 0, s->width);
+    if(s->is_trap) return;
     rtl_or(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
     if(s->width == 4){
