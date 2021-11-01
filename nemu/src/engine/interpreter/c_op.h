@@ -20,12 +20,22 @@
 
 #ifdef ISA64
 #define c_sext32to64(a) ((int64_t)(int32_t)(a))
+#define c_zext32to64(a) ((uint64_t)(uint32_t)(a))
 #define c_addw(a, b) c_sext32to64((a) + (b))
 #define c_subw(a, b) c_sext32to64((a) - (b))
 #define c_shlw(a, b) c_sext32to64((uint32_t)(a) << ((b) & 0x1f))
 #define c_shrw(a, b) c_sext32to64((uint32_t)(a) >> ((b) & 0x1f))
 #define c_sarw(a, b) c_sext32to64(( int32_t)(a) >> ((b) & 0x1f))
 #endif
+
+#define c_minw(a, b) (int32_t)(a) > (int32_t)(b) ? b : a
+#define c_maxw(a, b) (int32_t)(a) > (int32_t)(b) ? a : b
+#define c_minuw(a, b) (uint32_t)(a) > (uint32_t)(b) ? b : a
+#define c_maxuw(a, b) (uint32_t)(a) > (uint32_t)(b) ? a : b
+#define c_mind(a, b) (int64_t)(a) > (int64_t)(b) ? b : a
+#define c_maxd(a, b) (int64_t)(a) > (int64_t)(b) ? a : b
+#define c_minud(a, b) (uint64_t)(a) > (uint64_t)(b) ? b : a
+#define c_maxud(a, b) (uint64_t)(a) > (uint64_t)(b) ? a : b
 
 #define c_mul_lo(a, b) ((a) * (b))
 #define c_imul_lo(a, b) ((sword_t)(a) * (sword_t)(b))

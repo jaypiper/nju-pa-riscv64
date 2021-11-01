@@ -64,17 +64,57 @@ static inline def_EHelper(amoor){
 }
 
 static inline def_EHelper(amomin){
-    assert(0);
+    rtl_lm(s, s0, dsrc1, 0, s->width);
+    if(s->is_trap) return;
+    rtl_li(s, s1, *dsrc2);
+    if(s->width == 4){
+        rtl_li(s, s1, c_minw(*s0, *s1));
+        rtl_li(s, s0, c_sext32to64(*s0));
+    }else{
+        rtl_li(s, s1, c_mind(*s0, *s1));
+    }
+    rtl_sm(s, dsrc1, 0, s1, s->width);
+    rtl_mv(s, ddest, s0);
 }
 
 static inline def_EHelper(amomax){
-    assert(0);
+    rtl_lm(s, s0, dsrc1, 0, s->width);
+    if(s->is_trap) return;
+    rtl_li(s, s1, *dsrc2);
+    if(s->width == 4){
+        rtl_li(s, s1, c_maxw(*s0, *s1));
+        rtl_li(s, s0, c_sext32to64(*s0));
+    }else{
+        rtl_li(s, s1, c_maxd(*s0, *s1));
+    }
+    rtl_sm(s, dsrc1, 0, s1, s->width);
+    rtl_mv(s, ddest, s0);
 }
 
 static inline def_EHelper(amominu){
-    assert(0);
+  rtl_lm(s, s0, dsrc1, 0, s->width);
+    if(s->is_trap) return;
+    rtl_li(s, s1, *dsrc2);
+    if(s->width == 4){
+        rtl_li(s, s1, c_minuw(*s0, *s1));
+        rtl_li(s, s0, c_sext32to64(*s0));
+    }else{
+        rtl_li(s, s1, c_minud(*s0, *s1));
+    }
+    rtl_sm(s, dsrc1, 0, s1, s->width);
+    rtl_mv(s, ddest, s0);
 }
 
 static inline def_EHelper(amomaxu){
-    assert(0);
+    rtl_lm(s, s0, dsrc1, 0, s->width);
+    if(s->is_trap) return;
+    rtl_li(s, s1, *dsrc2);
+    if(s->width == 4){
+        rtl_li(s, s1, c_maxuw(*s0, *s1));
+        rtl_li(s, s0, c_sext32to64(*s0));
+    }else{
+        rtl_li(s, s1, c_maxud(*s0, *s1));
+    }
+    rtl_sm(s, dsrc1, 0, s1, s->width);
+    rtl_mv(s, ddest, s0);
 }
