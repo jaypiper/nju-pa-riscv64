@@ -11,6 +11,7 @@ void init_serial();
 void init_timer();
 void init_vga();
 void init_i8042();
+void init_csr();
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if(!difftest_check_reg("pc", pc, ref_r->pc, cpu.pc)) return false;
@@ -56,6 +57,14 @@ void isa_difftest_setregs(const void* c){
     cpu.gpr[i] = state->gpr[i];
   }
   cpu.pc = state->pc;
+}
+
+void isa_difftest_setregs_all(const void* c){
+  CPU_state* state = (CPU_state*)c;
+  for(int i = 0; i < 32; i++){
+    cpu.gpr[i] = state->gpr[i];
+  }
+  cpu.pc = state->pc;
   cpu.privilege = state->privilege;
   for(int i = 0; i < sizeof(diff_csrs) / sizeof(int); i++){
     int id = diff_csrs[i];
@@ -86,6 +95,7 @@ void isa_difftest_init(){
   init_vga();
   init_i8042();
   memset(cpu.csr, 0, sizeof(cpu.csr));
+  init_csr();
 }
 
 extern NEMUState nemu_state;
