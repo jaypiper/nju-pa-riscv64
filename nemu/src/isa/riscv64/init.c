@@ -48,5 +48,5 @@ void init_csr(){
   cpu.csr[CSR_MINSTRET] = 0;
   cpu.csr[CSR_MHARTID] = 0;
   cpu.csr[CSR_MISA] = 0x800000000014112dull;
-  cpu.csr[CSR_USCRATCH] = 6;
+  cpu.csr[CSR_USCRATCH] = 16;
 }
