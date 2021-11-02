@@ -21,6 +21,7 @@ static inline def_EHelper(amoswap){
     rtl_lm(s, s0, dsrc1, 0, s->width);
     if(s->is_trap) return;
     rtl_sm(s, dsrc1, 0, dsrc2, s->width);
+    if(s->is_trap) return;
     rtl_mv(s, ddest, s0);
 }
 
@@ -29,6 +30,7 @@ static inline def_EHelper(amoadd){
     if(s->is_trap) return;
     rtl_add(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
+    if(s->is_trap) return;
     if(s->width == 4){
         rtl_li(s, s0, c_sext32to64(*s0));
     }
@@ -40,6 +42,7 @@ static inline def_EHelper(amoxor){
     if(s->is_trap) return;
     rtl_xor(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
+    if(s->is_trap) return;
     if(s->width == 4){
         rtl_li(s, s0, c_sext32to64(*s0));
     }
@@ -51,6 +54,7 @@ static inline def_EHelper(amoand){
     if(s->is_trap) return;
     rtl_and(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
+    if(s->is_trap) return;
     if(s->width == 4){
         rtl_li(s, s0, c_sext32to64(*s0));
     }
@@ -62,6 +66,7 @@ static inline def_EHelper(amoor){
     if(s->is_trap) return;
     rtl_or(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
+    if(s->is_trap) return;
     if(s->width == 4){
         rtl_li(s, s0, c_sext32to64(*s0));
     }
@@ -79,6 +84,7 @@ static inline def_EHelper(amomin){
         rtl_li(s, s1, c_mind(*s0, *s1));
     }
     rtl_sm(s, dsrc1, 0, s1, s->width);
+    if(s->is_trap) return;
     rtl_mv(s, ddest, s0);
 }
 
@@ -93,6 +99,7 @@ static inline def_EHelper(amomax){
         rtl_li(s, s1, c_maxd(*s0, *s1));
     }
     rtl_sm(s, dsrc1, 0, s1, s->width);
+    if(s->is_trap) return;
     rtl_mv(s, ddest, s0);
 }
 
@@ -107,6 +114,7 @@ static inline def_EHelper(amominu){
         rtl_li(s, s1, c_minud(*s0, *s1));
     }
     rtl_sm(s, dsrc1, 0, s1, s->width);
+    if(s->is_trap) return;
     rtl_mv(s, ddest, s0);
 }
 
@@ -121,5 +129,6 @@ static inline def_EHelper(amomaxu){
         rtl_li(s, s1, c_maxud(*s0, *s1));
     }
     rtl_sm(s, dsrc1, 0, s1, s->width);
+    if(s->is_trap) return;
     rtl_mv(s, ddest, s0);
 }
