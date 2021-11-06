@@ -134,7 +134,7 @@ void set_csr(int id, rtlreg_t val){
     }
     case CSR_MIP: {
       rtlreg_t mask = supervisor_ints;
-      cpu.csr[id] = val;
+      cpu.csr[id] = set_partial_val(cpu.csr[CSR_MIP], mask, val);
       cpu.csr[CSR_SIP] = set_partial_val(cpu.csr[CSR_SIP], mask, val);
       break;
     }

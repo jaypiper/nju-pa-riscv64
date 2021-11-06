@@ -44,7 +44,7 @@ static void timer_intr() {
 
 static void write_timer_cmp(uint32_t offset, int len, bool is_write){
   if(is_write){
-    set_csr(CSR_MIP, set_val(get_csr(CSR_MIP), MIP_MTIP, 0));
+    nemu_clear_intr(7);
     ref_clear_mip();
   }
 }
@@ -52,11 +52,12 @@ static void write_timer_cmp(uint32_t offset, int len, bool is_write){
 static void write_timer(uint32_t offset, int len, bool is_write){
 }
 
-
+static int timer_count = 0;
 void timer_update(){
-  *clint_mtime_port = *clint_mtime_port + 1;
+  timer_count = (timer_count + 1) % 8;
+  *clint_mtime_port = *clint_mtime_port + (timer_count == 0);
   if(*clint_mtime_port > *clint_mtimecmp_port && (get_csr(CSR_MIP) & MIP_MTIP) == 0){
-    set_csr(CSR_MIP, set_val(get_csr(CSR_MIP), MIP_MTIP, 1));
+    nemu_raise_intr(7);
 #ifdef DIFF_TEST
     ref_raise_intr(7);
 #endif
