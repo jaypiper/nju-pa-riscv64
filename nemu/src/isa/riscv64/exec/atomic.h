@@ -25,15 +25,24 @@ static inline def_EHelper(sc){
 
 static inline def_EHelper(amoswap){
     rtl_lm(s, s0, dsrc1, 0, s->width);
-    if(s->is_trap) return;
+    if(s->is_trap) {
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+        return;
+    }
     rtl_sm(s, dsrc1, 0, dsrc2, s->width);
     if(s->is_trap) return;
+    if(s->width == 4){
+        rtl_li(s, s0, c_sext32to64(*s0));
+    }
     rtl_mv(s, ddest, s0);
 }
 
 static inline def_EHelper(amoadd){
     rtl_lm(s, s0, dsrc1, 0, s->width);
-    if(s->is_trap) return;
+    if(s->is_trap){
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+        return;
+    }
     rtl_add(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
     if(s->is_trap) return;
@@ -45,7 +54,10 @@ static inline def_EHelper(amoadd){
 
 static inline def_EHelper(amoxor){
     rtl_lm(s, s0, dsrc1, 0, s->width);
-    if(s->is_trap) return;
+    if(s->is_trap){
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+        return;
+    }
     rtl_xor(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
     if(s->is_trap) return;
@@ -57,7 +69,10 @@ static inline def_EHelper(amoxor){
 
 static inline def_EHelper(amoand){
     rtl_lm(s, s0, dsrc1, 0, s->width);
-    if(s->is_trap) return;
+    if(s->is_trap){
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+        return;
+    }
     rtl_and(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
     if(s->is_trap) return;
@@ -69,7 +84,10 @@ static inline def_EHelper(amoand){
 
 static inline def_EHelper(amoor){
     rtl_lm(s, s0, dsrc1, 0, s->width);
-    if(s->is_trap) return;
+    if(s->is_trap){
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+        return;
+    }
     rtl_or(s, s1, s0, dsrc2);
     rtl_sm(s, dsrc1, 0, s1, s->width);
     if(s->is_trap) return;
@@ -81,7 +99,10 @@ static inline def_EHelper(amoor){
 
 static inline def_EHelper(amomin){
     rtl_lm(s, s0, dsrc1, 0, s->width);
-    if(s->is_trap) return;
+    if(s->is_trap){
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+        return;
+    }
     rtl_li(s, s1, *dsrc2);
     if(s->width == 4){
         rtl_li(s, s1, c_minw(*s0, *s1));
@@ -96,7 +117,10 @@ static inline def_EHelper(amomin){
 
 static inline def_EHelper(amomax){
     rtl_lm(s, s0, dsrc1, 0, s->width);
-    if(s->is_trap) return;
+    if(s->is_trap){
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+        return;
+    }
     rtl_li(s, s1, *dsrc2);
     if(s->width == 4){
         rtl_li(s, s1, c_maxw(*s0, *s1));
@@ -111,7 +135,10 @@ static inline def_EHelper(amomax){
 
 static inline def_EHelper(amominu){
   rtl_lm(s, s0, dsrc1, 0, s->width);
-    if(s->is_trap) return;
+    if(s->is_trap){
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+        return;
+    }
     rtl_li(s, s1, *dsrc2);
     if(s->width == 4){
         rtl_li(s, s1, c_minuw(*s0, *s1));
@@ -126,7 +153,10 @@ static inline def_EHelper(amominu){
 
 static inline def_EHelper(amomaxu){
     rtl_lm(s, s0, dsrc1, 0, s->width);
-    if(s->is_trap) return;
+    if(s->is_trap){
+        s->trap.cause = CAUSE_STORE_PAGE_FAULT;
+        return;
+    }
     rtl_li(s, s1, *dsrc2);
     if(s->width == 4){
         rtl_li(s, s1, c_maxuw(*s0, *s1));
