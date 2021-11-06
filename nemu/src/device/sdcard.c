@@ -66,7 +66,7 @@ static void sdcard_handle_cmd(int cmd) {
     case MMC_SET_BLOCK_COUNT: blkcnt = base[SDARG] & 0xffff; break;
     case MMC_READ_MULTIPLE_BLOCK: prepare_rw(false); break;
     case MMC_WRITE_MULTIPLE_BLOCK: prepare_rw(true); break;
-    case MMC_SEND_STATUS: base[SDRSP0] = base[SDRSP1] = base[SDRSP2] = base[SDRSP3] = 0; break;
+    case MMC_SEND_STATUS: base[SDRSP0] = 0x900;base[SDRSP1] = base[SDRSP2] = base[SDRSP3] = 0; break;
     case MMC_STOP_TRANSMISSION: break;
     default:
       panic("unhandled command = %d", cmd);
@@ -98,6 +98,8 @@ static void sdcard_io_handler(uint32_t offset, int len, bool is_write) {
          __attribute__((unused)) int ret;
          if (!write_cmd) { ret = fread(&base[SDDATA], 4, 1, fp); }
          else { ret = fwrite(&base[SDDATA], 4, 1, fp); }
+       } else{
+         assert(0);
        }
        addr += 4;
        break;
