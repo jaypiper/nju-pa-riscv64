@@ -30,6 +30,7 @@ enum { MEM_RET_OK, MEM_RET_NEED_TRANSLATE, MEM_RET_FAIL, MEM_RET_CROSS_PAGE };
 paddr_t isa_mmu_translate(DecodeExecState* s, vaddr_t vaddr, int type, int len);
 #ifndef isa_vaddr_check
 int isa_vaddr_check(vaddr_t vaddr, int type, int len);
+paddr_t vaddr_translate(DecodeExecState* s, vaddr_t vaddr, int type, int len);
 #endif
 #define isa_has_mem_exception concat(__ISA__, _has_mem_exception)
 

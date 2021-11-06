@@ -56,6 +56,7 @@ paddr_t isa_mmu_translate(DecodeExecState *s, vaddr_t addr, int type, int len) {
   }
 
   s->is_trap = true;
+  s->trap.tval = addr;
   switch(type){
     case MEM_TYPE_IFETCH:
         s->trap.cause = CAUSE_FETCH_PAGE_FAULT; break;
@@ -120,3 +121,9 @@ int isa_vaddr_check(vaddr_t vaddr, int type, int len){
   }
 }
 #endif
+
+paddr_t vaddr_translate(DecodeExecState* s, vaddr_t vaddr, int type, int len){
+  int ret = isa_vaddr_check(vaddr, type, len);
+  if(ret == MEM_RET_OK) return vaddr;
+  return isa_mmu_translate(s, vaddr, type, len);
+}

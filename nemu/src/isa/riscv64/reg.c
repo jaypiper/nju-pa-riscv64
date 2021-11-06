@@ -230,3 +230,27 @@ void inline set_pre_lr(rtlreg_t pre_lr){
 void inline clear_pre_lr(){
   cpu.pre_lr_valid = 0;
 }
+
+void nemu_raise_intr(int NO){
+  cpu.csr[CSR_MIP] = get_csr(CSR_MIP) | (1 << NO);
+}
+
+void nemu_clear_intr(int NO){
+  cpu.csr[CSR_MIP] = get_csr(CSR_MIP) & ~(uint64_t)(1 << NO);
+}
+
+void inline set_lr_paddr(paddr_t paddr){
+  cpu.pre_lr = paddr;
+  cpu.pre_lr_valid = true;
+}
+
+void set_lr_vaddr(DecodeExecState* s, vaddr_t vaddr, int len){
+  paddr_t paddr = vaddr_translate(s, vaddr, MEM_TYPE_READ, len);
+  if(s->is_trap) return;
+  set_lr_paddr(paddr);
+}
+
+bool check_lr_vaddr(DecodeExecState* s, vaddr_t vaddr, int len){
+  paddr_t paddr = vaddr_translate(s, vaddr, MEM_TYPE_WRITE, len);
+  return cpu.pre_lr_valid && (paddr == cpu.pre_lr);
+}

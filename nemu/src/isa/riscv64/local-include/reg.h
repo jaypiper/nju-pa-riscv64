@@ -64,4 +64,8 @@ rtlreg_t get_pre_lr();
 bool pre_lr_valid();
 void set_pre_lr(rtlreg_t pre_lr);
 void clear_pre_lr();
+bool check_lr_vaddr(DecodeExecState* s, vaddr_t vaddr, int len);
+void set_lr_vaddr(DecodeExecState* s, vaddr_t vaddr, int len);
+void nemu_raise_intr(int NO);
+void nemu_clear_intr(int NO);
 #endif
