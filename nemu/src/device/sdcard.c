@@ -1,4 +1,5 @@
 #include <device/map.h>
+#include <cpu/exec.h>
 #include "mmc.h"
 
 // http://www.files.e-shop.co.il/pdastore/Tech-mmc-samsung/SEC%20MMC%20SPEC%20ver09.pdf
@@ -109,7 +110,8 @@ static void sdcard_io_handler(uint32_t offset, int len, bool is_write) {
   }
 }
 #define CONFIG_SDCARD_CTL_MMIO 0x43000000
-#define CONFIG_SDCARD_IMG_PATH "../../program/linux-5.14.9/debian16.img"
+// #define CONFIG_SDCARD_IMG_PATH "/home/chenlu/program/linux-5.14.9/debian16.img"
+#define CONFIG_SDCARD_IMG_PATH "/home/chenlu/program/debian-standard-qemu.img"
 
 void init_sdcard() {
   base = (uint32_t *)new_space(0x80);

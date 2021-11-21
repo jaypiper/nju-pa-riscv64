@@ -112,12 +112,10 @@ void difftest_init(int port) {
 }
 
 void difftest_raise_intr(uint64_t NO) {
-  // assert(0);
   reg_t mip = p->get_csr(CSR_MIP);
   mip |= 1 << NO;
   state->mip = mip;
   p->get_mmu()->yield_load_reservation();
-  // printf("no: %lx\n", NO);
 }
 
 void difftest_clear_mip() {

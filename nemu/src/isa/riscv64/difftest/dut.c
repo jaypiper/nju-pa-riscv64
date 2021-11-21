@@ -12,6 +12,7 @@ void init_timer();
 void init_vga();
 void init_i8042();
 void init_csr();
+void init_sdcard();
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if(!difftest_check_reg("pc", pc, ref_r->pc, cpu.pc)) return false;
@@ -96,6 +97,7 @@ void isa_difftest_init(){
   init_i8042();
   memset(cpu.csr, 0, sizeof(cpu.csr));
   init_csr();
+  init_sdcard();
 }
 
 extern NEMUState nemu_state;
