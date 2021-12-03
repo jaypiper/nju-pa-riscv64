@@ -1,7 +1,7 @@
 ENTRY(_start)
 
 SECTIONS {
-  . = _pmem_start + 0x100000;
+  . = _pmem_start + 0;
   .text : {
     *(entry)
     *(.text*)

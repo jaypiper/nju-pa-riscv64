@@ -1,10 +1,11 @@
 #include <am.h>
+#define MTIME 0x200bff8
 
 void __am_timer_init() {
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uptime->us = 0;
+  uptime->us = *(long long*)(MTIME) / 10;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

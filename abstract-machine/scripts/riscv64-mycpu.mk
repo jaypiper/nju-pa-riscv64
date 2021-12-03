@@ -16,11 +16,12 @@ AM_SRCS := mycpu/start.S \
            mycpu/trap.S \
            mycpu/vme.c \
            mycpu/mpe.c \
-           mycpu/uart.c
+           mycpu/uart.c \
+           mycpu/gpu.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
 CFLAGS += -I$(AM_HOME)/am/src/mycpu/include
-LDFLAGS   += -T $(AM_HOME)/scripts/platform/mycpu.ld --defsym=_stack_pointer=0x80100000 --defsym=_pmem_start=0x80000000
+LDFLAGS   += -T $(AM_HOME)/scripts/platform/mycpu.ld --defsym=_stack_pointer=0x80800000 --defsym=_pmem_start=0x80000000 --defsym=_heap_start=0x80800000
 ifdef FLASH
     LDFLAGS += --defsym=_addr_start=0x30000000
 else
