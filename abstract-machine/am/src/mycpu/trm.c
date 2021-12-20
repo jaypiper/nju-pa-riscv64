@@ -15,11 +15,16 @@ Area heap = RANGE(&_heap_start, PMEM_END);
 #endif
 static const char mainargs[] = MAINARGS;
 
+// #define FPGA
+
 void putch(char ch) {
-  // drv_uart_putc(ch);
+#ifdef FPGA
   if(ch == '\n') putch('\r');
   while((*((volatile uint8_t *)(UART_BASE + 8)) & (1 << 2)) == 0) ;
   *((volatile uint8_t *)(UART_BASE + 4)) = ch;
+#else
+  drv_uart_putc(ch);
+#endif
 }
 
 void halt(int code) {
@@ -28,8 +33,11 @@ void halt(int code) {
 }
 
 void _trm_init() {
+#ifdef FPGA
   *((volatile uint8_t *)(UART_BASE + 0xc)) = 3;
-  // virt_uart_init();
+#else
+  virt_uart_init();
   int ret = main(mainargs);
   halt(ret);
+#endif
 }
