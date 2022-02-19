@@ -22,7 +22,7 @@ SO = -so
 SO_CFLAGS = -fPIC -D_SHARE=1
 SO_LDLAGS = -shared -fPIC
 else
-LD_LIBS = -lSDL2 -lreadline -ldl
+LD_LIBS = -lSDL2 -lSDL2_image -lreadline -ldl -lstdc++
 endif
 
 DIFF ?= spike
@@ -75,6 +75,7 @@ SRCS = $(shell find src/ -name "*.c" | grep -v "isa\|engine")
 SRCS += $(shell find src/isa/$(ISA) -name "*.c")
 SRCS += $(shell find src/engine/$(ENGINE) -name "*.c")
 OBJS = $(SRCS:src/%.c=$(OBJ_DIR)/%.o)
+LIBS = $(NVBOARD_HOME)/build/NVBOARD.a
 
 # Compilation patterns
 $(OBJ_DIR)/%.o: src/%.c
@@ -98,15 +99,15 @@ override ARGS += --diff=$(DIFF_REF_SO)
 IMG :=
 NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
-$(BINARY): $(OBJS)
+$(BINARY): $(OBJS) $(LIBS)
 	-@$(MAKE) -C $(DIFF_REF_PATH)
 	@echo + LD $@
-	@$(LD) -O2 -rdynamic $(SO_LDLAGS) -o $@ $^ $(LD_LIBS)
+	$(LD) -O2 -rdynamic $(SO_LDLAGS) -o $@ $^ $(LD_LIBS)
 
-run-env: $(BINARY) $(DIFF_REF_SO)
+run-env: $(BINARY) $(DIFF_REF_SO) NVBOARD_A
 
 run: run-env
-	
+
 	$(NEMU_EXEC)
 
 gdb: run-env
@@ -115,6 +116,9 @@ gdb: run-env
 
 $(DIFF_REF_SO):
 	$(MAKE) -C $(DIFF_REF_PATH) $(MKFLAGS)
+
+NVBOARD_A:
+	$(MAKE) -C $(NVBOARD_HOME)
 
 clean:
 	-rm -rf $(BUILD_DIR)

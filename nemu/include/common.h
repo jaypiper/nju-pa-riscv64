@@ -2,9 +2,11 @@
 #define __COMMON_H__
 
 // #define DEBUG
-#define DIFF_TEST
+// #define DIFF_TEST
 #define VME
 // #define NANOS
+
+#define USE_NVBOARD
 
 #ifdef __ISA_riscv64__
 # define ISA64
