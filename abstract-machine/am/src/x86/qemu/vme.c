@@ -1,4 +1,5 @@
 #include "x86-qemu.h"
+#include <klib.h>
 
 const struct mmu_config mmu = {
   .pgsize = 4096,
@@ -52,6 +53,10 @@ static int indexof(uintptr_t addr, const struct ptinfo *info) {
 
 static uintptr_t baseof(uintptr_t addr) {
   return addr & ~(mmu.pgsize - 1);
+}
+
+static uintptr_t flagsof(uintptr_t pte){
+  return pte & (mmu.pgsize - 1);
 }
 
 static uintptr_t *ptwalk(AddrSpace *as, uintptr_t addr, int flags) {
@@ -153,6 +158,32 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
     *ptentry = pte;
   }
   ptwalk(as, (uintptr_t)va, PTE_W | PTE_U);
+}
+
+#include <string.h>
+
+void pgtable_ucopy_level(int level, uintptr_t* oldpt, uintptr_t* newpt, uintptr_t vaddr){
+  if(level > mmu.ptlevels) return;
+
+  for(int idx = 0; idx < (1 << mmu.pgtables[level].bits); idx++){
+    if ((oldpt[idx] & PTE_P) && (oldpt[idx] & PTE_U)){
+      if(!(newpt[idx] & PTE_P)){
+        uintptr_t newpage = (uintptr_t)pgallocz();
+        uintptr_t newpte = newpage | flagsof(oldpt[idx]);
+        newpt[idx] = newpte;
+        // uintptr_t oldpage = baseof(oldpt[idx]);
+        if(level == mmu.ptlevels){
+          memcpy((void*)baseof(newpt[idx]), (void*)baseof(oldpt[idx]), mmu.pgsize);
+        }
+
+      }
+      pgtable_ucopy_level(level + 1, (uintptr_t*)baseof(oldpt[idx]), (uintptr_t*)baseof(newpt[idx]), vaddr | ((uintptr_t)idx << mmu.pgtables[level].shift));
+    }
+  }
+}
+
+void pgtable_ucopy(uintptr_t* oldpt, uintptr_t* newpt){
+  pgtable_ucopy_level(0, (void*)&oldpt, (void*)&newpt, 0);
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {

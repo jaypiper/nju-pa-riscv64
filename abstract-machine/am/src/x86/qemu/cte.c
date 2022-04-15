@@ -1,4 +1,5 @@
 #include "x86-qemu.h"
+#include <klib.h>
 
 static Context* (*user_handler)(Event, Context*) = NULL;
 #if __x86_64__

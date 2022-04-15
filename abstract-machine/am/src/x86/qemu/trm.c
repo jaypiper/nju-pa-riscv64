@@ -1,9 +1,9 @@
 #include "x86-qemu.h"
 
 Area heap = {};
-volatile uint32_t *__am_lapic;
+// volatile uint32_t *__am_lapic;
 int __am_ncpu = 0;
-struct cpu_local __am_cpuinfo[MAX_CPU];
+// struct cpu_local __am_cpuinfo[MAX_CPU];
 
 int main(const char *args);
 

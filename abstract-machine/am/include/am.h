@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <sys/mman.h>
 #include ARCH_H // this macro is defined in $CFLAGS
                 // examples: "arch/x86-qemu.h", "arch/native.h", ...
 
@@ -67,6 +68,8 @@ void     protect     (AddrSpace *as);
 void     unprotect   (AddrSpace *as);
 void     map         (AddrSpace *as, void *vaddr, void *paddr, int prot);
 Context *ucontext    (AddrSpace *as, Area kstack, void *entry);
+
+void pgtable_ucopy(uintptr_t* oldpt, uintptr_t* newpt);
 
 // ---------------------- MPE: Multi-Processing ----------------------
 bool     mpe_init    (void (*entry)());
