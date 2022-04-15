@@ -90,8 +90,8 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
           break;
       case 'p':
       case 'x':
-          *out++ = '0';
-          *out++ = 'x';
+          // *out++ = '0';
+          // *out++ = 'x';
           if(flag & 4) ulval = va_arg(ap, uint64_t);
           else uval = va_arg(ap, uint32_t);
           if(ulval == 0 && uval == 0) {
