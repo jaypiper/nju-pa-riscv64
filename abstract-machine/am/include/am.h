@@ -18,6 +18,20 @@ typedef struct {
   void *start, *end;
 } Area;
 
+struct mmu_config {
+  int ptlevels, pgsize;
+  struct ptinfo {
+    const char *name;
+    uintptr_t mask;
+    int shift, bits;
+  } pgtables[];
+};
+
+struct vm_area {
+  Area area;
+  int kernel;
+};
+
 // Arch-dependent processor context
 typedef struct Context Context;
 
@@ -70,6 +84,7 @@ void     map         (AddrSpace *as, void *vaddr, void *paddr, int prot);
 Context *ucontext    (AddrSpace *as, Area kstack, void *entry);
 
 void pgtable_ucopy(uintptr_t* oldpt, uintptr_t* newpt);
+void init_satp();
 
 // ---------------------- MPE: Multi-Processing ----------------------
 bool     mpe_init    (void (*entry)());
