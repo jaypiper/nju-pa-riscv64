@@ -49,7 +49,7 @@ static int cmd_x(char *args){
   for( ; i <= n_val; i ++){
     if(i % 4 == 1) printf("%08x: ", _addr);
     DecodeExecState s;
-    printf("%08x", *((uint32_t*)paddr_read(&s, _addr, 4, MEM_TYPE_READ)));
+    printf("%08lx", paddr_read(&s, _addr, 4, MEM_TYPE_READ));
     _addr += 4;
     if(i % 4 == 0) printf("\n");
     else printf(" ");
