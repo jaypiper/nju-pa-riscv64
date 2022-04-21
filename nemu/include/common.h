@@ -5,6 +5,7 @@
 #define DIFF_TEST
 #define VME
 // #define NANOS
+#define HAS_DISK
 
 #ifdef __ISA_riscv64__
 # define ISA64
@@ -44,6 +45,9 @@ typedef uint16_t ioaddr_t;
 
 #define false 0
 #define true 1
+
+#define KB (1 << 10)
+#define MB (1 << 20)
 
 #include <debug.h>
 #include <macro.h>

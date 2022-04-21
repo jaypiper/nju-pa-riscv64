@@ -2,6 +2,7 @@
 #define __MEMORY_PADDR_H__
 
 #include <common.h>
+#include <device/disk.h>
 
 #define PMEM_SIZE (128 * 1024 * 1024)
 

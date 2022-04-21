@@ -107,6 +107,9 @@ inline word_t paddr_read(DecodeExecState* s, paddr_t addr, int len, int type) {
     s->is_trap = 1;
     s->trap.cause = type == MEM_TYPE_IFETCH ? CAUSE_MISALIGNED_FETCH : CAUSE_MISALIGNED_LOAD;
   }
+#ifdef HAS_DISK
+  if(in_disk(addr)) return disk_read(addr, len);
+#endif
   if (in_pmem(addr)) return pmem_read(addr, len);
 #ifdef FLASH
   if (in_flash(addr)) return flash_read(addr, len);
@@ -121,6 +124,9 @@ inline void paddr_write(DecodeExecState* s, paddr_t addr, word_t data, int len, 
     s->is_trap = 1;
     s->trap.cause = CAUSE_MISALIGNED_STORE;
   }
+#ifdef HAS_DISK
+  if(in_disk(addr)) return disk_write(addr, data, len);
+#endif
   if (in_pmem(addr)) pmem_write(addr, data, len);
 #ifdef FLASH
   else if (in_flash(addr)) Assert(0, "flash is not writable at addr %x\n", addr);

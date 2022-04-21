@@ -56,8 +56,11 @@ static inline long load_img() {
 
   fseek(fp, 0, SEEK_SET);
 
-#ifdef FLASH
+#if defined(FLASH)
   int ret = fread(get_flash_addr(0), size, 1, fp);
+#elif defined(HAS_DISK)
+  int ret = fread(get_disk_addr(0), size, 1, fp);
+  load_kernel();
 #else
   int ret = fread(guest_to_host(IMAGE_START), size, 1, fp);
 #endif
