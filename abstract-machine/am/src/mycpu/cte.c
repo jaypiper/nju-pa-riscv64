@@ -38,7 +38,7 @@ extern void kernel_trap(void);
 
 bool cte_init(Context*(*handler)(Event, Context*)) {
   // initialize exception entry
-  asm volatile("csrw mtvec, %0" : : "r"(kernel_trap));
+  asm volatile("csrw stvec, %0" : : "r"(kernel_trap));
 
   // register event handler
   if(handler) user_handler = handler;
