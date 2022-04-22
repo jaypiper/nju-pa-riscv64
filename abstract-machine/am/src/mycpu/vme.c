@@ -7,7 +7,7 @@ const struct mmu_config mmu = {
   .pgsize = 4096,
   .ptlevels = 3,
   .pgtables = {
-    { "SATP", 0x0000000000,  0,  0 },
+    // { "SATP", 0x0000000000,  0,  0 },
     { "M1",   0x7fc0000000, 30,  9 },
     { "M2",   0x003fe00000, 21,  9 },
     { "M3",   0x00001ff000, 12,  9 },
@@ -20,6 +20,8 @@ static const struct vm_area vm_areas[] = {
 };
 
 #define uvm_area (vm_areas[0].area)
+
+#define STAP_MASK 0xfffffffffffLL
 
 static uintptr_t *kpt;
 static void *(*pgalloc)(int size);
@@ -38,26 +40,30 @@ static int indexof(uintptr_t addr, const struct ptinfo *info) {
   return ((uintptr_t)addr & info->mask) >> info->shift;
 }
 
-static uintptr_t baseof(uintptr_t addr) {
-  return addr & ~(mmu.pgsize - 1);
+static uintptr_t baseof(uintptr_t pte) {
+  return (pte & ~(0x3ff)) << 2;
 }
 
+// static uintptr_t pgstart(uintptr_t addr){
+//   return addr & ~(mmu.pgsize - 1);
+// }
+
 static uintptr_t flagsof(uintptr_t pte){
-  return pte & (mmu.pgsize - 1);
+  return pte & 0x3ff;
 }
 
 static uintptr_t *ptwalk(AddrSpace *as, uintptr_t addr, int flags) {
-  uintptr_t cur = (uintptr_t)&as->ptr;
+  uintptr_t cur = (uintptr_t)as->ptr;
 
-  for (int i = 0; i <= mmu.ptlevels; i++) {
+  for (int i = 0; i < mmu.ptlevels; i++) {
     const struct ptinfo *ptinfo = &mmu.pgtables[i];
     uintptr_t *pt = (uintptr_t *)cur, next_page;
     int index = indexof(addr, ptinfo);
-    if (i == mmu.ptlevels) return &pt[index];
+    if (i == mmu.ptlevels - 1) return &pt[index];
 
     if (!(pt[index] & PTE_V)) {
       next_page = (uintptr_t)pgallocz();
-      pt[index] = next_page | PTE_V | flags;
+      pt[index] = (next_page >> 2) | PTE_V;// | flags;
     } else {
       next_page = baseof(pt[index]);
     }
@@ -67,7 +73,7 @@ static uintptr_t *ptwalk(AddrSpace *as, uintptr_t addr, int flags) {
 }
 
 static void teardown(int level, uintptr_t *pt) {
-  if (level > mmu.ptlevels) return;
+  if (level >= mmu.ptlevels) return;
   for (int index = 0; index < (1 << mmu.pgtables[level].bits); index++) {
     if ((pt[index] & PTE_V) && (pt[index] & PTE_U)) {
       teardown(level + 1, (void *)baseof(pt[index]));
@@ -96,11 +102,11 @@ bool vme_init(void *(*_pgalloc)(int size), void (*_pgfree)(void *)) {
       for (uintptr_t cur = (uintptr_t)vma->area.start;
            cur != (uintptr_t)vma->area.end;
            cur += mmu.pgsize) {
-        *ptwalk(&as, cur, PTE_W | PTE_R) = cur | PTE_V | PTE_W | PTE_R;
+        *ptwalk(&as, cur, PTE_W | PTE_R) = (cur >> 2) | PTE_V | PTE_W | PTE_R | PTE_X;
       }
     }
   }
-  kpt = (void *)baseof((uintptr_t)as.ptr);
+  kpt = as.ptr;
 
   // w_csr("satp", kpt);
   // sfence_vma();
@@ -119,7 +125,7 @@ void protect(AddrSpace *as) {
   for (int i = 0; i < LENGTH(vm_areas); i++) {
     const struct vm_area *vma = &vm_areas[i];
     if (vma->kernel) {
-      const struct ptinfo *info = &mmu.pgtables[1]; // level-1 page table
+      const struct ptinfo *info = &mmu.pgtables[0]; // level-1 page table
       for (uintptr_t cur = (uintptr_t)vma->area.start;
            cur != (uintptr_t)vma->area.end;
            cur += (1L << info->shift)) {
@@ -130,11 +136,11 @@ void protect(AddrSpace *as) {
   }
   as->pgsize = mmu.pgsize;
   as->area   = uvm_area;
-  as->ptr    = (void *)((uintptr_t)upt | PTE_V | PTE_U);
+  as->ptr    = upt;
 }
 
 void unprotect(AddrSpace *as) {
-  teardown(0, (void *)&as->ptr);
+  teardown(0, (void*)(as->ptr));
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
@@ -148,7 +154,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
     *ptentry = 0;
   } else {
     panic_on(*ptentry & PTE_V, "remapping a mapped page");
-    uintptr_t pte = (uintptr_t)pa | PTE_V | PTE_U | PTE_R | ((prot & MMAP_WRITE) ? PTE_W : 0);
+    uintptr_t pte = (uintptr_t)pa | PTE_V | PTE_U | PTE_R | PTE_X | ((prot & MMAP_WRITE) ? PTE_W : 0);
     *ptentry = pte;
   }
   ptwalk(as, (uintptr_t)va, PTE_R | PTE_W | PTE_U);
@@ -157,7 +163,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
 #include <string.h>
 
 void pgtable_ucopy_level(int level, uintptr_t* oldpt, uintptr_t* newpt, uintptr_t vaddr){
-  if(level > mmu.ptlevels) return;
+  if(level >= mmu.ptlevels) return;
 
   for(int idx = 0; idx < (1 << mmu.pgtables[level].bits); idx++){
     if ((oldpt[idx] & PTE_V) && (oldpt[idx] & PTE_U)){
@@ -166,7 +172,7 @@ void pgtable_ucopy_level(int level, uintptr_t* oldpt, uintptr_t* newpt, uintptr_
         uintptr_t newpte = newpage | flagsof(oldpt[idx]);
         newpt[idx] = newpte;
         // uintptr_t oldpage = baseof(oldpt[idx]);
-        if(level == mmu.ptlevels){
+        if(level == mmu.ptlevels - 1){
           memcpy((void*)baseof(newpt[idx]), (void*)baseof(oldpt[idx]), mmu.pgsize);
         }
 
