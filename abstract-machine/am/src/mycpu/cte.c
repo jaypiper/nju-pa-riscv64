@@ -13,6 +13,8 @@ Context* __am_irq_handle(Context *c) {
     switch (c->cause) {
       case IRQ(M_TIMER): MSG("M-mode timer interrupt");
         ev.event = EVENT_IRQ_TIMER; break;
+      case IRQ(S_SOFT): MSG("S-soft timer interrupt");
+        ev.event = EVENT_IRQ_TIMER; break;
       case IRQ(S_EXT): MSG("S-mode ext interrupt");
         ev.event = EVENT_IRQ_IODEV; break;
       case CAUSE_FETCH_PAGE_FAULT: MSG("fetch page fault");
