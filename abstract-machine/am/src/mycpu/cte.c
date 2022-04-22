@@ -25,7 +25,11 @@ Context* __am_irq_handle(Context *c) {
         ev.event = EVENT_PAGEFAULT; break;
       case CAUSE_STORE_PAGE_FAULT: MSG("store page fault");
         ev.event = EVENT_PAGEFAULT; break;
+      case CAUSE_SUPERVISOR_ECALL: MSG("supervisor ecall");
+        c->epc += 4;
+        ev.event = c->gpr[17] == -1 ? EVENT_YIELD : EVENT_SYSCALL; break;
       case CAUSE_USER_ECALL: MSG("user ecall");
+        c->epc += 4;
         ev.event = EVENT_SYSCALL; break;
       default: MSG("error event");
       ev.event = EVENT_ERROR; break;
