@@ -46,6 +46,13 @@ kernel_trap:
 	sd t0, CAUSE_OFFSET(sp)
 	csrr t0, sstatus
 	sd t0, STATUS_OFFSET(sp)
+	csrr t0, satp
+	sd t0, SATP_OFFSET(sp)
+
+	# restore kernel pagetable
+	ld t0, KSATP_OFFSET(sp)
+	csrw satp, t0
+	sfence.vma zero, zero
 
 	mv a0, sp
 	jal __am_irq_handle
@@ -91,6 +98,8 @@ user_trap:
 	sd t0, CAUSE_OFFSET(a0)
 	csrr t0, sstatus
 	sd t0, STATUS_OFFSET(a0)
+	csrr t0, satp
+	sd t0, SATP_OFFSET(a0)
 
 	# switch to kernel stack
 	ld sp, KSP_OFFSET(a0)
