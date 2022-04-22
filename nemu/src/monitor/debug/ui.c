@@ -44,7 +44,10 @@ static int cmd_x(char *args){
   char* EXPR = N + strlen(N) + 1;
   bool success = false;
   paddr_t _addr = expr(EXPR, &success);
-  if(!_addr) printf("wrong address format\n");
+  if(!_addr) {
+    printf("wrong address format\n");
+    return 0;
+  }
   int i = 1;
   for( ; i <= n_val; i ++){
     if(i % 4 == 1) printf("%08x: ", _addr);
