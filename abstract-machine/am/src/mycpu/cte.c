@@ -25,7 +25,8 @@ Context* __am_irq_handle(Context *c) {
         ev.event = EVENT_PAGEFAULT; break;
       case CAUSE_USER_ECALL: MSG("user ecall");
         ev.event = EVENT_SYSCALL; break;
-      default: ev.event = EVENT_ERROR; break;
+      default: MSG("error event");
+      ev.event = EVENT_ERROR; break;
     }
 
     c = user_handler(ev, c);
