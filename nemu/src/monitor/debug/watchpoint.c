@@ -33,6 +33,7 @@ WP* new_wp(char* args){
   bool success = 0;
   selected->pre_val = expr(args, &success);
   assert(success);
+  tokens_save(selected);
 
   selected->next = head;
   if(head) head->pre = selected;
@@ -72,9 +73,10 @@ void watchpoint_info(){
 bool check_watchpoint(){
   bool is_change = false;
   for(WP* iter = head; iter; iter = iter->next){
-    bool success = 0;
-    word_t cur_val = expr(iter->watch_inst, &success);
-    assert(success);
+    // bool success = 0;
+    tokens_recover(iter);
+    // word_t cur_val = expr(iter->watch_inst, &success);
+    word_t cur_val = eval(0, iter->nr_token - 1);
     if(cur_val != iter->pre_val){
       printf("Breakpoint %d, %s, pre-val: %lu  %lx,  cur-val: %lu  %lx\n", iter->NO, iter->watch_inst, iter->pre_val, iter->pre_val, cur_val, cur_val);
       iter->pre_val = cur_val;

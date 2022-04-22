@@ -1,4 +1,6 @@
 #include <isa.h>
+#include "expr.h"
+#include "watchpoint.h"
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -69,11 +71,6 @@ void init_regex() {
   }
 }
 
-typedef struct token {
-  int type;
-  char str[128];
-} Token;
-
 static Token tokens[128] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
@@ -134,8 +131,21 @@ word_t expr(char *e, bool *success) {
   return eval(0, nr_token - 1);
 }
 
-uint64_t eval(int p, int q){
+void tokens_save(WP* wp){
+  for(int i = 0; i < nr_token; i++){
+    memcpy(&(wp->tokens[i]), &tokens[i], sizeof(Token));
+  }
+  wp->nr_token = nr_token;
+}
 
+void tokens_recover(WP* wp){
+  for(int i = 0; i < wp->nr_token; i++){
+    memcpy(&tokens[i], &(wp->tokens[i]), sizeof(Token));
+  }
+  nr_token = wp->nr_token;
+}
+
+uint64_t eval(int p, int q){
   assert(p <= q && q < nr_token);
   if(p == q) {
     if(tokens[p].type == TK_NUM || tokens[p].type == TK_OCT || tokens[p].type == TK_HEX){
