@@ -22,9 +22,10 @@ struct Context {
 #define EPC_OFFSET    (32 * 8)
 #define CAUSE_OFFSET  (33 * 8)
 #define STATUS_OFFSET (34 * 8)
-#define KSATP_OFFSET  (35 * 8)
-#define KSP_OFFSET    (36 * 8)
-#define KTRAP_OFFSET  (37 * 8)
+#define SATP_OFFSET   (35 * 8)
+#define KSATP_OFFSET  (36 * 8)
+#define KSP_OFFSET    (37 * 8)
+#define KTRAP_OFFSET  (38 * 8)
 
 
 #define bug_on(cond) \
