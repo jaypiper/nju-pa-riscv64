@@ -63,6 +63,10 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   ctx->gpr[2] = (uintptr_t)kstack.end;
   ctx->kernel_satp = 0;
   ctx->kernel_trap = (uintptr_t)kernel_trap;
+  r_csr("satp", ctx->satp);
+  r_csr("sstatus", ctx->status);
+  ctx->status |= SSTATUS_SPP;
+  ctx->status |= SSTATUS_SPIE;
 
   return ctx;
 }
