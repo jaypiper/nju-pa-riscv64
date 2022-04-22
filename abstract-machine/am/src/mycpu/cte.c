@@ -54,7 +54,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   *ctx = (Context) { 0 };
   ctx->epc = (uintptr_t)entry;
   ctx->gpr[10] = (uintptr_t)arg;
-  ctx->gpr[1] = (uintptr_t)kstack.end;
+  ctx->gpr[2] = (uintptr_t)kstack.end;
   ctx->kernel_satp = 0;
   ctx->kernel_trap = (uintptr_t)kernel_trap;
 
