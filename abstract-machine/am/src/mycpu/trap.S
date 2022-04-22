@@ -31,7 +31,13 @@ kernel_trap:
 	addi sp, sp, -CONTEXT_SIZE
 	MAP(REGS, PUSH_SP)
 
+	la t0, kernel_trap
+	sd t0, KTRAP_OFFSET(sp)
+
 	jal __am_irq_handle
+
+	ld t0, KSATP_OFFSET(sp)
+	csrw stvec, t0
 
 	MAP(REGS, POP_SP)
 
