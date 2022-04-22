@@ -1,4 +1,3 @@
-#include "watchpoint.h"
 #include "expr.h"
 
 #define NR_WP 32
@@ -32,7 +31,10 @@ WP* new_wp(char* args){
   strcpy(selected->watch_inst, args);
   bool success = 0;
   selected->pre_val = expr(args, &success);
-  assert(success);
+  if(!success){
+    printf("invalid expr\n");
+    return 0;
+  }
   tokens_save(selected);
 
   selected->next = head;
