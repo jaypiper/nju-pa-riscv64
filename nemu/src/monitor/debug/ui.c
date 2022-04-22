@@ -94,6 +94,12 @@ static int cmd_info(char *args){
   return 0;
 }
 
+void disp_inst_buf();
+static int cmd_history(char* args){
+  disp_inst_buf();
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -109,7 +115,8 @@ static struct {
   { "si", "Execute one instruction", cmd_si},
   { "p", "Evaluate a given expression", cmd_p},
   { "w", "Set a watchpoint", cmd_w},
-  { "d", "Delete a watchpoint", cmd_d}
+  { "d", "Delete a watchpoint", cmd_d},
+  { "history", "Display the inst history", cmd_history}
   /* TODO: Add more commands */
 
 };
