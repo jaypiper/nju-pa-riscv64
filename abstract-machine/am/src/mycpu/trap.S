@@ -34,14 +34,29 @@ kernel_trap:
 	la t0, kernel_trap
 	sd t0, KTRAP_OFFSET(sp)
 
+	# save epc, cause, status
+	csrr t0, sepc
+	sd t0, EPC_OFFSET(sp)
+	csrr t0, scause
+	sd t0, CAUSE_OFFSET(sp)
+	csrr t0, sstatus
+	sd t0, STATUS_OFFSET(sp)
+
 	mv a0, sp
 	jal __am_irq_handle
-	mv sp, a0
 
-	ld t0, KSATP_OFFSET(sp)
+	# restore epc, cause, status
+	ld t0, EPC_OFFSET(a0)
+	csrw sepc, t0
+	ld t0, CAUSE_OFFSET(a0)
+	csrw scause, t0
+	ld t0, STATUS_OFFSET(a0)
+	csrw sstatus, t0
+
+	ld t0, KSATP_OFFSET(s0)
 	csrw stvec, t0
 
-	MAP(REGS, POP_SP)
+	MAP(REGS, POP_A0)
 
 	sret
 
