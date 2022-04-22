@@ -89,7 +89,7 @@ bool vme_init(void *(*_pgalloc)(int size), void (*_pgfree)(void *)) {
   pgfree  = _pgfree;
 
   AddrSpace as;
-  as.ptr = NULL;
+  as.ptr = pgallocz();
   for (int i = 0; i < LENGTH(vm_areas); i++) {
     const struct vm_area *vma = &vm_areas[i];
     if (vma->kernel) {
