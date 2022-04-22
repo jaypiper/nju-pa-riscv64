@@ -200,7 +200,7 @@ Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
   ctx->kernel_trap = (uintptr_t)user_trap;
   r_csr("sstatus", ctx->status);
   ctx->status &= ~SSTATUS_SPP;
-  ctx->status |= SSTATUS_SIE | SSTATUS_SPIE;
+  ctx->status |= SSTATUS_SPIE;
 
   return ctx;
 }
