@@ -101,6 +101,8 @@ void _trm_init() {
   int id;
   r_csr("mhartid", id);
   w_gpr("tp", id);
+
+  asm volatile ("mret");
 #endif
 
   int ret = main(mainargs);
