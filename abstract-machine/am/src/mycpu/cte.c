@@ -9,12 +9,14 @@ Context* __am_irq_handle(Context *c) {
     Event ev = {0};
     #define MSG(m) ev.msg = m;
     #define IRQ(name) (((uintptr_t)1 << 63) | IRQ_ ## name)
-
+    uintptr_t sip;
     switch (c->cause) {
       case IRQ(M_TIMER): MSG("M-mode timer interrupt");
         ev.event = EVENT_IRQ_TIMER; break;
       case IRQ(S_SOFT): MSG("S-soft timer interrupt");
-        ev.event = EVENT_IRQ_TIMER; break;
+        ev.event = EVENT_IRQ_TIMER;
+        r_csr("sip", sip); w_csr("sip", sip & ~2);
+        break;
       case IRQ(S_EXT): MSG("S-mode ext interrupt");
         ev.event = EVENT_IRQ_IODEV; break;
       case CAUSE_FETCH_PAGE_FAULT: MSG("fetch page fault");
