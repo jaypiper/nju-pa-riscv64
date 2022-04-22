@@ -32,6 +32,10 @@ kernel_trap:
 	addi sp, sp, -CONTEXT_SIZE
 	MAP(REGS, PUSH_SP)
 
+	# store the original sp
+	addi t0, sp, CONTEXT_SIZE
+	sd t0, 16(sp)
+
 	la t0, kernel_trap
 	sd t0, KTRAP_OFFSET(sp)
 
