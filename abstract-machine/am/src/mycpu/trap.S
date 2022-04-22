@@ -19,9 +19,10 @@ f(30) f(31)
 #define EPC_OFFSET    (32 * 8)
 #define CAUSE_OFFSET  (33 * 8)
 #define STATUS_OFFSET (34 * 8)
-#define KSATP_OFFSET  (35 * 8)
-#define KSP_OFFSET    (36 * 8)
-#define KTRAP_OFFSET  (37 * 8)
+#define SATP_OFFSET   (35 * 8)
+#define KSATP_OFFSET  (36 * 8)
+#define KSP_OFFSET    (37 * 8)
+#define KTRAP_OFFSET  (38 * 8)
 #define CONTEXT_SIZE 	((32 + 7) * 8)
 
 # kernel_trap: only gprs are saved and recovered
@@ -53,8 +54,13 @@ kernel_trap:
 	ld t0, STATUS_OFFSET(a0)
 	csrw sstatus, t0
 
-	ld t0, KSATP_OFFSET(s0)
+	ld t0, KTRAP_OFFSET(a0)
 	csrw stvec, t0
+
+	ld t0, SATP_OFFSET(a0)
+	csrw satp, t0
+	sfence.vma zero, zero
+
 
 	MAP(REGS, POP_A0)
 
@@ -101,7 +107,7 @@ user_trap:
 	csrw stvec, t0
 
 	# restore user pagetable
-	ld t0, KSATP_OFFSET(a0)
+	ld t0, SATP_OFFSET(a0)
 	csrw satp, t0
 	sfence.vma zero, zero
 
