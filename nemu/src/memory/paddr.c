@@ -102,7 +102,7 @@ void flash_init(paddr_t addr, word_t data, int len){
 
 inline word_t paddr_read(DecodeExecState* s, paddr_t addr, int len, int type) {
   assert(type != MEM_TYPE_WRITE);
-  if(type != MEM_TYPE_IFETCH  && addr & (len - 1)){
+  if((type != MEM_TYPE_IFETCH && type != MEM_TYPE_DEBUG) && addr & (len - 1)){
     printf("load pc: %lx addr: %x len: %d inst: %x\n", cpu.pc, addr, len, s->isa.instr.val);
     s->is_trap = 1;
     s->trap.cause = type == MEM_TYPE_IFETCH ? CAUSE_MISALIGNED_FETCH : CAUSE_MISALIGNED_LOAD;
