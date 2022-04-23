@@ -15,8 +15,8 @@ const struct mmu_config mmu = {
 };
 
 static const struct vm_area vm_areas[] = {
-  { RANGE(0x4000000000, 0x8000000000), 0 }, // 512 GiB user space
-  { RANGE(0x0000000000, 0x4000000000), 1 }, // 512 GiB kernel
+  { RANGE(0x2000000000, 0x4000000000), 0 },
+  { RANGE(0x0000000000, 0x100000000), 1 },
 };
 
 #define uvm_area (vm_areas[0].area)
