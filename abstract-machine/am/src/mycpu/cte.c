@@ -9,6 +9,7 @@ Context* __am_irq_handle(Context *c) {
     Event ev = {0};
     #define MSG(m) ev.msg = m;
     #define IRQ(name) (((uintptr_t)1 << 63) | IRQ_ ## name)
+    r_csr("stval", ev.ref);
     uintptr_t sip;
     switch (c->cause) {
       case IRQ(M_TIMER): MSG("M-mode timer interrupt");
