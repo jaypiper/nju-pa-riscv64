@@ -160,7 +160,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
     *ptentry = 0;
   } else {
     panic_on(*ptentry & PTE_V, "remapping a mapped page");
-    uintptr_t pte = (uintptr_t)pa | PTE_V | PTE_U | PTE_R | PTE_X | ((prot & MMAP_WRITE) ? PTE_W : 0);
+    uintptr_t pte = ((uintptr_t)pa >> 2) | PTE_V | PTE_U | PTE_R | PTE_X | ((prot & MMAP_WRITE) ? PTE_W : 0);
     *ptentry = pte;
   }
   ptwalk(as, (uintptr_t)va, PTE_R | PTE_W | PTE_U);
