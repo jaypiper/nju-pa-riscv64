@@ -49,11 +49,6 @@ kernel_trap:
 	csrr t0, satp
 	sd t0, SATP_OFFSET(sp)
 
-	# restore kernel pagetable
-	ld t0, KSATP_OFFSET(sp)
-	csrw satp, t0
-	sfence.vma zero, zero
-
 	mv a0, sp
 	jal __am_irq_handle
 
