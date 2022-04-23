@@ -49,8 +49,13 @@ kernel_trap:
 	csrr t0, satp
 	sd t0, SATP_OFFSET(sp)
 
+	csrw sscratch, sp
+
 	mv a0, sp
 	jal __am_irq_handle
+
+	# store context
+	csrw sscratch, a0
 
 	# restore epc, cause, status
 	ld t0, EPC_OFFSET(a0)
@@ -108,10 +113,13 @@ user_trap:
 	la t0, kernel_trap
 	csrw stvec, t0
 
+	csrw sscratch, a0
 
 	jal __am_irq_handle
 
-	la t0, user_trap
+	csrw sscratch, a0
+
+	ld t0, KTRAP_OFFSET(a0)
 	csrw stvec, t0
 
 	# restore user pagetable
@@ -127,13 +135,7 @@ user_trap:
 	ld t0, STATUS_OFFSET(a0)
 	csrw sstatus, t0
 
-	# save user a0 in sscratch
-	ld t0, 10*8(t0)
-	csrw sscratch, t0
-
 	MAP(REGS, POP_A0)
-
-	csrrw a0, sscratch, a0
 
 	sret
 
