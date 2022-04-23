@@ -202,7 +202,7 @@ Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
   ctx->epc = (uintptr_t)entry;
   ctx->gpr[2] = (uintptr_t)uvm_area.end;      // set sp
   r_csr("satp", ctx->kernel_satp);
-  ctx->kernel_sp = (uintptr_t)kstack.end;
+  ctx->kernel_sp = (uintptr_t)kstack.end - sizeof(Context);
   ctx->kernel_trap = (uintptr_t)user_trap;
   r_csr("sstatus", ctx->status);
   ctx->status &= ~SSTATUS_SPP;
