@@ -19,13 +19,14 @@ void disk_blkio(AM_DISK_BLKIO_T *bio) {
   uint64_t *ptr = bio->buf;
   uint64_t *db = (uint64_t *)DISK_START;
   for (remain = bio->blkcnt; remain; remain--, blkno++) {
+    int start = blkno * BLKSZ / 8;
     if (bio->write) {
       for (int i = 0; i < BLKSZ / 8; i ++){
-        db[i] = *ptr++;
+        db[start + i] = *ptr++;
       }
     } else {
       for (int i = 0; i < BLKSZ / 8; i ++){
-        *ptr++ = db[i];
+        *ptr++ = db[start + i];
       }
     }
   }
