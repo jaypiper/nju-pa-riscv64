@@ -14,28 +14,62 @@ Context* __am_irq_handle(Context *c) {
     switch (c->cause) {
       case IRQ(M_TIMER): MSG("M-mode timer interrupt");
         ev.event = EVENT_IRQ_TIMER; break;
+
       case IRQ(S_SOFT): MSG("S-soft timer interrupt");
         ev.event = EVENT_IRQ_TIMER;
         r_csr("sip", sip); w_csr("sip", sip & ~2);
         break;
+
       case IRQ(S_EXT): MSG("S-mode ext interrupt");
         ev.event = EVENT_IRQ_IODEV; break;
+
+      case CAUSE_MISALIGNED_FETCH: MSG("misaligned fetch");
+        ev.event = EVENT_ERROR; break;
+
+      case CAUSE_FETCH_ACCESS: MSG("fetch access");
+        ev.event = EVENT_ERROR; break;
+
+      case CAUSE_ILLEGAL_INSTRUCTION: MSG("illegal instruction");
+        ev.event = EVENT_ERROR; break;
+
+      case CAUSE_BREAKPOINT: MSG("breakpoint");
+        ev.event = EVENT_ERROR; break;
+
+      case CAUSE_MISALIGNED_LOAD: MSG("misaligned load");
+        ev.event = EVENT_ERROR; break;
+
+      case CAUSE_STORE_ACCESS: MSG("store access");
+        ev.event = EVENT_ERROR; break;
+
+      case CAUSE_VIRTUAL_SUPERVISOR_ECALL: MSG("virtual supervisor ecall");
+        ev.event = EVENT_ERROR; break;
+
+      case CAUSE_MACHINE_ECALL: MSG("machine ecall");
+        ev.event = EVENT_ERROR; break;
+
+      case CAUSE_FETCH_GUEST_PAGE_FAULT: MSG("fetch guest pgfault");
+        ev.event = EVENT_ERROR; break;
+
       case CAUSE_FETCH_PAGE_FAULT: MSG("fetch page fault");
         ev.event = EVENT_PAGEFAULT; break;
+
       case CAUSE_LOAD_PAGE_FAULT: MSG("load page fault");
         ev.event = EVENT_PAGEFAULT; break;
+
       case CAUSE_STORE_PAGE_FAULT: MSG("store page fault");
         ev.event = EVENT_PAGEFAULT; break;
+
       case CAUSE_SUPERVISOR_ECALL: MSG("supervisor ecall");
         c->epc += 4;
         ev.event = c->gpr[17] == -1 ? EVENT_YIELD : EVENT_SYSCALL; break;
+
       case CAUSE_USER_ECALL: MSG("user ecall");
         c->epc += 4;
         ev.event = EVENT_SYSCALL; break;
-      default: MSG("error event");
-      ev.event = EVENT_ERROR; break;
-    }
 
+      default: MSG("error event");
+        ev.event = EVENT_ERROR; break;
+    }
     c = user_handler(ev, c);
     assert(c != NULL);
     r_gpr("tp", c->gpr[4]);
