@@ -85,6 +85,7 @@ Context *ucontext    (AddrSpace *as, Area kstack, void *entry);
 
 void pgtable_ucopy(uintptr_t* oldpt, uintptr_t* newpt);
 void init_satp();
+uintptr_t user_addr_translate(uintptr_t satp, uintptr_t user_addr);
 
 // ---------------------- MPE: Multi-Processing ----------------------
 bool     mpe_init    (void (*entry)());

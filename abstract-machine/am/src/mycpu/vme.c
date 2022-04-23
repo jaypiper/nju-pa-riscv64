@@ -21,7 +21,7 @@ static const struct vm_area vm_areas[] = {
 
 #define uvm_area (vm_areas[0].area)
 
-#define STAP_MASK 0xfffffffffffLL
+#define SATP_MASK 0xfffffffffffLL
 
 static uintptr_t *kpt;
 static void *(*pgalloc)(int size);
@@ -70,6 +70,12 @@ static uintptr_t *ptwalk(AddrSpace *as, uintptr_t addr, int flags) {
     cur = next_page;
   }
   bug();
+}
+
+uintptr_t user_addr_translate(uintptr_t satp, uintptr_t user_addr){
+  AddrSpace as = {.ptr = (void*)((satp & SATP_MASK) << 12)};
+  uintptr_t pte = *ptwalk(&as, user_addr, 0);
+  return baseof(pte);
 }
 
 static void teardown(int level, uintptr_t *pt) {
