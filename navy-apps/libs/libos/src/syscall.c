@@ -36,7 +36,7 @@
 #elif defined(__ISA_AM_NATIVE__)
 # define ARGS_ARRAY ("call *0x100000", "rdi", "rsi", "rdx", "rcx", "rax")
 #elif defined(__ISA_X86_64__)
-# define ARGS_ARRAY ("int $0x80", "rdi", "rsi", "rdx", "rcx", "rax")
+# define ARGS_ARRAY ("int $0x80", "rax", "rdi", "rsi", "rdx", "rax")
 #else
 #error _syscall_ is not implemented
 #endif

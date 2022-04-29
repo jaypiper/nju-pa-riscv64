@@ -11,7 +11,8 @@ static void sh_printf(const char *format, ...) {
   va_start(ap, format);
   int len = vsnprintf(buf, 256, format, ap);
   va_end(ap);
-  term->write(buf, len);
+  write(1, buf, len);
+  // term->write(buf, len);
 }
 
 static void sh_banner() {
@@ -27,9 +28,12 @@ static void sh_handle_cmd(const char *cmd) {
   // strcpy(file_name, cmd);
   // file_name[strlen(file_name) - 1] = 0;
   // execvp(file_name, NULL);
-  char file_name[128] = {0};
+  // printf("aaa: %s\n", cmd);
+  char file_name[128];
   strcpy(file_name, cmd);
+
   file_name[strlen(file_name) - 1] = 0;
+
   //查看是否为环境变量: 
   int i;
   for(i = 0; i < strlen(file_name); i++){
@@ -39,6 +43,7 @@ static void sh_handle_cmd(const char *cmd) {
       return;
     }
   }
+
   //运行程序
   if(strncmp(file_name, "./", 2) == 0){
     setenv("PATH", "/bin:/user/bin", 0);
@@ -54,23 +59,34 @@ static void sh_handle_cmd(const char *cmd) {
     printf("%s %s\n", file_name, file_name+1);
     execvp(file_name+1, NULL);
   }
+  printf("aaa4: %s\n", file_name);
 }
 
 void builtin_sh_run() {
   sh_banner();
   sh_prompt();
-
+  FILE* fp = fopen("/dev/events", "r");
+  int fd = fileno(fp);
+  char buf[128];
   while (1) {
-    SDL_Event ev;
-    if (SDL_PollEvent(&ev)) {
-      if (ev.type == SDL_KEYUP || ev.type == SDL_KEYDOWN) {
-        const char *res = term->keypress(handle_key(&ev));
-        if (res) {
-          sh_handle_cmd(res);
-          sh_prompt();
-        }
+    int nread = read(fd, buf, 128);
+    for(int i = 0; i < nread; i++){
+      const char *res = term->keypress(buf[i]);
+      if (res) {
+        sh_handle_cmd(res);
+        sh_prompt();
       }
     }
-    refresh_terminal();
+    // SDL_Event ev;
+    // if (SDL_PollEvent(&ev)) {
+    //   if (ev.type == SDL_KEYUP || ev.type == SDL_KEYDOWN) {
+    //     const char *res = term->keypress(handle_key(&ev));
+    //     if (res) {
+    //       sh_handle_cmd(res);
+    //       sh_prompt();
+    //     }
+    //   }
+    // }
+    // refresh_terminal();
   }
 }
