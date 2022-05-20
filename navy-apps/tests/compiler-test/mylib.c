@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 int my_read(){
+  printf("receive input 10\n");
   return 10;
 }
 
