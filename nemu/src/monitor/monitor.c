@@ -16,9 +16,15 @@ static char *diff_so_file = NULL;
 // static char *img_file = "/home/piper/ics2020/nanos-lite/build/nanos-lite-riscv64-nemu.bin";
 // static char *img_file = "/home/chenlu/ysyx/program/build/loader-riscv64-mycpu.bin";
 // static char *img_file = "../../program/xv6-riscv/kernel/kernel.bin";
-static char *img_file = "../../program/riscv-pk/build/bbl.bin";
-// static char *img_file = "../../noop/bin/bbl-debian.bin";
-// static char *img_file = "../../program/bbl.bin";
+#ifdef FLASH
+static char *img_file = "../../loader/build/loader-l1-riscv64-mycpu-rv64gc.bin";
+#else
+// static char *img_file = "../../riscv-pk/build/bbl.bin";
+static char *img_file = "../am-kernels/benchmarks/coremark/build/coremark-riscv64-mycpu-rv64gc.bin";
+// static char *img_file = "../../a55/noop/bin/coremark-riscv64-kjw.bin";
+#endif
+// static char *img_file = "../noop/bin/essent-riscv64-mycpu-rv64gc.bin";
+// static char *img_file = "../../noop/bin/bbl.bin";
 // static char *img_file = NULL;
 static int batch_mode = false;
 static int difftest_port = 1234;

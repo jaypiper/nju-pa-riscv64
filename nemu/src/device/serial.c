@@ -82,9 +82,9 @@ void send_uart(uint8_t scancode, bool is_keydown){
 
 
 void init_serial() {
-  serial_base = new_space(8);
-  add_pio_map("serial", SERIAL_PORT, serial_base, 8, serial_io_handler);
-  add_mmio_map("serial", SERIAL_MMIO, serial_base, 8, serial_io_handler);
+  // serial_base = new_space(8);
+  // add_pio_map("serial", SERIAL_PORT, serial_base, 8, serial_io_handler);
+  // add_mmio_map("serial", SERIAL_MMIO, serial_base, 8, serial_io_handler);
 
   uart_base = new_space(8);
   uart_base[5] = 0x20;

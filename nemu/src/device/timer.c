@@ -44,6 +44,7 @@ static void timer_intr() {
 
 static void write_timer_cmp(uint32_t offset, int len, bool is_write){
   if(is_write){
+    // printf("pc=0x%lx 0x%lx\n", cpu.pc, *(uintptr_t*)clint_mtimecmp_port);
     nemu_clear_intr(7);
     ref_clear_mip();
   }
@@ -65,10 +66,10 @@ void timer_update(){
 }
 
 void init_timer() {
-  rtc_port_base = (void*)new_space(8);
-  add_pio_map("rtc", RTC_PORT, (void *)rtc_port_base, 8, rtc_io_handler);
-  add_mmio_map("rtc", RTC_MMIO, (void *)rtc_port_base, 8, rtc_io_handler);
-  add_alarm_handle(timer_intr);
+  // rtc_port_base = (void*)new_space(8);
+  // add_pio_map("rtc", RTC_PORT, (void *)rtc_port_base, 8, rtc_io_handler);
+  // add_mmio_map("rtc", RTC_MMIO, (void *)rtc_port_base, 8, rtc_io_handler);
+  // add_alarm_handle(timer_intr);
 
   clint_port = new_space(1);
   add_mmio_map("clint", CLINT, clint_port, 1, NULL);

@@ -98,6 +98,7 @@ static inline def_EHelper(csr_inst){
         case 0b000100000010: exec_sret(s); break;
         case 0b001100000010: exec_mret(s); break;
         case 0b000100000101: exec_wfi(s); break;
+        case 0b000000000001: break;
         default: if(s->isa.instr.r.funct7 == 0b0001001){ exec_sfence_vma(s);
                 }else{ exec_inv(s);}
       }
@@ -130,27 +131,27 @@ static inline def_EHelper(instw){
         break;
     case 4:
         switch(s->isa.instr.r.funct7){
-          EXW (1, div, 4)
+          // EXW (1, div, 4)
           default: exec_inv(s);
         }
         break;
     case 5:
         switch(s->isa.instr.r.funct7){
           EXW (0, srl, 4)
-          EXW (1, divu, 4)
+          // EXW (1, divu, 4)
           EXW (0b100000, sra, 4)
           default: exec_inv(s);
         }
         break;
     case 6:
         switch(s->isa.instr.r.funct7){
-          EXW (1, rem, 4)
+          // EXW (1, rem, 4)
           default: exec_inv(s);
         }
         break;
     case 7:
         switch(s->isa.instr.r.funct7){
-          EXW (1, remu, 4)
+          // EXW (1, remu, 4)
           default: exec_inv(s);
         }
         break;
@@ -204,7 +205,7 @@ static inline def_EHelper(inst){
     case 0: 
         switch(s->isa.instr.r.funct7){
           EX (0, add)
-          EX (1, mul)
+          // EX (1, mul)
           EX (0b100000, sub)
           default: exec_inv(s);
         }
@@ -212,7 +213,7 @@ static inline def_EHelper(inst){
     case 1:
         switch(s->isa.instr.r.funct7){
           EX (0, sll)
-          EX (1, mulh)
+          // EX (1, mulh)
           default: exec_inv(s);
         }
         break;
@@ -226,21 +227,21 @@ static inline def_EHelper(inst){
     case 3:
         switch(s->isa.instr.r.funct7){
           EX (0, sltu)
-          EX (1, mulhu)
+          // EX (1, mulhu)
           default: exec_inv(s);
         }
         break;
     case 4:
         switch(s->isa.instr.r.funct7){
           EX (0, xor)
-          EX (1, div)
+          // EX (1, div)
           default: exec_inv(s);
         }
         break;
     case 5: 
          switch(s->isa.instr.r.funct7){
           EX (0, srl)
-          EX (1, divu)
+          // EX (1, divu)
           EX (0b100000, sra)
           default: exec_inv(s);
         }
@@ -248,14 +249,14 @@ static inline def_EHelper(inst){
     case 6:
         switch(s->isa.instr.r.funct7){
           EX (0, or)
-          EX (1, rem)
+          // EX (1, rem)
           default: exec_inv(s);
         }
         break;
     case 7:
         switch(s->isa.instr.r.funct7){
           EX (0, and)
-          EX (1, remu)
+          // EX (1, remu)
           default: exec_inv(s);
         }
         break;
@@ -292,7 +293,6 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
     s->trap.pc = cpu.pc;
     return;
   }
-
   pc_buf[inst_p] = s->seq_pc;
   if(s->isa.instr.i.opcode1_0 != 0x3){ // rv64c
     inst_buf[inst_p] = s->c_inst.val;
@@ -517,6 +517,8 @@ void query_intr(DecodeExecState* s){
 
 }
 
+unsigned long _mstatus = 0;
+
 vaddr_t isa_exec_once() {
 
   DecodeExecState s;
@@ -530,10 +532,21 @@ vaddr_t isa_exec_once() {
     fetch_decode_exec(&s);
   }
 
+  // if(((_mstatus ^ cpu.csr[CSR_MSTATUS]) & 0x6000) != 0) {
+  //   printf("pc=0x%lx inst=0x%x mstatus 0x%lx -> 0x%lx\n", cpu.pc, s.isa.instr.i.opcode1_0 == 0x3 ? s.isa.instr.val : s.isa.instr.val & 0xffff, _mstatus, cpu.csr[CSR_MSTATUS]);
+  // }
+  // _mstatus = cpu.csr[CSR_MSTATUS];
   if(s.is_trap){
+    // if(s.trap.cause == 2 && s.isa.instr.val != 0xc01027f3 && s.isa.instr.val != 0xc0102573 && s.isa.instr.val != 0xc01026f3) 
+    //   printf("no %ld pc=0x%lx inst=0x%x\n", s.trap.cause, s.trap.pc, s.isa.instr.i.opcode1_0 == 0x3 ? s.isa.instr.val : s.isa.instr.val & 0xffff);
     s.is_trap = 0;
     take_trap(&s);
   }
+  // if(cpu.pc == 0xffffffff800029dcll) {
+  //   printf("pc=0x%lx inst=0x%x stvec 0x%lx a1:0x%lx\n", cpu.pc, s.isa.instr.i.opcode1_0 == 0x3 ? s.isa.instr.val : s.isa.instr.val & 0xffff, cpu.csr[CSR_STVEC], cpu.gpr[11]);
+  // }
+  // if(cpu.pc >= 0x80000000ull)
+  // printf("pc=0x%lx inst=0x%x \n", cpu.pc, s.isa.instr.i.opcode1_0 == 0x3 ? s.isa.instr.val : s.isa.instr.val & 0xffff);
   update_pc(&s);
 
   reset_zero();

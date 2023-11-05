@@ -101,6 +101,8 @@ void flash_init(paddr_t addr, word_t data, int len){
 /* Memory accessing interfaces */
 
 inline word_t paddr_read(DecodeExecState* s, paddr_t addr, int len, int type) {
+  // if(len == 4 && in_pmem(addr)) printf("load pc: %lx addr: %x len: %d inst: %lx\n", cpu.pc, addr, len, pmem_read(addr, len));
+  // if(addr >= 0x80626a27 && addr <= 0x80626a2d) printf("load pc: %lx addr: %x len: %d inst: %lx\n", cpu.pc, addr, len, pmem_read(addr, len));
   assert(type != MEM_TYPE_WRITE);
   if(type != MEM_TYPE_IFETCH  && addr & (len - 1)){
     printf("load pc: %lx addr: %x len: %d inst: %x\n", cpu.pc, addr, len, s->isa.instr.val);
@@ -115,6 +117,7 @@ inline word_t paddr_read(DecodeExecState* s, paddr_t addr, int len, int type) {
 }
 
 inline void paddr_write(DecodeExecState* s, paddr_t addr, word_t data, int len, int type) {
+  // if(addr >= 0x80626a27 && addr <= 0x80626a2d) printf("write pc: %lx addr: %x len: %d inst: %lx\n", cpu.pc, addr, len, data);
   assert(type == MEM_TYPE_WRITE);
   if(addr & (len - 1)){
     printf("store pc: %lx addr: %x len: %d data: %lx inst: %x\n", cpu.pc, addr, len, data, s->isa.instr.val);

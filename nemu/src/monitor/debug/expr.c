@@ -224,6 +224,6 @@ void expr_test(){
     }
   }
 
-  pclose(fp);
+  fclose(fp);
 
 }

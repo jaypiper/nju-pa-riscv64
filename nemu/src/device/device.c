@@ -61,15 +61,15 @@ void sdl_clear_event_queue() {
 void init_device() {
   init_serial();
   init_timer();
-  init_vga();
-  init_i8042();
-  init_audio();
+  // init_vga();
+  // init_i8042();
+  // init_audio();
 
-  add_alarm_handle(set_device_update_flag);
-  init_alarm();
-  init_plic();
-  init_virtio();
-  init_sdcard();
+  // add_alarm_handle(set_device_update_flag);
+  // init_alarm();
+  // init_plic();
+  // init_virtio();
+  // init_sdcard();
 }
 #else
 
