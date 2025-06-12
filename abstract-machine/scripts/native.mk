@@ -10,7 +10,7 @@ AM_SRCS := native/trm.c \
            native/native-gpu.c \
            native/native-audio.c \
 
-CFLAGS  += -fpie
+CFLAGS  += -fpie -ggdb
 ASFLAGS += -fpie -pie
 
 image:

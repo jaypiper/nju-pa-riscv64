@@ -1,7 +1,7 @@
 RV_ARCH       = rv64gc
 CROSS_COMPILE := riscv64-linux-gnu-
-COMMON_FLAGS  := -fno-pic -march=$(RV_ARCH) -mcmodel=medany
-CFLAGS        += $(COMMON_FLAGS) -static
+COMMON_FLAGS  := -fno-pic -march=$(RV_ARCH) -mabi=lp64 -mcmodel=medany
+CFLAGS        += $(COMMON_FLAGS) -static -Wno-sign-compare -Wno-maybe-uninitialized
 ASFLAGS       += $(COMMON_FLAGS) -O0
 LDFLAGS       += -melf64lriscv
 
@@ -20,9 +20,11 @@ AM_SRCS := mycpu/start.S \
 
 CFLAGS    += -fdata-sections -ffunction-sections
 CFLAGS += -I$(AM_HOME)/am/src/mycpu/include
-LDFLAGS   += -T $(AM_HOME)/scripts/platform/mycpu.ld --defsym=_stack_pointer=0x80100000 --defsym=_pmem_start=0x80000000
+LDFLAGS   += -T $(AM_HOME)/scripts/platform/mycpu.ld --defsym=_pmem_start=0x80000000
 ifdef FLASH
     LDFLAGS += --defsym=_addr_start=0x30000000
+else ifdef LOADER
+    LDFLAGS += --defsym=_addr_start=0x81000000
 else
     LDFLAGS += --defsym=_addr_start=0x80000000
 endif
@@ -34,3 +36,6 @@ image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE)-$(RV_ARCH).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE)-$(RV_ARCH).bin
+
+run: image
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)"
